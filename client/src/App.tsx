@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Container, Nav, Navbar, Button, Row, Col, Card, Table, Badge, Tabs, Tab } from "react-bootstrap";
+import { Container, Row, Col, Nav, Navbar, Form, FormControl, Button, Table, Badge, Dropdown, Card, Tabs, Tab } from "react-bootstrap";
 import { Route, Switch } from "wouter";
+import { Bell, Search, Grid, List, Map as MapIcon, FileText, Settings, LogOut, User, ChevronDown, Filter, Download, Plus } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 
@@ -11,6 +12,9 @@ const shipments = [
   { id: "PO-2847-CN", label: "Zippers", supplier: "Hangzhou Fasteners", container: "OOLU6291847", carrier: "OOCL", status: "In transit", pol: "Yantian", pod: "Oakland", eta: "Mon, 06 Jan" },
   { id: "PO-2756-IN", label: "Jersey", supplier: "Mumbai Fabrics", container: "TEMU9384756", carrier: "Maersk", status: "Arrived", pol: "Nhava Sheva", pod: "Felixstowe", eta: "Sat, 16 Nov" },
   { id: "PO-2895-TW", label: "Thread", supplier: "Taipei Threads", container: "TCLU4829103", carrier: "Evergreen", status: "Customs Hold", pol: "Kaohsiung", pod: "Los Angeles", eta: "Wed, 20 Nov" },
+  { id: "PO-2902-MY", label: "Organic", supplier: "Kuala Lumpur Knits", container: "CMACGM19283", carrier: "CMA CGM", status: "In transit", pol: "Port Klang", pod: "Seattle", eta: "Fri, 14 Feb" },
+  { id: "PO-2910-VN", label: "Silk", supplier: "Vietnam Silk Co", container: "ONEU9182736", carrier: "ONE", status: "Vessel Departed", pol: "Ho Chi Minh", pod: "Vancouver", eta: "Mon, 24 Feb" },
+  { id: "PO-2915-CN", label: "Buttons", supplier: "Shanghai Accessories", container: "COSU8172635", carrier: "COSCO", status: "Gated in full", pol: "Shanghai", pod: "Long Beach", eta: "Wed, 05 Mar" },
 ];
 
 const getStatusBadge = (status: string) => {
@@ -20,210 +24,190 @@ const getStatusBadge = (status: string) => {
     case "In transit": return "primary";
     case "Arrived": return "success";
     case "Customs Hold": return "danger";
+    case "Vessel Departed": return "info";
     default: return "secondary";
   }
 };
 
-function Navigation() {
+function Sidebar() {
   return (
-    <Navbar bg="white" expand="lg" className="border-bottom py-3 sticky-top">
-      <Container>
-        <Navbar.Brand href="/" className="fw-bold fs-3 text-dark d-flex align-items-center">
+    <div className="d-flex flex-col h-100 bg-white border-end" style={{ width: "240px", minWidth: "240px" }}>
+      <div className="p-4 border-bottom">
+        <div className="d-flex align-items-center fw-bold fs-4 text-dark">
           <span className="text-primary me-2">●</span> Beacon
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto ms-4">
-            <Nav.Link href="#products" className="fw-medium text-dark mx-2">Products</Nav.Link>
-            <Nav.Link href="#solutions" className="fw-medium text-dark mx-2">Solutions</Nav.Link>
-            <Nav.Link href="#pricing" className="fw-medium text-dark mx-2">Pricing</Nav.Link>
-            <Nav.Link href="#resources" className="fw-medium text-dark mx-2">Resources</Nav.Link>
-          </Nav>
-          <Nav className="align-items-center">
-            <Nav.Link href="#login" className="fw-medium text-dark mx-2">Login</Nav.Link>
-            <Button variant="outline-dark" className="mx-2 fw-medium px-4 rounded-pill">Talk to Us</Button>
-            <Button variant="primary" className="mx-2 fw-bold px-4 rounded-pill text-white">Start Free Trial</Button>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
+        </div>
+      </div>
+      
+      <div className="flex-grow-1 py-3">
+        <div className="px-3 mb-2 text-uppercase small fw-bold text-muted" style={{ fontSize: "0.7rem", letterSpacing: "1px" }}>Workspace</div>
+        <Nav className="flex-column mb-4">
+          <Nav.Link href="#" className="text-dark px-4 py-2 bg-light fw-medium border-start border-3 border-primary">
+            <Grid size={18} className="me-3 text-primary" />
+            Dashboard
+          </Nav.Link>
+          <Nav.Link href="#" className="text-secondary px-4 py-2 fw-medium">
+            <List size={18} className="me-3" />
+            Shipments
+          </Nav.Link>
+          <Nav.Link href="#" className="text-secondary px-4 py-2 fw-medium">
+            <FileText size={18} className="me-3" />
+            Orders
+          </Nav.Link>
+          <Nav.Link href="#" className="text-secondary px-4 py-2 fw-medium">
+            <MapIcon size={18} className="me-3" />
+            Live Map
+          </Nav.Link>
+        </Nav>
+
+        <div className="px-3 mb-2 text-uppercase small fw-bold text-muted" style={{ fontSize: "0.7rem", letterSpacing: "1px" }}>Management</div>
+        <Nav className="flex-column">
+          <Nav.Link href="#" className="text-secondary px-4 py-2 fw-medium">
+            <User size={18} className="me-3" />
+            Team
+          </Nav.Link>
+          <Nav.Link href="#" className="text-secondary px-4 py-2 fw-medium">
+            <Settings size={18} className="me-3" />
+            Settings
+          </Nav.Link>
+        </Nav>
+      </div>
+
+      <div className="p-3 border-top">
+        <div className="d-flex align-items-center p-2 rounded hover-bg-light cursor-pointer">
+          <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: "32px", height: "32px", fontSize: "14px" }}>
+            JD
+          </div>
+          <div className="flex-grow-1 overflow-hidden">
+            <div className="fw-bold text-truncate small">John Doe</div>
+            <div className="text-muted text-truncate small" style={{ fontSize: "11px" }}>Logistics Manager</div>
+          </div>
+          <LogOut size={16} className="text-muted ms-2" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Topbar() {
+  return (
+    <Navbar bg="white" className="border-bottom py-2 px-4 sticky-top">
+      <div className="d-flex align-items-center w-100">
+        <h4 className="mb-0 fw-bold me-4">Shipments</h4>
+        
+        <div className="position-relative flex-grow-1" style={{ maxWidth: "400px" }}>
+          <Search size={16} className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" />
+          <FormControl 
+            type="text" 
+            placeholder="Search PO, Container, or Supplier..." 
+            className="ps-5 bg-light border-0"
+            style={{ fontSize: "0.9rem" }}
+          />
+        </div>
+
+        <div className="ms-auto d-flex align-items-center gap-3">
+          <Button variant="light" className="position-relative p-2 rounded-circle text-secondary">
+            <Bell size={20} />
+            <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+              <span className="visually-hidden">New alerts</span>
+            </span>
+          </Button>
+          <Button variant="primary" className="d-flex align-items-center gap-2 fw-medium px-3">
+            <Plus size={16} />
+            <span>New Shipment</span>
+          </Button>
+        </div>
+      </div>
     </Navbar>
   );
 }
 
-function Hero() {
+function Dashboard() {
   return (
-    <section className="py-5 bg-light position-relative overflow-hidden">
-      <Container className="py-5 text-center position-relative" style={{ zIndex: 1 }}>
-        <p className="text-uppercase text-muted fw-bold letter-spacing-2 mb-3">Your AI Supply Chain Workspace</p>
-        <h1 className="display-3 fw-bold mb-4 text-dark" style={{ letterSpacing: "-0.02em" }}>
-          Imagine if your <span className="text-primary">supply chain</span><br />
-          spreadsheet could update itself
-        </h1>
-        <p className="lead text-muted mb-5 mx-auto" style={{ maxWidth: "800px" }}>
-          Buyers, Consignees and Freight Forwarders - Manage your ocean and air shipments in the format you love without manual data entry, outdated information and endless email chains.
-        </p>
-        <div className="mb-5">
-          <p className="fw-bold text-dark mb-3">Track unlimited shipments for 30 days, no credit card required</p>
-          <Button variant="primary" size="lg" className="px-5 py-3 rounded-pill fw-bold text-white shadow-sm">
-            Start Your Free Trial
+    <div className="p-4 h-100 bg-light overflow-auto">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="d-flex gap-2">
+          <Button variant="white" className="border d-flex align-items-center gap-2 text-secondary bg-white">
+            <Filter size={16} /> Filter
+          </Button>
+          <Button variant="white" className="border d-flex align-items-center gap-2 text-secondary bg-white">
+            <Download size={16} /> Export
           </Button>
         </div>
-      </Container>
-    </section>
-  );
-}
-
-function DashboardPreview() {
-  return (
-    <section className="py-5 bg-white">
-      <Container>
-        <Card className="border-0 shadow-lg rounded-4 overflow-hidden">
-          <Card.Header className="bg-white border-bottom p-0">
-            <Tabs defaultActiveKey="table" id="dashboard-tabs" className="border-0 px-4 pt-3">
-              <Tab eventKey="table" title="Table" className="pb-3" />
-              <Tab eventKey="documents" title="Documents" disabled />
-              <Tab eventKey="alerts" title="Alerts" disabled />
-              <Tab eventKey="live-boards" title="Live Boards" disabled />
-              <Tab eventKey="maps" title="Maps" disabled />
-            </Tabs>
-          </Card.Header>
-          <Card.Body className="p-0">
-            <div className="table-responsive">
-              <Table hover className="mb-0 align-middle" style={{ minWidth: "1000px" }}>
-                <thead className="bg-light text-muted text-uppercase small fw-bold">
-                  <tr>
-                    <th className="py-3 ps-4">Order No.</th>
-                    <th className="py-3">Labels</th>
-                    <th className="py-3">Supplier</th>
-                    <th className="py-3">Container</th>
-                    <th className="py-3">Carrier</th>
-                    <th className="py-3">Status</th>
-                    <th className="py-3">POL</th>
-                    <th className="py-3">POD</th>
-                    <th className="py-3 pe-4">ETA</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shipments.map((shipment, idx) => (
-                    <tr key={idx} className="border-bottom">
-                      <td className="py-3 ps-4 fw-medium text-dark">{shipment.id}</td>
-                      <td className="py-3"><Badge bg="light" text="dark" className="border fw-normal">{shipment.label}</Badge></td>
-                      <td className="py-3 text-muted">{shipment.supplier}</td>
-                      <td className="py-3 font-monospace small">{shipment.container}</td>
-                      <td className="py-3">{shipment.carrier}</td>
-                      <td className="py-3"><Badge bg={getStatusBadge(shipment.status)} className="rounded-pill fw-normal px-3">{shipment.status}</Badge></td>
-                      <td className="py-3 text-muted">{shipment.pol}</td>
-                      <td className="py-3 text-muted">{shipment.pod}</td>
-                      <td className="py-3 pe-4 fw-medium">{shipment.eta}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </Card.Body>
-          <Card.Footer className="bg-light border-top p-3 text-center text-muted small">
-            Showing 5 of 124 active shipments
-          </Card.Footer>
-        </Card>
-      </Container>
-    </section>
-  );
-}
-
-function Features() {
-  const features = [
-    { title: "One Table", desc: "All your shipments and orders in a single view that everyone sees simultaneously." },
-    { title: "Automatic Updates", desc: "Data flows in from multiple sources in real-time. Container ETAs, carrier information, and status changes." },
-    { title: "Your Familiar Format", desc: "Keep your custom columns and fields in your familiar spreadsheet format." },
-  ];
-
-  return (
-    <section className="py-5 bg-light">
-      <Container className="py-5">
-        <Row className="g-4">
-          {features.map((feature, idx) => (
-            <Col md={4} key={idx}>
-              <Card className="h-100 border-0 bg-transparent">
-                <Card.Body>
-                  <h3 className="h4 fw-bold mb-3">{feature.title}</h3>
-                  <p className="text-muted">{feature.desc}</p>
-                  <a href="#" className="text-primary fw-bold text-decoration-none">Learn more →</a>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </Container>
-    </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="bg-dark text-white py-5">
-      <Container>
-        <Row className="g-4">
-          <Col md={4}>
-            <h4 className="fw-bold mb-4 d-flex align-items-center">
-              <span className="text-primary me-2">●</span> Beacon
-            </h4>
-            <p className="text-white-50">
-              The supply chain visibility platform that helps you take control of your freight.
-            </p>
-          </Col>
-          <Col md={2}>
-            <h6 className="fw-bold mb-3 text-uppercase small letter-spacing-2">Product</h6>
-            <ul className="list-unstyled text-white-50">
-              <li className="mb-2"><a href="#" className="text-reset text-decoration-none">Features</a></li>
-              <li className="mb-2"><a href="#" className="text-reset text-decoration-none">Pricing</a></li>
-              <li className="mb-2"><a href="#" className="text-reset text-decoration-none">Integrations</a></li>
-            </ul>
-          </Col>
-          <Col md={2}>
-            <h6 className="fw-bold mb-3 text-uppercase small letter-spacing-2">Company</h6>
-            <ul className="list-unstyled text-white-50">
-              <li className="mb-2"><a href="#" className="text-reset text-decoration-none">About Us</a></li>
-              <li className="mb-2"><a href="#" className="text-reset text-decoration-none">Careers</a></li>
-              <li className="mb-2"><a href="#" className="text-reset text-decoration-none">Contact</a></li>
-            </ul>
-          </Col>
-          <Col md={4}>
-            <h6 className="fw-bold mb-3 text-uppercase small letter-spacing-2">Subscribe</h6>
-            <p className="text-white-50 mb-3">Get the latest supply chain insights.</p>
-            <div className="d-flex">
-              <input type="email" className="form-control me-2" placeholder="Email address" />
-              <Button variant="primary">Join</Button>
-            </div>
-          </Col>
-        </Row>
-        <div className="border-top border-secondary mt-5 pt-4 text-center text-white-50 small">
-          © 2026 Beacon Platform Inc. All rights reserved.
+        <div className="text-muted small">
+          Last updated: <span className="fw-bold text-dark">Just now</span>
         </div>
-      </Container>
-    </footer>
-  );
-}
+      </div>
 
-function Home() {
-  return (
-    <div className="bg-light min-vh-100 d-flex flex-col">
-      <Navigation />
-      <main className="flex-grow-1">
-        <Hero />
-        <DashboardPreview />
-        <Features />
-      </main>
-      <Footer />
+      <Card className="border-0 shadow-sm rounded-3 overflow-hidden">
+        <Card.Header className="bg-white border-bottom p-0">
+          <Tabs defaultActiveKey="all" id="shipment-tabs" className="border-0 px-4 pt-3">
+            <Tab eventKey="all" title="All Shipments" className="pb-3" />
+            <Tab eventKey="active" title="Active (12)" />
+            <Tab eventKey="attention" title="Needs Attention (3)" />
+            <Tab eventKey="completed" title="Completed" />
+          </Tabs>
+        </Card.Header>
+        <Card.Body className="p-0">
+          <div className="table-responsive">
+            <Table hover className="mb-0 align-middle" style={{ minWidth: "1000px" }}>
+              <thead className="bg-light text-muted text-uppercase small fw-bold">
+                <tr>
+                  <th className="py-3 ps-4" style={{ width: "40px" }}>
+                    <Form.Check />
+                  </th>
+                  <th className="py-3">Order No.</th>
+                  <th className="py-3">Labels</th>
+                  <th className="py-3">Supplier</th>
+                  <th className="py-3">Container</th>
+                  <th className="py-3">Carrier</th>
+                  <th className="py-3">Status</th>
+                  <th className="py-3">POL</th>
+                  <th className="py-3">POD</th>
+                  <th className="py-3 pe-4">ETA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shipments.map((shipment, idx) => (
+                  <tr key={idx} className="border-bottom bg-white">
+                    <td className="py-3 ps-4">
+                      <Form.Check />
+                    </td>
+                    <td className="py-3 fw-medium text-primary cursor-pointer">{shipment.id}</td>
+                    <td className="py-3"><Badge bg="light" text="dark" className="border fw-normal">{shipment.label}</Badge></td>
+                    <td className="py-3 text-dark">{shipment.supplier}</td>
+                    <td className="py-3 font-monospace small text-muted">{shipment.container}</td>
+                    <td className="py-3">{shipment.carrier}</td>
+                    <td className="py-3"><Badge bg={getStatusBadge(shipment.status)} className="rounded-pill fw-normal px-3">{shipment.status}</Badge></td>
+                    <td className="py-3 text-muted">{shipment.pol}</td>
+                    <td className="py-3 text-muted">{shipment.pod}</td>
+                    <td className="py-3 pe-4 fw-medium">{shipment.eta}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </Card.Body>
+        <Card.Footer className="bg-white border-top p-3 d-flex justify-content-between align-items-center">
+          <div className="text-muted small">Showing 1-8 of 124 shipments</div>
+          <div className="d-flex gap-2">
+            <Button variant="outline-secondary" size="sm" disabled>Previous</Button>
+            <Button variant="outline-secondary" size="sm">Next</Button>
+          </div>
+        </Card.Footer>
+      </Card>
     </div>
   );
 }
 
 function App() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route>404: No such page!</Route>
-    </Switch>
+    <div className="d-flex h-100vh w-100 overflow-hidden bg-light">
+      <Sidebar />
+      <div className="d-flex flex-column flex-grow-1 h-100 overflow-hidden">
+        <Topbar />
+        <Dashboard />
+      </div>
+    </div>
   );
 }
 

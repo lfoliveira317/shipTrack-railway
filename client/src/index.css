@@ -15,6 +15,8 @@ body {
   font-family: var(--bs-body-font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  overflow: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -22,59 +24,93 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-.display-3 {
-  font-weight: 800;
-  letter-spacing: -0.03em;
+/* Layout Utilities */
+.h-100vh {
+  height: 100vh;
 }
 
-.letter-spacing-2 {
-  letter-spacing: 2px;
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Sidebar Styling */
+.nav-link {
+  color: #6c757d;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  color: #1a1a1a;
+  background-color: #f8f9fa;
+}
+
+.nav-link.active {
+  color: #1a1a1a;
+  background-color: #fff3e0;
+  border-left-color: var(--bs-primary);
+}
+
+/* Table Styling */
+.table thead th {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  border-bottom-width: 1px;
+  background-color: #f8f9fa;
+  border-top: none;
+}
+
+.table td {
+  vertical-align: middle;
+  font-size: 0.875rem;
+  border-bottom-color: #f0f0f0;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #fafafa;
+}
+
+/* Tabs Styling */
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 500;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--bs-primary);
+  border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--bs-primary);
+  border-bottom-color: var(--bs-primary);
+  background: transparent;
 }
 
 /* Button Styling */
 .btn-primary {
   background-color: var(--bs-primary);
   border-color: var(--bs-primary);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(255, 87, 34, 0.2);
 }
 
 .btn-primary:hover {
   background-color: #e64a19;
   border-color: #e64a19;
-  transform: translateY(-1px);
 }
 
-.btn-outline-dark:hover {
-  background-color: #1a1a1a;
-  color: white;
+.btn-white {
+  background-color: white;
+  border-color: #dee2e6;
 }
 
-/* Card & Table Styling */
-.card {
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-}
-
-.table thead th {
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  color: #6c757d;
-  border-bottom-width: 1px;
-}
-
-.table td {
-  vertical-align: middle;
-  font-size: 0.9rem;
-}
-
-/* Nav Styling */
-.nav-link {
-  font-size: 0.95rem;
-  transition: color 0.2s ease;
-}
-
-.nav-link:hover {
-  color: var(--bs-primary) !important;
+.btn-white:hover {
+  background-color: #f8f9fa;
+  border-color: #ced4da;
 }
 
 /* Badge Styling */
@@ -83,11 +119,21 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.02em;
 }
 
-/* Custom Utilities */
-.bg-light {
-  background-color: #f8f9fa !important;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.text-primary {
-  color: var(--bs-primary) !important;
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
 }
