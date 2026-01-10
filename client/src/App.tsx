@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Container, Row, Col, Nav, Navbar, Form, FormControl, Button, Table, Badge, Dropdown, Card, Tabs, Tab } from "react-bootstrap";
+import { Container, Row, Col, Nav, Navbar, Form, FormControl, Button, Table, Badge, Dropdown, Card, Tabs, Tab, Offcanvas } from "react-bootstrap";
 import { Route, Switch } from "wouter";
-import { Bell, Search, Grid, List, Map as MapIcon, FileText, Settings, LogOut, User, ChevronDown, Filter, Download, Plus } from "lucide-react";
+import { Bell, Search, Grid, List, Map as MapIcon, FileText, Settings, LogOut, User, ChevronDown, Filter, Download, Plus, Menu } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 
@@ -29,10 +29,10 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-function Sidebar() {
+function SidebarContent() {
   return (
-    <div className="d-flex flex-col h-100 bg-white border-end" style={{ width: "240px", minWidth: "240px" }}>
-      <div className="p-4 border-bottom">
+    <div className="d-flex flex-col h-100 bg-white">
+      <div className="p-4 border-bottom d-none d-lg-block">
         <div className="d-flex align-items-center fw-bold fs-4 text-dark">
           <span className="text-primary me-2">●</span> Beacon
         </div>
@@ -72,7 +72,7 @@ function Sidebar() {
         </Nav>
       </div>
 
-      <div className="p-3 border-top">
+      <div className="p-3 border-top mt-auto">
         <div className="d-flex align-items-center p-2 rounded hover-bg-light cursor-pointer">
           <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: "32px", height: "32px", fontSize: "14px" }}>
             JD
@@ -88,13 +88,18 @@ function Sidebar() {
   );
 }
 
-function Topbar() {
+function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   return (
-    <Navbar bg="white" className="border-bottom py-2 px-4 sticky-top">
+    <Navbar bg="white" className="border-bottom py-2 px-3 px-lg-4 sticky-top">
       <div className="d-flex align-items-center w-100">
-        <h4 className="mb-0 fw-bold me-4">Shipments</h4>
+        <Button variant="link" className="p-0 me-3 text-dark d-lg-none" onClick={onToggleSidebar}>
+          <Menu size={24} />
+        </Button>
         
-        <div className="position-relative flex-grow-1" style={{ maxWidth: "400px" }}>
+        <h4 className="mb-0 fw-bold me-4 d-none d-md-block">Shipments</h4>
+        <h4 className="mb-0 fw-bold me-4 d-md-none fs-5">Shipments</h4>
+        
+        <div className="position-relative flex-grow-1 d-none d-md-block" style={{ maxWidth: "400px" }}>
           <Search size={16} className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" />
           <FormControl 
             type="text" 
@@ -104,16 +109,22 @@ function Topbar() {
           />
         </div>
 
-        <div className="ms-auto d-flex align-items-center gap-3">
+        <div className="ms-auto d-flex align-items-center gap-2 gap-md-3">
+          <Button variant="light" className="d-md-none p-2 rounded-circle text-secondary">
+            <Search size={20} />
+          </Button>
           <Button variant="light" className="position-relative p-2 rounded-circle text-secondary">
             <Bell size={20} />
             <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
               <span className="visually-hidden">New alerts</span>
             </span>
           </Button>
-          <Button variant="primary" className="d-flex align-items-center gap-2 fw-medium px-3">
+          <Button variant="primary" className="d-flex align-items-center gap-2 fw-medium px-3 d-none d-sm-flex">
             <Plus size={16} />
             <span>New Shipment</span>
+          </Button>
+          <Button variant="primary" className="d-flex align-items-center justify-content-center p-2 rounded-circle d-sm-none">
+            <Plus size={20} />
           </Button>
         </div>
       </div>
@@ -123,24 +134,24 @@ function Topbar() {
 
 function Dashboard() {
   return (
-    <div className="p-4 h-100 bg-light overflow-auto">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div className="d-flex gap-2">
-          <Button variant="white" className="border d-flex align-items-center gap-2 text-secondary bg-white">
+    <div className="p-3 p-lg-4 h-100 bg-light overflow-auto">
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
+        <div className="d-flex gap-2 w-100 w-sm-auto">
+          <Button variant="white" className="border d-flex align-items-center gap-2 text-secondary bg-white flex-grow-1 flex-sm-grow-0 justify-content-center">
             <Filter size={16} /> Filter
           </Button>
-          <Button variant="white" className="border d-flex align-items-center gap-2 text-secondary bg-white">
+          <Button variant="white" className="border d-flex align-items-center gap-2 text-secondary bg-white flex-grow-1 flex-sm-grow-0 justify-content-center">
             <Download size={16} /> Export
           </Button>
         </div>
-        <div className="text-muted small">
+        <div className="text-muted small ms-auto ms-sm-0">
           Last updated: <span className="fw-bold text-dark">Just now</span>
         </div>
       </div>
 
       <Card className="border-0 shadow-sm rounded-3 overflow-hidden">
         <Card.Header className="bg-white border-bottom p-0">
-          <Tabs defaultActiveKey="all" id="shipment-tabs" className="border-0 px-4 pt-3">
+          <Tabs defaultActiveKey="all" id="shipment-tabs" className="border-0 px-3 px-lg-4 pt-3 flex-nowrap overflow-auto no-scrollbar">
             <Tab eventKey="all" title="All Shipments" className="pb-3" />
             <Tab eventKey="active" title="Active (12)" />
             <Tab eventKey="attention" title="Needs Attention (3)" />
@@ -187,11 +198,11 @@ function Dashboard() {
             </Table>
           </div>
         </Card.Body>
-        <Card.Footer className="bg-white border-top p-3 d-flex justify-content-between align-items-center">
+        <Card.Footer className="bg-white border-top p-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
           <div className="text-muted small">Showing 1-8 of 124 shipments</div>
-          <div className="d-flex gap-2">
-            <Button variant="outline-secondary" size="sm" disabled>Previous</Button>
-            <Button variant="outline-secondary" size="sm">Next</Button>
+          <div className="d-flex gap-2 w-100 w-sm-auto">
+            <Button variant="outline-secondary" size="sm" disabled className="flex-grow-1 flex-sm-grow-0">Previous</Button>
+            <Button variant="outline-secondary" size="sm" className="flex-grow-1 flex-sm-grow-0">Next</Button>
           </div>
         </Card.Footer>
       </Card>
@@ -200,11 +211,32 @@ function Dashboard() {
 }
 
 function App() {
+  const [showSidebar, setShowSidebar] = useState(false);
+
+  const handleClose = () => setShowSidebar(false);
+  const handleShow = () => setShowSidebar(true);
+
   return (
     <div className="d-flex h-100vh w-100 overflow-hidden bg-light">
-      <Sidebar />
+      {/* Desktop Sidebar */}
+      <div className="d-none d-lg-block border-end" style={{ width: "240px", minWidth: "240px" }}>
+        <SidebarContent />
+      </div>
+
+      {/* Mobile Sidebar (Offcanvas) */}
+      <Offcanvas show={showSidebar} onHide={handleClose} responsive="lg">
+        <Offcanvas.Header closeButton className="border-bottom">
+          <Offcanvas.Title className="fw-bold fs-4 text-dark">
+            <span className="text-primary me-2">●</span> Beacon
+          </Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body className="p-0">
+          <SidebarContent />
+        </Offcanvas.Body>
+      </Offcanvas>
+
       <div className="d-flex flex-column flex-grow-1 h-100 overflow-hidden">
-        <Topbar />
+        <Topbar onToggleSidebar={handleShow} />
         <Dashboard />
       </div>
     </div>
