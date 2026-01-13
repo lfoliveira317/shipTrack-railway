@@ -149,6 +149,56 @@
       "uploadedBy": "Test User",
       "uploadedAt": "2026-01-13T03:22:22.333Z",
       "fileUrl": "/uploads/count-test.pdf"
+    },
+    {
+      "id": "16",
+      "shipmentId": "PO-0001-TE",
+      "fileName": "IMG_3382.jpeg",
+      "fileSize": 84319,
+      "fileType": "image/jpeg",
+      "uploadedBy": "Admin User",
+      "uploadedAt": "2026-01-13T04:01:56.689Z",
+      "fileUrl": "/uploads/IMG_3382.jpeg"
+    },
+    {
+      "id": "17",
+      "shipmentId": "PO-0002-SU",
+      "fileName": "IMG_3380.jpeg",
+      "fileSize": 342177,
+      "fileType": "image/jpeg",
+      "uploadedBy": "Admin User",
+      "uploadedAt": "2026-01-13T04:04:22.376Z",
+      "fileUrl": "/uploads/IMG_3380.jpeg"
+    },
+    {
+      "id": "18",
+      "shipmentId": "test-shipment-1",
+      "fileName": "test-document.pdf",
+      "fileSize": 1024,
+      "fileType": "application/pdf",
+      "uploadedBy": "Test User",
+      "uploadedAt": "2026-01-13T04:16:21.341Z",
+      "fileUrl": "/uploads/test-document.pdf"
+    },
+    {
+      "id": "19",
+      "shipmentId": "test-shipment-2",
+      "fileName": "invoice.pdf",
+      "fileSize": 2048,
+      "fileType": "application/pdf",
+      "uploadedBy": "Admin User",
+      "uploadedAt": "2026-01-13T04:16:21.343Z",
+      "fileUrl": "/uploads/invoice.pdf"
+    },
+    {
+      "id": "20",
+      "shipmentId": "count-test-shipment",
+      "fileName": "count-test.pdf",
+      "fileSize": 100,
+      "fileType": "application/pdf",
+      "uploadedBy": "Test User",
+      "uploadedAt": "2026-01-13T04:16:21.349Z",
+      "fileUrl": "/uploads/count-test.pdf"
     }
   ]
 }

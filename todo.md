@@ -172,3 +172,12 @@
 - [x] Include fields: URL, Port, Token, User, Password
 - [x] Save configuration to separate JSON file
 - [x] Write unit tests for configuration endpoints (6 tests passing)
+
+## Attachment Visualization (Completed)
+- [x] Add preview/view option for attachments
+- [x] Support image preview (jpg, png, gif, etc.)
+- [x] Support PDF preview placeholder
+- [x] Add download button for all files
+- [x] Add eye icon to view/preview attachments
+- [x] Display file metadata in preview (size, type, uploader, date)
+- [x] Full-screen preview modal for better viewing experience
