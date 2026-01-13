@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { addShipment, getAllShipments, shipmentSchema } from "./shipments";
+import { addShipment, addBulkShipments, getAllShipments, shipmentSchema } from "./shipments";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -27,6 +27,11 @@ export const appRouter = router({
       .input(shipmentSchema.omit({ id: true }))
       .mutation(async ({ input }) => {
         return await addShipment(input);
+      }),
+    addBulk: publicProcedure
+      .input(z.array(shipmentSchema.omit({ id: true })))
+      .mutation(async ({ input }) => {
+        return await addBulkShipments(input);
       }),
   }),
 });
