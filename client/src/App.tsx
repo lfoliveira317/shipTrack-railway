@@ -493,8 +493,8 @@ function App() {
           <div className="flex-grow-1 overflow-auto p-2 p-md-3">
             <div className="card shadow-sm border-0">
               <div className="card-body p-0">
-                <div className="table-responsive" style={{ overflowX: 'auto' }}>
-                  <Table bordered hover className="mb-0" style={{ minWidth: '1200px' }}>
+                <div className="table-responsive">
+                  <Table bordered hover className="mb-0">
                 <thead className="table-light">
                   <tr>
                     <th style={{ width: "40px" }}>#</th>

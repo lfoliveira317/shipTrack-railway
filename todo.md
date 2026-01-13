@@ -75,3 +75,12 @@
 - [x] Add gray for cancelled/on-hold status
 - [x] Create status color mapping function
 - [x] Apply Bootstrap variant colors (success, primary, warning, danger, secondary, info)
+
+## Grid Scrolling Enhancement (Completed)
+- [x] Improve horizontal scrolling behavior
+- [x] Add smooth scroll for better UX
+- [x] Ensure table is fully scrollable on mobile
+- [x] Add visual scroll indicators (custom scrollbar)
+- [x] Optimize scroll performance with -webkit-overflow-scrolling
+- [x] Remove conflicting inline styles
+- [x] Add custom scrollbar styling for better visibility

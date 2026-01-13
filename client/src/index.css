@@ -240,3 +240,48 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
   transition: box-shadow 0.3s ease;
 }
+
+/* Enhanced Grid Scrolling */
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  max-width: 100%;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Ensure table maintains minimum width for scrolling */
+.table {
+  min-width: 1200px;
+  margin-bottom: 0;
+}
+
+/* Mobile scroll improvements */
+@media (max-width: 768px) {
+  .table-responsive {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  .table {
+    min-width: 1400px;
+  }
+}
