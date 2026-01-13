@@ -225,3 +225,18 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0.6rem 0.4rem;
   }
 }
+
+/* Bootstrap Card Enhancements */
+.card {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  transition: box-shadow 0.3s ease;
+}
