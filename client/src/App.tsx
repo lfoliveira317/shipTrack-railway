@@ -35,6 +35,8 @@ import { AddShipmentModal } from "./components/AddShipmentModal";
 import { CommentsModal } from "./components/CommentsModal";
 import AttachmentsModal from "./components/AttachmentsModal";
 import { ApiConfigModal } from "./components/ApiConfigModal";
+import UserManagementModal from "./components/UserManagementModal";
+import { Users, Shield, Eye } from "lucide-react";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -103,6 +105,7 @@ function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showApiConfig, setShowApiConfig] = useState(false);
+  const [showUserManagement, setShowUserManagement] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -114,6 +117,12 @@ function App() {
   const { data: shipments = [], refetch } = trpc.shipments.list.useQuery();
   const { data: commentCounts = {} } = trpc.comments.counts.useQuery();
   const { data: attachmentCounts = {} } = trpc.attachments.counts.useQuery();
+  const { data: currentUser } = trpc.users.me.useQuery();
+  
+  // Role-based access control helpers
+  const isAdmin = currentUser?.role === 'admin';
+  const isViewer = currentUser?.role === 'viewer';
+  const canModify = !isViewer; // Users and admins can modify
 
   const handleSidebarToggle = () => setShowSidebar(!showSidebar);
   const handleAddModalClose = () => {
@@ -303,11 +312,13 @@ function App() {
                   A
                 </div>
                 <div className="d-none d-md-block text-start">
-                  <div className="fw-semibold" style={{ fontSize: "0.9rem" }}>
-                    Admin User
+                  <div className="fw-semibold d-flex align-items-center gap-2" style={{ fontSize: "0.9rem" }}>
+                    {currentUser?.name || 'Admin User'}
+                    {currentUser?.role === 'admin' && <Badge bg="danger" style={{ fontSize: '0.6rem' }}><Shield size={10} /> Admin</Badge>}
+                    {currentUser?.role === 'viewer' && <Badge bg="secondary" style={{ fontSize: '0.6rem' }}><Eye size={10} /> Viewer</Badge>}
                   </div>
                   <div className="text-muted" style={{ fontSize: "0.75rem" }}>
-                    Logistics Manager
+                    {currentUser?.email || 'Logistics Manager'}
                   </div>
                 </div>
               </div>
@@ -319,6 +330,12 @@ function App() {
                 <Settings size={16} className="me-2" />
                 API Configuration
               </Dropdown.Item>
+              {isAdmin && (
+                <Dropdown.Item onClick={() => setShowUserManagement(true)}>
+                  <Users size={16} className="me-2" />
+                  User Management
+                </Dropdown.Item>
+              )}
               <Dropdown.Divider />
               <Dropdown.Item href="#">Logout</Dropdown.Item>
             </Dropdown.Menu>
@@ -577,10 +594,12 @@ function App() {
                   <Mail size={16} className="me-1" />
                   Email alert
                 </Button>
+{canModify && (
                 <Button size="sm" onClick={handleAddModalShow} style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}>
                   <Plus size={16} className="me-1" />
                   Add
                 </Button>
+                )}
               </div>
             </div>
           </div>
@@ -702,6 +721,7 @@ function App() {
                                     </Badge>
                                   )}
                                 </Button>
+{canModify && (
                                 <Button
                                   variant="link"
                                   size="sm"
@@ -711,6 +731,7 @@ function App() {
                                 >
                                   <Edit2 size={16} />
                                 </Button>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -814,6 +835,14 @@ function App() {
         show={showApiConfig}
         onHide={() => setShowApiConfig(false)}
       />
+
+      {/* User Management Modal (Admin only) */}
+      {isAdmin && (
+        <UserManagementModal
+          show={showUserManagement}
+          onHide={() => setShowUserManagement(false)}
+        />
+      )}
     </div>
   );
 }

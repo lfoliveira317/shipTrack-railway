@@ -214,3 +214,17 @@
 - [x] Store file metadata (S3 key, URL) in database
 - [x] Write unit tests for S3 integration (16 tests passing)
 - [x] Test file upload and download functionality
+
+## User ACL and Management (Completed)
+- [x] Update user schema with role field (admin, user, viewer)
+- [x] Create admin-only procedure middleware
+- [x] Create user management API (list, stats, getById, update, updateRole, delete)
+- [x] Implement role-based access control on shipments API
+- [x] Implement role-based access control on comments API
+- [x] Implement role-based access control on attachments API
+- [x] Create User Management modal component for admins
+- [x] Add User Management menu item (admin only)
+- [x] Hide Add/Edit buttons for viewer role users
+- [x] Add role badge in user header (Admin/Viewer)
+- [x] Write unit tests for ACL functionality (32 tests passing)
+- [x] Test admin and viewer role permissions

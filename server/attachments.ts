@@ -1,4 +1,5 @@
 import { router, protectedProcedure } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "./db";
 import { attachments, type Attachment, type InsertAttachment } from "../drizzle/schema";
@@ -50,7 +51,7 @@ export const attachmentsRouter = router({
       };
     }),
   
-  // Upload file to S3 and save metadata
+  // Upload file to S3 and save metadata (not for viewers)
   upload: protectedProcedure
     .input(z.object({
       shipmentId: z.number(),
@@ -60,7 +61,10 @@ export const attachmentsRouter = router({
       fileData: z.string(), // Base64 encoded file data
       uploadedBy: z.string(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot upload attachments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       
@@ -89,7 +93,7 @@ export const attachmentsRouter = router({
       return { success: true, id: result.insertId, s3Key: key, s3Url: url };
     }),
   
-  // Add a new attachment to a shipment (legacy - without file upload)
+  // Add a new attachment to a shipment (legacy - without file upload, not for viewers)
   add: protectedProcedure
     .input(z.object({
       shipmentId: z.number(),
@@ -100,7 +104,10 @@ export const attachmentsRouter = router({
       s3Key: z.string().optional(),
       s3Url: z.string().optional(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot add attachments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       const [newAttachment] = await db.insert(attachments).values({
@@ -143,10 +150,13 @@ export const attachmentsRouter = router({
       };
     }),
   
-  // Delete an attachment (also removes from S3)
+  // Delete an attachment (also removes from S3, not for viewers)
   delete: protectedProcedure
     .input(z.object({ attachmentId: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot delete attachments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       

@@ -1,4 +1,5 @@
 import { router, protectedProcedure } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "./db";
 import { comments, type Comment, type InsertComment } from "../drizzle/schema";
@@ -30,14 +31,17 @@ export const commentsRouter = router({
     return counts;
   }),
   
-  // Add a new comment to a shipment
+  // Add a new comment to a shipment (not for viewers)
   add: protectedProcedure
     .input(z.object({
       shipmentId: z.number(),
       author: z.string(),
       text: z.string().min(1, "Comment text is required"),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot add comments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       const [newComment] = await db.insert(comments).values({
@@ -48,10 +52,13 @@ export const commentsRouter = router({
       return { success: true, id: newComment.insertId };
     }),
   
-  // Delete a comment
+  // Delete a comment (not for viewers)
   delete: protectedProcedure
     .input(z.object({ commentId: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot delete comments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       await db.delete(comments).where(eq(comments.id, input.commentId));

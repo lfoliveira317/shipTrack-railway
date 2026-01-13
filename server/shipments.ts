@@ -1,4 +1,5 @@
-import { router, protectedProcedure } from "./_core/trpc";
+import { router, protectedProcedure, adminProcedure } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "./db";
 import { shipments, type Shipment, type InsertShipment } from "../drizzle/schema";
@@ -218,9 +219,13 @@ export const shipmentsRouter = router({
     return await db.select().from(shipments);
   }),
 
+  // Only users and admins can add shipments (not viewers)
   add: protectedProcedure
     .input(shipmentSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot add shipments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       const { id, ...shipmentData } = input;
@@ -228,9 +233,13 @@ export const shipmentsRouter = router({
       return { success: true, id: newShipment.insertId };
     }),
 
+  // Only users and admins can add shipments (not viewers)
   addBulk: protectedProcedure
     .input(z.array(shipmentSchema))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot add shipments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       const shipmentsToInsert = input.map(({ id, ...rest }) => rest as InsertShipment);
@@ -238,12 +247,16 @@ export const shipmentsRouter = router({
       return { success: true, count: shipmentsToInsert.length };
     }),
 
+  // Only users and admins can update shipments (not viewers)
   update: protectedProcedure
     .input(z.object({
       id: z.number(),
       data: shipmentSchema.partial(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot update shipments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       const { id, data } = input;
@@ -254,9 +267,13 @@ export const shipmentsRouter = router({
       return { success: true };
     }),
 
+  // Only users and admins can delete shipments (not viewers)
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role === 'viewer') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Viewers cannot delete shipments' });
+      }
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       await db.delete(shipments).where(eq(shipments.id, input.id));
