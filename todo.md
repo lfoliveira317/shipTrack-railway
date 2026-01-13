@@ -245,3 +245,13 @@
 - [x] Implement mark all as read functionality
 - [x] Write unit tests for notification system (7 tests passing)
 - [x] Total tests: 39 passing
+
+## Email Notification System (Completed)
+- [x] Set up email service integration with Resend
+- [x] Request and validate email service API credentials
+- [x] Create email notification service module
+- [x] Design HTML email templates for status changes
+- [x] Integrate email sending into shipment update triggers
+- [x] Write unit tests for email service (1 test passing)
+- [x] Test email delivery for status change notifications
+- [x] Total tests: 40 passing

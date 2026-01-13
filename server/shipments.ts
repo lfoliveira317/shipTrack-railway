@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getDb } from "./db";
 import { shipments, notifications, users, type Shipment, type InsertShipment } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { sendStatusChangeEmail } from "./email";
 
 export const shipmentSchema = z.object({
   id: z.number().optional(),
@@ -276,6 +277,7 @@ export const shipmentsRouter = router({
         const usersToNotify = allUsers.filter(u => u.role !== 'viewer');
         
         for (const user of usersToNotify) {
+          // Create in-app notification
           await db.insert(notifications).values({
             userId: user.id,
             shipmentId: id,
@@ -284,6 +286,25 @@ export const shipmentsRouter = router({
             message: `Container ${oldShipment[0].container} status changed from "${oldShipment[0].status}" to "${data.status}"`,
             isRead: 0,
           });
+          
+          // Send email notification
+          if (user.email) {
+            await sendStatusChangeEmail({
+              to: user.email,
+              subject: `Shipment Status Updated: ${oldShipment[0].container}`,
+              shipmentInfo: {
+                container: oldShipment[0].container || '',
+                orderNumber: oldShipment[0].orderNumber || undefined,
+                oldStatus: oldShipment[0].status || '',
+                newStatus: data.status,
+                carrier: oldShipment[0].carrier || '',
+                eta: data.eta || oldShipment[0].eta || undefined,
+              },
+            }).catch(err => {
+              console.error('Failed to send email notification:', err);
+              // Don't throw error - email failure shouldn't block the update
+            });
+          }
         }
       }
       
