@@ -457,9 +457,9 @@ function App() {
           </div>
 
           {/* Data Grid */}
-          <div className="flex-grow-1 overflow-auto p-3">
-            <div className="table-responsive">
-              <Table bordered hover className="bg-white mb-0">
+          <div className="flex-grow-1 overflow-auto p-2 p-md-3">
+            <div className="table-responsive" style={{ overflowX: 'auto' }}>
+              <Table bordered hover className="bg-white mb-0" style={{ minWidth: '1200px' }}>
                 <thead className="table-light">
                   <tr>
                     <th style={{ width: "40px" }}>#</th>

@@ -149,3 +149,79 @@ h1, h2, h3, h4, h5, h6 {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Responsive Improvements */
+@media (max-width: 768px) {
+  /* Mobile-optimized table */
+  .table {
+    font-size: 0.8rem;
+  }
+  
+  .table thead th {
+    font-size: 0.7rem;
+    padding: 0.5rem 0.3rem;
+  }
+  
+  .table td {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Ensure table scrolls horizontally */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile button sizing */
+  .btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Touch-friendly targets */
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Compact navbar on mobile */
+  .navbar {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Badge sizing */
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Extra small screens */
+  .table {
+    font-size: 0.75rem;
+  }
+  
+  .table thead th,
+  .table td {
+    padding: 0.4rem 0.25rem;
+  }
+  
+  /* Stack toolbar buttons vertically on very small screens */
+  .btn-group {
+    flex-wrap: wrap;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .table {
+    font-size: 0.85rem;
+  }
+  
+  .table thead th,
+  .table td {
+    padding: 0.6rem 0.4rem;
+  }
+}
