@@ -35,6 +35,7 @@ import { CommentsModal } from "./components/CommentsModal";
 import AttachmentsModal from "./components/AttachmentsModal";
 
 // Status color mapping for visual recognition
+// Using colors that don't conflict with the app's primary orange (#FF5722)
 const getStatusVariant = (status: string): string => {
   const statusLower = status.toLowerCase();
   
@@ -43,8 +44,13 @@ const getStatusVariant = (status: string): string => {
     return 'success';
   }
   
-  // Blue - In transit
+  // Cyan/Teal - In transit (changed from primary blue to info cyan)
   if (statusLower.includes('transit') || statusLower.includes('shipping')) {
+    return 'info';
+  }
+  
+  // Blue - Loaded/Gated
+  if (statusLower.includes('loaded') || statusLower.includes('gated') || statusLower.includes('departed')) {
     return 'primary';
   }
   
@@ -53,8 +59,8 @@ const getStatusVariant = (status: string): string => {
     return 'warning';
   }
   
-  // Red - Delayed/Issues
-  if (statusLower.includes('delayed') || statusLower.includes('issue') || statusLower.includes('problem')) {
+  // Red - Delayed/Issues/Customs Hold
+  if (statusLower.includes('delayed') || statusLower.includes('issue') || statusLower.includes('problem') || statusLower.includes('customs')) {
     return 'danger';
   }
   
@@ -63,8 +69,8 @@ const getStatusVariant = (status: string): string => {
     return 'secondary';
   }
   
-  // Default - Info (light blue)
-  return 'info';
+  // Default - Light gray
+  return 'secondary';
 };
 
 type Shipment = {

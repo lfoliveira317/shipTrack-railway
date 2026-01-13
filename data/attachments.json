@@ -29,6 +29,36 @@
       "uploadedBy": "Test User",
       "uploadedAt": "2026-01-13T02:52:35.902Z",
       "fileUrl": "/uploads/count-test.pdf"
+    },
+    {
+      "id": "4",
+      "shipmentId": "test-shipment-1",
+      "fileName": "test-document.pdf",
+      "fileSize": 1024,
+      "fileType": "application/pdf",
+      "uploadedBy": "Test User",
+      "uploadedAt": "2026-01-13T02:59:15.935Z",
+      "fileUrl": "/uploads/test-document.pdf"
+    },
+    {
+      "id": "5",
+      "shipmentId": "test-shipment-2",
+      "fileName": "invoice.pdf",
+      "fileSize": 2048,
+      "fileType": "application/pdf",
+      "uploadedBy": "Admin User",
+      "uploadedAt": "2026-01-13T02:59:15.938Z",
+      "fileUrl": "/uploads/invoice.pdf"
+    },
+    {
+      "id": "6",
+      "shipmentId": "count-test-shipment",
+      "fileName": "count-test.pdf",
+      "fileSize": 100,
+      "fileType": "application/pdf",
+      "uploadedBy": "Test User",
+      "uploadedAt": "2026-01-13T02:59:15.949Z",
+      "fileUrl": "/uploads/count-test.pdf"
     }
   ]
 }

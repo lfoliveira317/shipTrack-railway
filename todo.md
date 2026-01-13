@@ -140,3 +140,9 @@
 - comments.test.ts: 6 tests
 - shipments.test.ts: 9 tests
 - attachments.test.ts: 6 tests
+
+## UI Color Consistency (Completed)
+- [x] Change "In transit" status badge color from orange to cyan/info
+- [x] Ensure consistent styling across all application components
+- [x] Differentiate status colors from app's primary orange theme
+- [x] Added color mapping for additional statuses (Loaded, Gated, Departed)
