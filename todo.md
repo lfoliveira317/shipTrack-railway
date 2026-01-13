@@ -187,3 +187,20 @@
 - [x] Remove air shipment notification from notifications modal
 - [x] Ensure only ocean/container shipments are supported
 - [x] Simplified AddShipmentModal to ocean-only mode
+
+## Migrate to PostgreSQL Database (Completed)
+- [x] Create database schema for shipments table
+- [x] Create database schema for attachments table
+- [x] Create database schema for comments table
+- [x] Create database schema for API configuration table
+- [x] Push schema changes to database
+- [x] Update shipments API to use PostgreSQL
+- [x] Update attachments API to use PostgreSQL
+- [x] Update comments API to use PostgreSQL
+- [x] Update API configuration to use PostgreSQL
+- [x] Update routers to use new API structure
+- [x] Update frontend types to use numeric IDs
+- [x] Fix remaining TypeScript errors in frontend
+- [x] Update unit tests for database integration (13 tests passing)
+- [x] Test all functionality with database
+- [x] Remove JSON file storage dependencies

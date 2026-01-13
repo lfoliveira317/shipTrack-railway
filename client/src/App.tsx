@@ -76,22 +76,22 @@ const getStatusVariant = (status: string): string => {
 };
 
 type Shipment = {
-  id: string;
-  orderNumber: string;
-  label: string;
-  supplier: string;
-  cro?: string;
+  id: number;
+  orderNumber: string | null;
+  label: string | null;
+  supplier: string | null;
+  cro?: string | null;
   container: string;
-  mawbNumber?: string;
+  mawbNumber?: string | null;
   carrier: string;
   status: string;
-  atd?: string;
-  pol: string;
-  pod?: string;
+  atd?: string | null;
+  pol: string | null;
+  pod?: string | null;
   eta: string;
-  ata?: string;
-  shipmentType?: "ocean" | "air";
-  bolNumber?: string;
+  ata?: string | null;
+  shipmentType?: "ocean" | "air" | string | null;
+  bolNumber?: string | null;
 };
 
 type ViewMode = "grid" | "list" | "calendar" | "globe";
@@ -107,8 +107,8 @@ function App() {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [searchTerm, setSearchTerm] = useState("");
-  const [commentsModalShipment, setCommentsModalShipment] = useState<{ id: string; orderNumber: string } | null>(null);
-  const [attachmentsModalShipment, setAttachmentsModalShipment] = useState<{ id: string; label: string } | null>(null);
+  const [commentsModalShipment, setCommentsModalShipment] = useState<{ id: number; orderNumber: string } | null>(null);
+  const [attachmentsModalShipment, setAttachmentsModalShipment] = useState<{ id: number; label: string } | null>(null);
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
 
   const { data: shipments = [], refetch } = trpc.shipments.list.useQuery();
@@ -670,7 +670,7 @@ function App() {
                                   size="sm"
                                   className="p-0 text-muted position-relative"
                                   title="Attachments"
-                                  onClick={() => setAttachmentsModalShipment({ id: shipment.id, label: shipment.orderNumber || shipment.label })}
+                                  onClick={() => setAttachmentsModalShipment({ id: shipment.id, label: shipment.orderNumber || shipment.label || '' })}
                                 >
                                   <Paperclip size={16} />
                                   {attachmentCounts[shipment.id] > 0 && (
@@ -689,7 +689,7 @@ function App() {
                                   size="sm"
                                   className="p-0 text-muted position-relative"
                                   title="Comments"
-                                  onClick={() => setCommentsModalShipment({ id: shipment.id, orderNumber: shipment.orderNumber })}
+                                  onClick={() => setCommentsModalShipment({ id: shipment.id, orderNumber: shipment.orderNumber || '' })}
                                 >
                                   <MessageSquare size={16} />
                                   {commentCounts[shipment.id] > 0 && (
@@ -797,7 +797,7 @@ function App() {
       <CommentsModal
         show={commentsModalShipment !== null}
         onHide={() => setCommentsModalShipment(null)}
-        shipmentId={commentsModalShipment?.id || ""}
+        shipmentId={commentsModalShipment?.id || 0}
         orderNumber={commentsModalShipment?.orderNumber || ""}
       />
 
@@ -805,7 +805,7 @@ function App() {
       <AttachmentsModal
         show={attachmentsModalShipment !== null}
         onHide={() => setAttachmentsModalShipment(null)}
-        shipmentId={attachmentsModalShipment?.id || ""}
+        shipmentId={attachmentsModalShipment?.id || 0}
         shipmentLabel={attachmentsModalShipment?.label || ""}
       />
 

@@ -6,7 +6,7 @@ import { trpc } from "@/lib/trpc";
 interface CommentsModalProps {
   show: boolean;
   onHide: () => void;
-  shipmentId: string;
+  shipmentId: number;
   orderNumber: string;
 }
 
@@ -50,14 +50,14 @@ export function CommentsModal({ show, onHide, shipmentId, orderNumber }: Comment
     }
   };
 
-  const handleDelete = (commentId: string) => {
+  const handleDelete = (commentId: number) => {
     if (confirm("Are you sure you want to delete this comment?")) {
       deleteCommentMutation.mutate({ commentId });
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",

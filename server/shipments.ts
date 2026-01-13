@@ -1,15 +1,14 @@
-import { readFile, writeFile } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
+import { router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
-
-const SHIPMENTS_FILE = path.join(process.cwd(), "data", "shipments.json");
+import { getDb } from "./db";
+import { shipments, type Shipment, type InsertShipment } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 export const shipmentSchema = z.object({
-  id: z.string(),
-  orderNumber: z.string(),
-  label: z.string(),
-  supplier: z.string(),
+  id: z.number().optional(),
+  orderNumber: z.string().optional(),
+  label: z.string().optional(),
+  supplier: z.string().optional(),
   cro: z.string().optional(),
   container: z.string(),
   mawbNumber: z.string().optional(),
@@ -18,185 +17,249 @@ export const shipmentSchema = z.object({
   atd: z.string().optional(), // Actual Time of Departure
   eta: z.string(),
   ata: z.string().optional(), // Actual Time of Arrival
-  pol: z.string(), // Port of Loading
-  pod: z.string(), // Port of Discharge
+  pol: z.string().optional(), // Port of Loading
+  pod: z.string().optional(), // Port of Discharge
   shipmentType: z.enum(["ocean", "air"]).default("ocean"),
   bolNumber: z.string().optional(), // Bill of Lading number
 });
 
-export type Shipment = z.infer<typeof shipmentSchema>;
+export type ShipmentType = z.infer<typeof shipmentSchema>;
 
-// Initialize default shipments
-const defaultShipments: Shipment[] = [
-  { 
-    id: "1", 
-    orderNumber: "PO-2889-BD",
-    label: "Cotton", 
-    supplier: "Dhaka Trim Supplies", 
-    cro: "CRO-001",
-    container: "MSCU8473920", 
-    mawbNumber: "",
-    carrier: "MSC", 
-    status: "Gated in full", 
-    atd: "Mon, 20 Jan",
-    pol: "Chittagong", 
-    pod: "Savannah", 
-    eta: "Thu, 30 Jan",
-    ata: "",
-    shipmentType: "ocean",
-    bolNumber: "BOL123456"
-  },
-  { 
-    id: "2",
-    orderNumber: "PO-2901-VN",
-    label: "Polyester", 
-    supplier: "Hanoi Textiles", 
-    cro: "CRO-002",
-    container: "HLBU5829461", 
-    mawbNumber: "",
-    carrier: "Hapag-Lloyd", 
-    status: "Loaded at Pol", 
-    atd: "Wed, 15 Jan",
-    pol: "Haiphong", 
-    pod: "Los Angeles", 
-    eta: "Tue, 21 Jan",
-    ata: "",
-    shipmentType: "ocean",
-    bolNumber: "BOL789012"
-  },
-  { 
-    id: "3",
-    orderNumber: "PO-2847-CN",
-    label: "Zippers", 
-    supplier: "Hangzhou Fasteners", 
-    cro: "CRO-003",
-    container: "OOLU6291847", 
-    mawbNumber: "",
-    carrier: "OOCL", 
-    status: "In transit", 
-    atd: "Sat, 28 Dec",
-    pol: "Yantian", 
-    pod: "Oakland", 
-    eta: "Mon, 06 Jan",
-    ata: "",
-    shipmentType: "ocean",
-    bolNumber: "BOL345678"
-  },
-];
+// Seed default shipments if database is empty
+async function seedDefaultShipments() {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await db.select().from(shipments).limit(1);
+  if (existing.length > 0) return;
 
-async function ensureDataDirectory() {
-  const dataDir = path.dirname(SHIPMENTS_FILE);
-  if (!existsSync(dataDir)) {
-    await writeFile(path.join(dataDir, ".gitkeep"), "");
-  }
+  const defaultShipments: Omit<InsertShipment, 'id' | 'createdAt' | 'updatedAt'>[] = [
+    { 
+      orderNumber: "PO-TEST-001",
+      label: "Cotton", 
+      supplier: "Test Supplier Inc", 
+      cro: "CRO-TEST-001",
+      container: "TEST1234567", 
+      mawbNumber: "MAWB123456",
+      carrier: "Test Carrier", 
+      status: "In transit", 
+      atd: "Mon, 13 Jan",
+      pol: "Chittagong", 
+      pod: "Savannah", 
+      eta: "Mon, 15 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: "BOL123456"
+    },
+    { 
+      orderNumber: "",
+      label: "", 
+      supplier: "Supplier A", 
+      cro: "",
+      container: "CONT1111111", 
+      mawbNumber: "",
+      carrier: "Carrier A", 
+      status: "In transit", 
+      atd: "",
+      pol: "Shanghai", 
+      pod: "Los Angeles", 
+      eta: "Mon, 20 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+    { 
+      orderNumber: "",
+      label: "", 
+      supplier: "Supplier B", 
+      cro: "",
+      container: "CONT2222222", 
+      mawbNumber: "",
+      carrier: "Carrier B", 
+      status: "In transit", 
+      atd: "",
+      pol: "Hong Kong", 
+      pod: "New York", 
+      eta: "Tue, 21 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+    { 
+      orderNumber: "",
+      label: "", 
+      supplier: "Test Supplier Inc", 
+      cro: "",
+      container: "TEST1234567", 
+      mawbNumber: "",
+      carrier: "Test Carrier", 
+      status: "In transit", 
+      atd: "",
+      pol: "Chittagong", 
+      pod: "Savannah", 
+      eta: "Mon, 15 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+    { 
+      orderNumber: "",
+      label: "", 
+      supplier: "Supplier A", 
+      cro: "",
+      container: "CONT1111111", 
+      mawbNumber: "",
+      carrier: "Carrier A", 
+      status: "In transit", 
+      atd: "",
+      pol: "Shanghai", 
+      pod: "Los Angeles", 
+      eta: "Mon, 20 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+    { 
+      orderNumber: "",
+      label: "", 
+      supplier: "Supplier B", 
+      cro: "",
+      container: "CONT2222222", 
+      mawbNumber: "",
+      carrier: "Carrier B", 
+      status: "In transit", 
+      atd: "",
+      pol: "Hong Kong", 
+      pod: "New York", 
+      eta: "Tue, 21 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+    { 
+      orderNumber: "PO-BULK-001",
+      label: "Bulk Order 1", 
+      supplier: "Bulk Supplier", 
+      cro: "",
+      container: "BULK1111111", 
+      mawbNumber: "",
+      carrier: "Bulk Carrier", 
+      status: "In transit", 
+      atd: "",
+      pol: "Singapore", 
+      pod: "Seattle", 
+      eta: "Mon, 20 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+    { 
+      orderNumber: "PO-BULK-002",
+      label: "Bulk Order 2", 
+      supplier: "Bulk Supplier", 
+      cro: "",
+      container: "BULK2222222", 
+      mawbNumber: "",
+      carrier: "Bulk Carrier", 
+      status: "In transit", 
+      atd: "",
+      pol: "Singapore", 
+      pod: "Seattle", 
+      eta: "Tue, 21 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+    { 
+      orderNumber: "PO-UNIQUE-001",
+      label: "Unique Item 1", 
+      supplier: "Supplier A", 
+      cro: "",
+      container: "CONT1111111", 
+      mawbNumber: "",
+      carrier: "Carrier A", 
+      status: "In transit", 
+      atd: "",
+      pol: "Shanghai", 
+      pod: "Los Angeles", 
+      eta: "Mon, 20 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+    { 
+      orderNumber: "PO-UNIQUE-002",
+      label: "Unique Item 2", 
+      supplier: "Supplier B", 
+      cro: "",
+      container: "CONT2222222", 
+      mawbNumber: "",
+      carrier: "Carrier B", 
+      status: "In transit", 
+      atd: "",
+      pol: "Hong Kong", 
+      pod: "New York", 
+      eta: "Tue, 21 Jan",
+      ata: "",
+      shipmentType: "ocean",
+      bolNumber: ""
+    },
+  ];
+
+  if (db) await db.insert(shipments).values(defaultShipments);
 }
 
-async function readShipments(): Promise<Shipment[]> {
-  try {
-    await ensureDataDirectory();
-    
-    if (!existsSync(SHIPMENTS_FILE)) {
-      await writeFile(SHIPMENTS_FILE, JSON.stringify(defaultShipments, null, 2));
-      return defaultShipments;
-    }
-    
-    const data = await readFile(SHIPMENTS_FILE, "utf-8");
-    const parsed = JSON.parse(data);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultShipments;
-  } catch (error) {
-    console.error("Error reading shipments:", error);
-    return defaultShipments;
-  }
-}
+// Initialize on module load
+seedDefaultShipments().catch(console.error);
 
-async function writeShipments(shipments: Shipment[]): Promise<void> {
-  try {
-    await ensureDataDirectory();
-    await writeFile(SHIPMENTS_FILE, JSON.stringify(shipments, null, 2));
-  } catch (error) {
-    console.error("Error writing shipments:", error);
-    throw error;
-  }
-}
+export const shipmentsRouter = router({
+  list: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    return await db.select().from(shipments);
+  }),
 
-export async function getAllShipments(): Promise<Shipment[]> {
-  return await readShipments();
-}
+  add: protectedProcedure
+    .input(shipmentSchema)
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const { id, ...shipmentData } = input;
+      const [newShipment] = await db.insert(shipments).values(shipmentData as InsertShipment);
+      return { success: true, id: newShipment.insertId };
+    }),
 
-export async function addShipment(shipment: Omit<Shipment, "id">): Promise<Shipment> {
-  const shipments = await readShipments();
-  
-  // Generate a new ID
-  const maxId = shipments.reduce((max, s) => {
-    const num = parseInt(s.id);
-    return num > max ? num : max;
-  }, 0);
-  
-  const newShipment: Shipment = {
-    ...shipment,
-    id: (maxId + 1).toString(),
-  };
-  
-  shipments.push(newShipment);
-  await writeShipments(shipments);
-  
-  return newShipment;
-}
+  addBulk: protectedProcedure
+    .input(z.array(shipmentSchema))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const shipmentsToInsert = input.map(({ id, ...rest }) => rest as InsertShipment);
+      await db.insert(shipments).values(shipmentsToInsert);
+      return { success: true, count: shipmentsToInsert.length };
+    }),
 
-export async function addBulkShipments(shipments: Omit<Shipment, "id">[]): Promise<Shipment[]> {
-  const existingShipments = await readShipments();
-  
-  let maxId = existingShipments.reduce((max, s) => {
-    const num = parseInt(s.id);
-    return num > max ? num : max;
-  }, 0);
-  
-  const newShipments: Shipment[] = shipments.map((shipment) => ({
-    ...shipment,
-    id: (++maxId).toString(),
-  }));
-  
-  existingShipments.push(...newShipments);
-  await writeShipments(existingShipments);
-  
-  return newShipments;
-}
+  update: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      data: shipmentSchema.partial(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const { id, data } = input;
+      const { id: _, ...updateData } = data;
+      await db.update(shipments)
+        .set(updateData as Partial<InsertShipment>)
+        .where(eq(shipments.id, id));
+      return { success: true };
+    }),
 
-export async function updateShipment(id: string, updates: Partial<Omit<Shipment, "id">>): Promise<Shipment | null> {
-  const shipments = await readShipments();
-  const index = shipments.findIndex((s) => s.id === id);
-  
-  if (index === -1) {
-    return null;
-  }
-  
-  const updatedShipment: Shipment = {
-    ...shipments[index],
-    ...updates,
-    id, // Ensure ID doesn't change
-  };
-  
-  shipments[index] = updatedShipment;
-  await writeShipments(shipments);
-  
-  return updatedShipment;
-}
-
-export async function deleteShipment(id: string): Promise<boolean> {
-  const shipments = await readShipments();
-  const index = shipments.findIndex((s) => s.id === id);
-  
-  if (index === -1) {
-    return false;
-  }
-  
-  shipments.splice(index, 1);
-  await writeShipments(shipments);
-  
-  return true;
-}
-
-export async function getShipmentById(id: string): Promise<Shipment | null> {
-  const shipments = await readShipments();
-  return shipments.find((s) => s.id === id) || null;
-}
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db.delete(shipments).where(eq(shipments.id, input.id));
+      return { success: true };
+    }),
+});

@@ -1,117 +1,60 @@
-import { readFile, writeFile } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
+import { router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
+import { getDb } from "./db";
+import { comments, type Comment, type InsertComment } from "../drizzle/schema";
+import { eq, sql } from "drizzle-orm";
 
-const COMMENTS_FILE = path.join(process.cwd(), "data", "comments.json");
-
-export const commentSchema = z.object({
-  id: z.string(),
-  shipmentId: z.string(),
-  author: z.string(),
-  text: z.string(),
-  createdAt: z.string(),
+export const commentsRouter = router({
+  // Get all comments for a specific shipment
+  byShipment: protectedProcedure
+    .input(z.object({ shipmentId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      return await db.select().from(comments).where(eq(comments.shipmentId, input.shipmentId));
+    }),
+  
+  // Get comment counts for all shipments
+  counts: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return {};
+    const result = await db.select({
+      shipmentId: comments.shipmentId,
+      count: sql<number>`COUNT(*)`.as('count'),
+    }).from(comments).groupBy(comments.shipmentId);
+    
+    const counts: Record<number, number> = {};
+    result.forEach(row => {
+      counts[row.shipmentId] = Number(row.count);
+    });
+    return counts;
+  }),
+  
+  // Add a new comment to a shipment
+  add: protectedProcedure
+    .input(z.object({
+      shipmentId: z.number(),
+      author: z.string(),
+      text: z.string().min(1, "Comment text is required"),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const [newComment] = await db.insert(comments).values({
+        shipmentId: input.shipmentId,
+        author: input.author,
+        text: input.text,
+      });
+      return { success: true, id: newComment.insertId };
+    }),
+  
+  // Delete a comment
+  delete: protectedProcedure
+    .input(z.object({ commentId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db.delete(comments).where(eq(comments.id, input.commentId));
+      return { success: true };
+    }),
 });
-
-export type Comment = z.infer<typeof commentSchema>;
-
-interface CommentsData {
-  comments: Comment[];
-}
-
-async function ensureDataDirectory() {
-  const dataDir = path.dirname(COMMENTS_FILE);
-  if (!existsSync(dataDir)) {
-    const { mkdir } = await import("fs/promises");
-    await mkdir(dataDir, { recursive: true });
-  }
-}
-
-async function readComments(): Promise<Comment[]> {
-  try {
-    await ensureDataDirectory();
-    
-    if (!existsSync(COMMENTS_FILE)) {
-      const initialData: CommentsData = { comments: [] };
-      await writeFile(COMMENTS_FILE, JSON.stringify(initialData, null, 2));
-      return [];
-    }
-    
-    const data = await readFile(COMMENTS_FILE, "utf-8");
-    const parsed: CommentsData = JSON.parse(data);
-    return Array.isArray(parsed.comments) ? parsed.comments : [];
-  } catch (error) {
-    console.error("Error reading comments:", error);
-    return [];
-  }
-}
-
-async function writeComments(comments: Comment[]): Promise<void> {
-  try {
-    await ensureDataDirectory();
-    const data: CommentsData = { comments };
-    await writeFile(COMMENTS_FILE, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error("Error writing comments:", error);
-    throw error;
-  }
-}
-
-export async function getCommentsByShipmentId(shipmentId: string): Promise<Comment[]> {
-  const comments = await readComments();
-  return comments
-    .filter((c) => c.shipmentId === shipmentId)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-}
-
-export async function getCommentCounts(): Promise<Record<string, number>> {
-  const comments = await readComments();
-  const counts: Record<string, number> = {};
-  
-  for (const comment of comments) {
-    counts[comment.shipmentId] = (counts[comment.shipmentId] || 0) + 1;
-  }
-  
-  return counts;
-}
-
-export async function addComment(
-  shipmentId: string,
-  author: string,
-  text: string
-): Promise<Comment> {
-  const comments = await readComments();
-  
-  // Generate a new ID
-  const maxId = comments.reduce((max, c) => {
-    const num = parseInt(c.id);
-    return num > max ? num : max;
-  }, 0);
-  
-  const newComment: Comment = {
-    id: (maxId + 1).toString(),
-    shipmentId,
-    author,
-    text,
-    createdAt: new Date().toISOString(),
-  };
-  
-  comments.push(newComment);
-  await writeComments(comments);
-  
-  return newComment;
-}
-
-export async function deleteComment(commentId: string): Promise<boolean> {
-  const comments = await readComments();
-  const index = comments.findIndex((c) => c.id === commentId);
-  
-  if (index === -1) {
-    return false;
-  }
-  
-  comments.splice(index, 1);
-  await writeComments(comments);
-  
-  return true;
-}

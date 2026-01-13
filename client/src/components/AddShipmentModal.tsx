@@ -5,22 +5,22 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 type Shipment = {
-  id: string;
-  orderNumber: string;
-  label: string;
-  supplier: string;
-  cro?: string;
+  id: number;
+  orderNumber: string | null;
+  label: string | null;
+  supplier: string | null;
+  cro?: string | null;
   container: string;
-  mawbNumber?: string;
+  mawbNumber?: string | null;
   carrier: string;
   status: string;
-  atd?: string;
-  pol: string;
-  pod?: string;
+  atd?: string | null;
+  pol: string | null;
+  pod?: string | null;
   eta: string;
-  ata?: string;
-  shipmentType?: "ocean" | "air";
-  bolNumber?: string;
+  ata?: string | null;
+  shipmentType?: "ocean" | "air" | string | null;
+  bolNumber?: string | null;
 };
 
 interface AddShipmentModalProps {
@@ -106,7 +106,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
 
   const addBulkMutation = trpc.shipments.addBulk.useMutation({
     onSuccess: (data) => {
-      toast.success(`${data.length} shipment(s) added successfully!`);
+      toast.success(`${data.count} shipment(s) added successfully!`);
       utils.shipments.list.invalidate();
       handleClose();
     },

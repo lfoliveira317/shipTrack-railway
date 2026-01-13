@@ -6,17 +6,17 @@ import { trpc } from '@/lib/trpc';
 interface AttachmentsModalProps {
   show: boolean;
   onHide: () => void;
-  shipmentId: string;
+  shipmentId: number;
   shipmentLabel: string;
 }
 
 interface Attachment {
-  id: string;
-  fileName: string;
+  id: number;
+  filename: string;
   fileSize: number;
   fileType: string;
   uploadedBy: string;
-  uploadedAt: string;
+  uploadedAt: Date;
 }
 
 const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
@@ -67,14 +67,14 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     
     addAttachment.mutate({
       shipmentId,
-      fileName: selectedFile.name,
+      filename: selectedFile.name,
       fileSize: selectedFile.size,
       fileType: selectedFile.type || 'application/octet-stream',
       uploadedBy: 'Admin User',
     });
   };
   
-  const handleDelete = (attachmentId: string) => {
+  const handleDelete = (attachmentId: number) => {
     if (confirm('Are you sure you want to delete this attachment?')) {
       deleteAttachment.mutate({ attachmentId });
     }
@@ -87,7 +87,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     // For demonstration, we'll create a placeholder based on file type
     if (attachment.fileType.startsWith('image/')) {
       // Mock image URL - in production, this would be the actual file URL
-      setPreviewUrl(`https://via.placeholder.com/800x600.png?text=${encodeURIComponent(attachment.fileName)}`);
+      setPreviewUrl(`https://via.placeholder.com/800x600.png?text=${encodeURIComponent(attachment.filename)}`);
     } else if (attachment.fileType.includes('pdf')) {
       // Mock PDF preview
       setPreviewUrl('about:blank'); // In production, use actual PDF URL
@@ -103,7 +103,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
   
   const handleDownload = (attachment: Attachment) => {
     // Mock download - in production, this would download from server/S3
-    alert(`Downloading: ${attachment.fileName}\n\nIn production, this would download the actual file from storage.`);
+    alert(`Downloading: ${attachment.filename}\n\nIn production, this would download the actual file from storage.`);
   };
   
   const formatFileSize = (bytes: number): string => {
@@ -114,8 +114,8 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
   
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
+  const formatDate = (dateString: string | Date): string => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -145,7 +145,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="d-flex align-items-center gap-2">
             <Eye size={24} style={{ color: '#FF5722' }} />
-            <span>{previewAttachment.fileName}</span>
+            <span>{previewAttachment.filename}</span>
           </Modal.Title>
         </Modal.Header>
         
@@ -154,7 +154,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
             <div className="text-center">
               <img
                 src={previewUrl}
-                alt={previewAttachment.fileName}
+                alt={previewAttachment.filename}
                 className="img-fluid rounded"
                 style={{ maxHeight: '70vh', objectFit: 'contain' }}
               />
@@ -162,7 +162,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
           ) : previewAttachment.fileType.includes('pdf') ? (
             <div className="border rounded p-4 text-center bg-light" style={{ minHeight: '400px' }}>
               <FileText size={64} className="text-muted mb-3" />
-              <h5>{previewAttachment.fileName}</h5>
+              <h5>{previewAttachment.filename}</h5>
               <p className="text-muted">PDF Preview</p>
               <p className="small text-muted">
                 In production, this would display an embedded PDF viewer.
@@ -287,7 +287,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
                 <div className="d-flex align-items-center gap-3">
                   {getFileIcon(attachment.fileType)}
                   <div>
-                    <div className="fw-medium">{attachment.fileName}</div>
+                    <div className="fw-medium">{attachment.filename}</div>
                     <small className="text-muted">
                       {formatFileSize(attachment.fileSize)} • Uploaded by {attachment.uploadedBy} • {formatDate(attachment.uploadedAt)}
                     </small>

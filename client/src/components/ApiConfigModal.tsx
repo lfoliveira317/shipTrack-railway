@@ -29,15 +29,15 @@ export function ApiConfigModal({ show, onHide }: ApiConfigModalProps) {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Fetch current configuration
-  const { data: config } = trpc.apiConfig.getConfig.useQuery(undefined, {
+  const { data: config } = trpc.apiConfig.get.useQuery(undefined, {
     enabled: show,
   });
 
-  // Fetch available carriers
-  const { data: carriers = [] } = trpc.apiConfig.getCarriers.useQuery();
+  // Available carriers (hardcoded since we removed the getCarriers endpoint)
+  const carriers = ["MSC", "Maersk", "CMA CGM", "COSCO", "Hapag-Lloyd", "ONE", "Evergreen", "Yang Ming", "HMM", "ZIM"];
 
   // Save configuration mutation
-  const saveConfigMutation = trpc.apiConfig.saveConfig.useMutation({
+  const saveConfigMutation = trpc.apiConfig.save.useMutation({
     onSuccess: () => {
       setSaveSuccess(true);
       setTimeout(() => {
@@ -50,27 +50,28 @@ export function ApiConfigModal({ show, onHide }: ApiConfigModalProps) {
   // Load configuration when modal opens
   useEffect(() => {
     if (config) {
-      setMode(config.mode);
-      if (config.singleApi) {
-        setSingleApi({
-          url: config.singleApi.url || "",
-          port: config.singleApi.port || "",
-          token: config.singleApi.token || "",
-          user: config.singleApi.user || "",
-          password: config.singleApi.password || "",
-        });
-      }
-      if (config.carrierApis) {
+      setMode(config.mode as "single" | "per-carrier");
+      
+      // Load configs from the new format
+      if (config.configs) {
         const normalizedCarrierApis: Record<string, ApiCredentials> = {};
-        Object.entries(config.carrierApis).forEach(([key, value]) => {
-          normalizedCarrierApis[key] = {
+        
+        Object.entries(config.configs).forEach(([key, value]: [string, any]) => {
+          const apiConfig: ApiCredentials = {
             url: value.url || "",
             port: value.port || "",
             token: value.token || "",
-            user: value.user || "",
+            user: value.username || "",
             password: value.password || "",
           };
+          
+          if (key === "default") {
+            setSingleApi(apiConfig);
+          } else {
+            normalizedCarrierApis[key] = apiConfig;
+          }
         });
+        
         setCarrierApis(normalizedCarrierApis);
       }
     }
@@ -99,13 +100,30 @@ export function ApiConfigModal({ show, onHide }: ApiConfigModalProps) {
   };
 
   const handleSave = () => {
-    const configToSave = {
-      mode,
-      singleApi: mode === "single" ? singleApi : undefined,
-      carrierApis: mode === "per-carrier" ? carrierApis : undefined,
-    };
+    // Convert to the new API format
+    const configs: Record<string, { url: string; port?: string; token?: string; username?: string; password?: string }> = {};
+    
+    if (mode === "single" && singleApi) {
+      configs["default"] = {
+        url: singleApi.url,
+        port: singleApi.port,
+        token: singleApi.token,
+        username: singleApi.user,
+        password: singleApi.password,
+      };
+    } else if (mode === "per-carrier") {
+      Object.entries(carrierApis).forEach(([carrier, api]) => {
+        configs[carrier] = {
+          url: api.url,
+          port: api.port,
+          token: api.token,
+          username: api.user,
+          password: api.password,
+        };
+      });
+    }
 
-    saveConfigMutation.mutate(configToSave);
+    saveConfigMutation.mutate({ mode, configs });
   };
 
   const currentCarrierApi = selectedCarrier
@@ -225,9 +243,9 @@ export function ApiConfigModal({ show, onHide }: ApiConfigModalProps) {
                   onChange={(e) => setSelectedCarrier(e.target.value)}
                 >
                   <option value="">-- Select a carrier --</option>
-                  {carriers.map((carrier) => (
-                    <option key={carrier.value} value={carrier.value}>
-                      {carrier.label}
+                  {carriers.map((carrier: string) => (
+                    <option key={carrier} value={carrier}>
+                      {carrier}
                     </option>
                   ))}
                 </Form.Select>
@@ -295,7 +313,7 @@ export function ApiConfigModal({ show, onHide }: ApiConfigModalProps) {
 
               {selectedCarrier && (
                 <Alert variant="info" className="mt-3 mb-0 small">
-                  <strong>Note:</strong> Configuration for {carriers.find(c => c.value === selectedCarrier)?.label} will be saved.
+                  <strong>Note:</strong> Configuration for {selectedCarrier} will be saved.
                   You can configure multiple carriers by selecting them one at a time.
                 </Alert>
               )}
