@@ -1,0 +1,34 @@
+{
+  "attachments": [
+    {
+      "id": "1",
+      "shipmentId": "test-shipment-1",
+      "fileName": "test-document.pdf",
+      "fileSize": 1024,
+      "fileType": "application/pdf",
+      "uploadedBy": "Test User",
+      "uploadedAt": "2026-01-13T02:52:35.892Z",
+      "fileUrl": "/uploads/test-document.pdf"
+    },
+    {
+      "id": "2",
+      "shipmentId": "test-shipment-2",
+      "fileName": "invoice.pdf",
+      "fileSize": 2048,
+      "fileType": "application/pdf",
+      "uploadedBy": "Admin User",
+      "uploadedAt": "2026-01-13T02:52:35.895Z",
+      "fileUrl": "/uploads/invoice.pdf"
+    },
+    {
+      "id": "3",
+      "shipmentId": "count-test-shipment",
+      "fileName": "count-test.pdf",
+      "fileSize": 100,
+      "fileType": "application/pdf",
+      "uploadedBy": "Test User",
+      "uploadedAt": "2026-01-13T02:52:35.902Z",
+      "fileUrl": "/uploads/count-test.pdf"
+    }
+  ]
+}

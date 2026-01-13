@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-  Container,
   Navbar,
   Nav,
   Button,
@@ -15,7 +14,6 @@ import {
   Menu,
   Search,
   Bell,
-  User,
   Plus,
   Share2,
   Mail,
@@ -28,10 +26,13 @@ import {
   MessageSquare,
   ChevronUp,
   ChevronDown,
+  Edit2,
+  Download,
 } from "lucide-react";
 import { trpc } from "./lib/trpc";
 import { AddShipmentModal } from "./components/AddShipmentModal";
 import { CommentsModal } from "./components/CommentsModal";
+import AttachmentsModal from "./components/AttachmentsModal";
 
 // Status color mapping for visual recognition
 const getStatusVariant = (status: string): string => {
@@ -98,15 +99,26 @@ function App() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [searchTerm, setSearchTerm] = useState("");
   const [commentsModalShipment, setCommentsModalShipment] = useState<{ id: string; orderNumber: string } | null>(null);
+  const [attachmentsModalShipment, setAttachmentsModalShipment] = useState<{ id: string; label: string } | null>(null);
+  const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
 
   const { data: shipments = [], refetch } = trpc.shipments.list.useQuery();
   const { data: commentCounts = {} } = trpc.comments.counts.useQuery();
+  const { data: attachmentCounts = {} } = trpc.attachments.counts.useQuery();
 
   const handleSidebarToggle = () => setShowSidebar(!showSidebar);
-  const handleAddModalClose = () => setShowAddModal(false);
+  const handleAddModalClose = () => {
+    setShowAddModal(false);
+    setEditingShipment(null);
+  };
   const handleAddModalShow = () => setShowAddModal(true);
   const handleNotificationsClose = () => setShowNotifications(false);
   const handleNotificationsShow = () => setShowNotifications(true);
+
+  const handleEditShipment = (shipment: Shipment) => {
+    setEditingShipment(shipment);
+    setShowAddModal(true);
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -151,6 +163,63 @@ function App() {
   };
 
   const sortedShipments = getSortedShipments();
+
+  // Export to CSV function
+  const handleExportCSV = () => {
+    const headers = [
+      "Order Number",
+      "Supplier",
+      "CRO",
+      "Container Number",
+      "MAWB Number",
+      "Carrier",
+      "Status",
+      "ATD",
+      "ETA",
+      "ATA",
+      "Port of Loading",
+      "Port of Discharge",
+    ];
+
+    const csvData = sortedShipments.map((s) => [
+      s.orderNumber || "",
+      s.supplier || "",
+      s.cro || "",
+      s.container || "",
+      s.mawbNumber || "",
+      s.carrier || "",
+      s.status || "",
+      s.atd || "",
+      s.eta || "",
+      s.ata || "",
+      s.pol || "",
+      s.pod || "",
+    ]);
+
+    // Escape CSV values
+    const escapeCSV = (value: string) => {
+      if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    };
+
+    const csvContent = [
+      headers.map(escapeCSV).join(","),
+      ...csvData.map((row) => row.map(escapeCSV).join(",")),
+    ].join("\n");
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `shipments_export_${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return null;
@@ -334,52 +403,55 @@ function App() {
 
         {/* Main Content */}
         <div className="flex-grow-1 d-flex flex-column overflow-hidden">
-          {/* Secondary Navigation */}
-          <div className="bg-white border-bottom px-3 py-2">
-            <Nav className="gap-3">
-              <Nav.Link
-                href="#"
-                className="text-danger fw-semibold border-bottom border-danger border-2 pb-2"
-              >
-                Beacon
-              </Nav.Link>
-              <Nav.Link href="#" className="text-dark">
-                Orders & Shipments
-              </Nav.Link>
-              <Nav.Link href="#" className="text-dark">
-                Live Boards
-              </Nav.Link>
-            </Nav>
-          </div>
-
-          {/* Mobile Search Bar */}
-          <div className="bg-white border-bottom px-3 py-2 d-md-none">
-            <div className="position-relative">
-              <Search
-                size={18}
-                className="position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"
-              />
-              <Form.Control
-                type="search"
-                placeholder="Search shipments..."
-                className="ps-5"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          {/* Content Header Tabs */}
+          <div className="bg-white border-bottom">
+            <div className="d-flex flex-wrap align-items-center justify-content-between p-2 p-md-3 gap-2">
+              <Nav variant="tabs" className="border-0 flex-nowrap">
+                <Nav.Item>
+                  <Nav.Link className="text-danger border-0 border-bottom border-danger border-2 fw-semibold">
+                    Beacon
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link className="text-muted border-0">
+                    Orders & Shipments
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link className="text-muted border-0">
+                    Live Boards
+                  </Nav.Link>
+                </Nav.Item>
+              </Nav>
             </div>
-          </div>
 
-          {/* Toolbar */}
-          <div className="bg-white border-bottom px-3 py-3">
-            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            {/* Mobile Search Bar */}
+            <div className="d-md-none px-3 pb-2">
+              <div className="position-relative">
+                <Search
+                  size={18}
+                  className="position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"
+                />
+                <Form.Control
+                  type="search"
+                  placeholder="Search shipments..."
+                  className="ps-5"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Toolbar */}
+            <div className="d-flex flex-wrap align-items-center justify-content-between px-2 px-md-3 pb-2 gap-2">
               <div className="d-flex align-items-center gap-2 flex-wrap">
                 <Dropdown>
                   <Dropdown.Toggle
                     variant="outline-secondary"
                     size="sm"
-                    className="d-flex align-items-center gap-1"
+                    id="filter-dropdown"
                   >
-                    <Filter size={16} />
+                    <Filter size={16} className="me-1" />
                     Filters
                   </Dropdown.Toggle>
 
@@ -472,6 +544,15 @@ function App() {
               </div>
 
               <div className="d-flex align-items-center gap-2 flex-wrap">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={handleExportCSV}
+                  title="Export to CSV"
+                >
+                  <Download size={16} className="me-1" />
+                  Export
+                </Button>
                 <Button variant="outline-secondary" size="sm">
                   <Share2 size={16} className="me-1" />
                   Share
@@ -498,113 +579,133 @@ function App() {
               <div className="card-body p-0">
                 <div className="table-responsive table-sticky-header">
                   <Table bordered hover className="mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th style={{ width: "40px" }}>#</th>
-                    <th
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSort("orderNumber")}
-                    >
-                      ORDER NUMBER <SortIcon field="orderNumber" />
-                    </th>
-                    <th
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSort("supplier")}
-                    >
-                      SUPPLIER <SortIcon field="supplier" />
-                    </th>
-                    <th>CRO</th>
-                    <th>CONTAINER NUMBER</th>
-                    <th>MAWB NUMBER</th>
-                    <th
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSort("carrier")}
-                    >
-                      CARRIER <SortIcon field="carrier" />
-                    </th>
-                    <th
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSort("status")}
-                    >
-                      STATUS <SortIcon field="status" />
-                    </th>
-                    <th>ATD</th>
-                    <th
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSort("eta")}
-                    >
-                      ETA <SortIcon field="eta" />
-                    </th>
-                    <th>ATA</th>
-                    <th>PORT OF LOADING</th>
-                    <th>PORT OF DISCHARGE</th>
-                    <th style={{ width: "100px" }}>ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedShipments.length === 0 ? (
-                    <tr>
-                      <td colSpan={14} className="text-center text-muted py-5">
-                        {searchTerm
-                          ? "No shipments found matching your search"
-                          : "No shipments yet. Click 'Add' to create your first shipment."}
-                      </td>
-                    </tr>
-                  ) : (
-                    sortedShipments.map((shipment, index) => (
-                      <tr key={shipment.id}>
-                        <td className="text-muted">{index + 1}</td>
-                        <td className="text-danger fw-semibold">
-                          {shipment.orderNumber || "-"}
-                        </td>
-                        <td>{shipment.supplier}</td>
-                        <td>{shipment.cro || "-"}</td>
-                        <td>{shipment.container}</td>
-                        <td>{shipment.mawbNumber || "-"}</td>
-                        <td>{shipment.carrier}</td>
-                        <td>
-                          <Badge bg={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
-                        </td>
-                        <td>{shipment.atd || "-"}</td>
-                        <td>{shipment.eta}</td>
-                        <td>{shipment.ata || "-"}</td>
-                        <td>{shipment.pol}</td>
-                        <td>{shipment.pod || "-"}</td>
-                        <td>
-                          <div className="d-flex gap-2 align-items-center">
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="p-0 text-muted"
-                              title="Attachments"
-                            >
-                              <Paperclip size={16} />
-                            </Button>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="p-0 text-muted position-relative"
-                              title="Comments"
-                              onClick={() => setCommentsModalShipment({ id: shipment.id, orderNumber: shipment.orderNumber })}
-                            >
-                              <MessageSquare size={16} />
-                              {commentCounts[shipment.id] > 0 && (
-                                <Badge 
-                                  bg="danger" 
-                                  pill 
-                                  className="position-absolute"
-                                  style={{ top: -8, right: -8, fontSize: '0.6rem', padding: '2px 5px' }}
-                                >
-                                  {commentCounts[shipment.id]}
-                                </Badge>
-                              )}
-                            </Button>
-                          </div>
-                        </td>
+                    <thead className="table-light">
+                      <tr>
+                        <th style={{ width: "40px" }}>#</th>
+                        <th
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleSort("orderNumber")}
+                        >
+                          ORDER NUMBER <SortIcon field="orderNumber" />
+                        </th>
+                        <th
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleSort("supplier")}
+                        >
+                          SUPPLIER <SortIcon field="supplier" />
+                        </th>
+                        <th>CRO</th>
+                        <th>CONTAINER NUMBER</th>
+                        <th>MAWB NUMBER</th>
+                        <th
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleSort("carrier")}
+                        >
+                          CARRIER <SortIcon field="carrier" />
+                        </th>
+                        <th
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleSort("status")}
+                        >
+                          STATUS <SortIcon field="status" />
+                        </th>
+                        <th>ATD</th>
+                        <th
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleSort("eta")}
+                        >
+                          ETA <SortIcon field="eta" />
+                        </th>
+                        <th>ATA</th>
+                        <th>PORT OF LOADING</th>
+                        <th>PORT OF DISCHARGE</th>
+                        <th style={{ width: "120px" }}>ACTIONS</th>
                       </tr>
-                    ))
-                  )}
-                </tbody>
+                    </thead>
+                    <tbody>
+                      {sortedShipments.length === 0 ? (
+                        <tr>
+                          <td colSpan={14} className="text-center text-muted py-5">
+                            {searchTerm
+                              ? "No shipments found matching your search"
+                              : "No shipments yet. Click 'Add' to create your first shipment."}
+                          </td>
+                        </tr>
+                      ) : (
+                        sortedShipments.map((shipment, index) => (
+                          <tr key={shipment.id}>
+                            <td className="text-muted">{index + 1}</td>
+                            <td className="text-danger fw-semibold">
+                              {shipment.orderNumber || "-"}
+                            </td>
+                            <td>{shipment.supplier}</td>
+                            <td>{shipment.cro || "-"}</td>
+                            <td>{shipment.container}</td>
+                            <td>{shipment.mawbNumber || "-"}</td>
+                            <td>{shipment.carrier}</td>
+                            <td>
+                              <Badge bg={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
+                            </td>
+                            <td>{shipment.atd || "-"}</td>
+                            <td>{shipment.eta}</td>
+                            <td>{shipment.ata || "-"}</td>
+                            <td>{shipment.pol}</td>
+                            <td>{shipment.pod || "-"}</td>
+                            <td>
+                              <div className="d-flex gap-2 align-items-center">
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="p-0 text-muted position-relative"
+                                  title="Attachments"
+                                  onClick={() => setAttachmentsModalShipment({ id: shipment.id, label: shipment.orderNumber || shipment.label })}
+                                >
+                                  <Paperclip size={16} />
+                                  {attachmentCounts[shipment.id] > 0 && (
+                                    <Badge 
+                                      bg="primary" 
+                                      pill 
+                                      className="position-absolute"
+                                      style={{ top: -8, right: -8, fontSize: '0.6rem', padding: '2px 5px' }}
+                                    >
+                                      {attachmentCounts[shipment.id]}
+                                    </Badge>
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="p-0 text-muted position-relative"
+                                  title="Comments"
+                                  onClick={() => setCommentsModalShipment({ id: shipment.id, orderNumber: shipment.orderNumber })}
+                                >
+                                  <MessageSquare size={16} />
+                                  {commentCounts[shipment.id] > 0 && (
+                                    <Badge 
+                                      bg="danger" 
+                                      pill 
+                                      className="position-absolute"
+                                      style={{ top: -8, right: -8, fontSize: '0.6rem', padding: '2px 5px' }}
+                                    >
+                                      {commentCounts[shipment.id]}
+                                    </Badge>
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="p-0 text-muted"
+                                  title="Edit Shipment"
+                                  onClick={() => handleEditShipment(shipment)}
+                                >
+                                  <Edit2 size={16} />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
                   </Table>
                 </div>
               </div>
@@ -613,10 +714,11 @@ function App() {
         </div>
       </div>
 
-      {/* Add Shipment Modal */}
+      {/* Add/Edit Shipment Modal */}
       <AddShipmentModal
         show={showAddModal}
         onHide={handleAddModalClose}
+        editingShipment={editingShipment}
       />
 
       {/* Email Notifications Modal */}
@@ -705,6 +807,14 @@ function App() {
         onHide={() => setCommentsModalShipment(null)}
         shipmentId={commentsModalShipment?.id || ""}
         orderNumber={commentsModalShipment?.orderNumber || ""}
+      />
+
+      {/* Attachments Modal */}
+      <AttachmentsModal
+        show={attachmentsModalShipment !== null}
+        onHide={() => setAttachmentsModalShipment(null)}
+        shipmentId={attachmentsModalShipment?.id || ""}
+        shipmentLabel={attachmentsModalShipment?.label || ""}
       />
     </div>
   );

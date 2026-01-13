@@ -86,6 +86,7 @@
 - [x] Add custom scrollbar styling for better visibility
 
 ## Sticky Table Header (Completed)
+
 - [x] Implement sticky header that stays fixed during vertical scroll
 - [x] Ensure header maintains proper styling when sticky
 - [x] Add shadow effect when header is stuck
@@ -103,3 +104,39 @@
 - [x] Show comment author and date
 - [x] Integrate with shipment action buttons
 - [x] Write unit tests for comments API (6 tests passing)
+
+## File Attachments Feature (Completed)
+- [x] Create attachments backend API (JSON file storage)
+- [x] Implement upload attachment endpoint
+- [x] Implement list attachments by shipment endpoint
+- [x] Implement delete attachment endpoint
+- [x] Create AttachmentsModal component
+- [x] Display attachment count badge on paperclip icon
+- [x] Show file list with name, size, and date
+- [x] Add file upload form
+- [x] Write unit tests for attachments API (6 tests passing)
+
+## Edit Shipment Feature (Completed)
+- [x] Create update shipment backend endpoint
+- [x] Create getById shipment backend endpoint
+- [x] Reuse AddShipmentModal for editing (with editingShipment prop)
+- [x] Add edit button (pencil icon) to Actions column
+- [x] Pre-populate form with existing shipment data
+- [x] Handle form submission and data update
+- [x] Refresh grid after successful edit
+- [x] Write unit tests for update endpoint (4 new tests)
+
+## CSV Export Feature (Completed)
+- [x] Implement CSV generation function
+- [x] Add export button functionality with Download icon
+- [x] Include all visible columns in export
+- [x] Apply current filters/sort to export
+- [x] Generate downloadable CSV file
+- [x] Add proper CSV formatting (escape commas, quotes)
+- [x] Auto-generate filename with date
+
+## Total Test Count: 22 tests passing
+- auth.logout.test.ts: 1 test
+- comments.test.ts: 6 tests
+- shipments.test.ts: 9 tests
+- attachments.test.ts: 6 tests

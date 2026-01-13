@@ -161,3 +161,42 @@ export async function addBulkShipments(shipments: Omit<Shipment, "id">[]): Promi
   
   return newShipments;
 }
+
+export async function updateShipment(id: string, updates: Partial<Omit<Shipment, "id">>): Promise<Shipment | null> {
+  const shipments = await readShipments();
+  const index = shipments.findIndex((s) => s.id === id);
+  
+  if (index === -1) {
+    return null;
+  }
+  
+  const updatedShipment: Shipment = {
+    ...shipments[index],
+    ...updates,
+    id, // Ensure ID doesn't change
+  };
+  
+  shipments[index] = updatedShipment;
+  await writeShipments(shipments);
+  
+  return updatedShipment;
+}
+
+export async function deleteShipment(id: string): Promise<boolean> {
+  const shipments = await readShipments();
+  const index = shipments.findIndex((s) => s.id === id);
+  
+  if (index === -1) {
+    return false;
+  }
+  
+  shipments.splice(index, 1);
+  await writeShipments(shipments);
+  
+  return true;
+}
+
+export async function getShipmentById(id: string): Promise<Shipment | null> {
+  const shipments = await readShipments();
+  return shipments.find((s) => s.id === id) || null;
+}

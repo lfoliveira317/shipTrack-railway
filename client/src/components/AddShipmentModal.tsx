@@ -1,36 +1,87 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal, Button, Form, Row, Col, Tabs, Tab } from "react-bootstrap";
 import { Upload } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
+type Shipment = {
+  id: string;
+  orderNumber: string;
+  label: string;
+  supplier: string;
+  cro?: string;
+  container: string;
+  mawbNumber?: string;
+  carrier: string;
+  status: string;
+  atd?: string;
+  pol: string;
+  pod?: string;
+  eta: string;
+  ata?: string;
+  shipmentType?: "ocean" | "air";
+  bolNumber?: string;
+};
+
 interface AddShipmentModalProps {
   show: boolean;
   onHide: () => void;
+  editingShipment?: Shipment | null;
 }
 
-export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
+const initialFormData = {
+  orderNumber: "",
+  label: "",
+  supplier: "",
+  cro: "",
+  container: "",
+  mawbNumber: "",
+  carrier: "",
+  status: "In transit",
+  atd: "",
+  pol: "",
+  pod: "",
+  eta: "",
+  ata: "",
+  bolNumber: "",
+};
+
+export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentModalProps) {
   const [shipmentType, setShipmentType] = useState<"ocean" | "air">("ocean");
   const [inputMethod, setInputMethod] = useState<"container" | "bol">("container");
   const [bulkText, setBulkText] = useState("");
-  const [formData, setFormData] = useState({
-    orderNumber: "",
-    label: "",
-    supplier: "",
-    cro: "",
-    container: "",
-    mawbNumber: "",
-    carrier: "",
-    status: "In transit",
-    atd: "",
-    pol: "",
-    pod: "",
-    eta: "",
-    ata: "",
-    bolNumber: "",
-  });
+  const [formData, setFormData] = useState(initialFormData);
+
+  const isEditing = !!editingShipment;
+
+  // Populate form when editing
+  useEffect(() => {
+    if (editingShipment) {
+      setFormData({
+        orderNumber: editingShipment.orderNumber || "",
+        label: editingShipment.label || "",
+        supplier: editingShipment.supplier || "",
+        cro: editingShipment.cro || "",
+        container: editingShipment.container || "",
+        mawbNumber: editingShipment.mawbNumber || "",
+        carrier: editingShipment.carrier || "",
+        status: editingShipment.status || "In transit",
+        atd: editingShipment.atd || "",
+        pol: editingShipment.pol || "",
+        pod: editingShipment.pod || "",
+        eta: editingShipment.eta || "",
+        ata: editingShipment.ata || "",
+        bolNumber: editingShipment.bolNumber || "",
+      });
+      setShipmentType(editingShipment.shipmentType || "ocean");
+    } else {
+      setFormData(initialFormData);
+      setShipmentType("ocean");
+    }
+  }, [editingShipment, show]);
 
   const utils = trpc.useUtils();
+  
   const addMutation = trpc.shipments.add.useMutation({
     onSuccess: () => {
       toast.success("Shipment added successfully!");
@@ -39,6 +90,17 @@ export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
     },
     onError: (error) => {
       toast.error("Failed to add shipment: " + error.message);
+    },
+  });
+
+  const updateMutation = trpc.shipments.update.useMutation({
+    onSuccess: () => {
+      toast.success("Shipment updated successfully!");
+      utils.shipments.list.invalidate();
+      handleClose();
+    },
+    onError: (error) => {
+      toast.error("Failed to update shipment: " + error.message);
     },
   });
 
@@ -56,22 +118,7 @@ export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
   const handleClose = () => {
     onHide();
     setBulkText("");
-    setFormData({
-      orderNumber: "",
-      label: "",
-      supplier: "",
-      cro: "",
-      container: "",
-      mawbNumber: "",
-      carrier: "",
-      status: "In transit",
-      atd: "",
-      pol: "",
-      pod: "",
-      eta: "",
-      ata: "",
-      bolNumber: "",
-    });
+    setFormData(initialFormData);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -81,7 +128,16 @@ export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (bulkText.trim()) {
+    if (isEditing && editingShipment) {
+      // Update existing shipment
+      updateMutation.mutate({
+        id: editingShipment.id,
+        data: {
+          ...formData,
+          shipmentType,
+        },
+      });
+    } else if (bulkText.trim()) {
       // Parse bulk text (container numbers separated by newlines)
       const containers = bulkText.trim().split("\n").filter(c => c.trim());
       const shipments = containers.map((container, idx) => ({
@@ -119,10 +175,14 @@ export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
     }
   };
 
+  const isPending = addMutation.isPending || addBulkMutation.isPending || updateMutation.isPending;
+
   return (
     <Modal show={show} onHide={handleClose} size="lg" centered>
       <Modal.Header closeButton className="border-bottom-0 pb-2">
-        <Modal.Title className="fw-bold">Add or update</Modal.Title>
+        <Modal.Title className="fw-bold">
+          {isEditing ? "Edit Shipment" : "Add or update"}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body className="pt-2">
         <Form onSubmit={handleSubmit}>
@@ -160,56 +220,60 @@ export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
             </div>
           </div>
 
-          {/* Input Method Tabs */}
-          <Tabs
-            activeKey={inputMethod}
-            onSelect={(k) => setInputMethod(k as "container" | "bol")}
-            className="mb-4"
-          >
-            <Tab eventKey="container" title={shipmentType === "ocean" ? "Container numbers" : "AWB numbers"}>
-              {/* File Upload */}
-              <div className="border border-2 border-dashed rounded p-4 text-center mb-3 bg-light">
-                <Upload className="mx-auto mb-2 text-primary" size={32} />
-                <label htmlFor="file-upload" className="text-primary fw-medium cursor-pointer">
-                  Click here to add your spreadsheet
-                </label>
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept=".csv,.xlsx,.xls"
-                  className="d-none"
-                  onChange={handleFileUpload}
-                />
-              </div>
+          {/* Input Method Tabs - Only show for new shipments */}
+          {!isEditing && (
+            <Tabs
+              activeKey={inputMethod}
+              onSelect={(k) => setInputMethod(k as "container" | "bol")}
+              className="mb-4"
+            >
+              <Tab eventKey="container" title={shipmentType === "ocean" ? "Container numbers" : "AWB numbers"}>
+                {/* File Upload */}
+                <div className="border border-2 border-dashed rounded p-4 text-center mb-3 bg-light">
+                  <Upload className="mx-auto mb-2 text-primary" size={32} />
+                  <label htmlFor="file-upload" className="text-primary fw-medium cursor-pointer">
+                    Click here to add your spreadsheet
+                  </label>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept=".csv,.xlsx,.xls"
+                    className="d-none"
+                    onChange={handleFileUpload}
+                  />
+                </div>
 
-              <div className="text-center text-muted mb-3">or</div>
+                <div className="text-center text-muted mb-3">or</div>
 
-              {/* Bulk Paste */}
-              <div>
-                <Form.Label className="fw-medium">Copy and paste</Form.Label>
+                {/* Bulk Paste */}
+                <div>
+                  <Form.Label className="fw-medium">Copy and paste</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={4}
+                    placeholder={`Paste your ${shipmentType === "ocean" ? "container" : "AWB"} number(s) here\nMSKU9621299\nMEDU8707688`}
+                    value={bulkText}
+                    onChange={(e) => setBulkText(e.target.value)}
+                  />
+                </div>
+              </Tab>
+              <Tab eventKey="bol" title="BoL numbers">
                 <Form.Control
                   as="textarea"
                   rows={4}
-                  placeholder={`Paste your ${shipmentType === "ocean" ? "container" : "AWB"} number(s) here\nMSKU9621299\nMEDU8707688`}
+                  placeholder="Paste your BoL number(s) here"
                   value={bulkText}
                   onChange={(e) => setBulkText(e.target.value)}
                 />
-              </div>
-            </Tab>
-            <Tab eventKey="bol" title="BoL numbers">
-              <Form.Control
-                as="textarea"
-                rows={4}
-                placeholder="Paste your BoL number(s) here"
-                value={bulkText}
-                onChange={(e) => setBulkText(e.target.value)}
-              />
-            </Tab>
-          </Tabs>
+              </Tab>
+            </Tabs>
+          )}
 
-          {/* Optional Fields */}
-          <div className="border-top pt-3">
-            <h6 className="fw-bold mb-3">Additional Details (Optional)</h6>
+          {/* Form Fields */}
+          <div className={isEditing ? "" : "border-top pt-3"}>
+            <h6 className="fw-bold mb-3">
+              {isEditing ? "Shipment Details" : "Additional Details (Optional)"}
+            </h6>
             <Row className="g-3">
               <Col md={6}>
                 <Form.Group>
@@ -255,6 +319,65 @@ export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
                   />
                 </Form.Group>
               </Col>
+              {isEditing && (
+                <>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="fw-medium small">Container Number</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="e.g., MSCU8473920"
+                        value={formData.container}
+                        onChange={(e) => handleChange("container", e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="fw-medium small">MAWB Number</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="e.g., 123-45678901"
+                        value={formData.mawbNumber}
+                        onChange={(e) => handleChange("mawbNumber", e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="fw-medium small">CRO</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="e.g., CRO-001"
+                        value={formData.cro}
+                        onChange={(e) => handleChange("cro", e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="fw-medium small">ATD</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="e.g., Mon, 20 Jan"
+                        value={formData.atd}
+                        onChange={(e) => handleChange("atd", e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="fw-medium small">ATA</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="e.g., Thu, 30 Jan"
+                        value={formData.ata}
+                        onChange={(e) => handleChange("ata", e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                </>
+              )}
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-medium small">Port of Loading</Form.Label>
@@ -299,8 +422,11 @@ export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
                     <option value="Gated in full">Gated in full</option>
                     <option value="Loaded at Pol">Loaded at Pol</option>
                     <option value="Arrived">Arrived</option>
+                    <option value="Delivered">Delivered</option>
                     <option value="Customs Hold">Customs Hold</option>
                     <option value="Vessel Departed">Vessel Departed</option>
+                    <option value="Delayed">Delayed</option>
+                    <option value="Cancelled">Cancelled</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -314,9 +440,9 @@ export function AddShipmentModal({ show, onHide }: AddShipmentModalProps) {
             <Button 
               variant="primary" 
               type="submit" 
-              disabled={addMutation.isPending || addBulkMutation.isPending}
+              disabled={isPending}
             >
-              {addMutation.isPending || addBulkMutation.isPending ? "Adding..." : "Next"}
+              {isPending ? (isEditing ? "Saving..." : "Adding...") : (isEditing ? "Save Changes" : "Next")}
             </Button>
           </div>
         </Form>
