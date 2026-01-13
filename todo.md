@@ -146,3 +146,11 @@
 - [x] Ensure consistent styling across all application components
 - [x] Differentiate status colors from app's primary orange theme
 - [x] Added color mapping for additional statuses (Loaded, Gated, Departed)
+
+## Theme Color Update (Completed)
+- [x] Replace red theme color with orange throughout the app
+- [x] Update Beacon logo/branding to orange (#FF5722)
+- [x] Change order number links from red to orange
+- [x] Update In transit status badge to orange/warning
+- [x] Ensure consistent orange theme across all components
+- [x] Updated tab underline to orange

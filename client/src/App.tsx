@@ -35,7 +35,7 @@ import { CommentsModal } from "./components/CommentsModal";
 import AttachmentsModal from "./components/AttachmentsModal";
 
 // Status color mapping for visual recognition
-// Using colors that don't conflict with the app's primary orange (#FF5722)
+// Orange theme with matching In transit status
 const getStatusVariant = (status: string): string => {
   const statusLower = status.toLowerCase();
   
@@ -44,19 +44,19 @@ const getStatusVariant = (status: string): string => {
     return 'success';
   }
   
-  // Cyan/Teal - In transit (changed from primary blue to info cyan)
+  // Orange/Warning - In transit (matches app theme)
   if (statusLower.includes('transit') || statusLower.includes('shipping')) {
-    return 'info';
+    return 'warning';
   }
   
-  // Blue - Loaded/Gated
+  // Blue - Loaded/Gated/Departed
   if (statusLower.includes('loaded') || statusLower.includes('gated') || statusLower.includes('departed')) {
     return 'primary';
   }
   
-  // Yellow/Warning - Pending/Processing
+  // Cyan/Info - Pending/Processing
   if (statusLower.includes('pending') || statusLower.includes('processing') || statusLower.includes('preparing')) {
-    return 'warning';
+    return 'info';
   }
   
   // Red - Delayed/Issues/Customs Hold
@@ -252,8 +252,8 @@ function App() {
           <Menu size={24} />
         </Button>
 
-        <Navbar.Brand href="#" className="fw-bold text-danger fs-4 mb-0">
-          <span className="text-danger">●</span> Beacon
+        <Navbar.Brand href="#" className="fw-bold fs-4 mb-0" style={{ color: '#FF5722' }}>
+          <span style={{ color: '#FF5722' }}>●</span> Beacon
         </Navbar.Brand>
 
         <Nav className="ms-auto d-flex flex-row align-items-center gap-2">
@@ -367,8 +367,8 @@ function App() {
           placement="start"
         >
           <Offcanvas.Header closeButton>
-            <Offcanvas.Title className="fw-bold text-danger">
-              <span className="text-danger">●</span> Beacon
+            <Offcanvas.Title className="fw-bold" style={{ color: '#FF5722' }}>
+              <span style={{ color: '#FF5722' }}>●</span> Beacon
             </Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body className="p-0">
@@ -414,7 +414,7 @@ function App() {
             <div className="d-flex flex-wrap align-items-center justify-content-between p-2 p-md-3 gap-2">
               <Nav variant="tabs" className="border-0 flex-nowrap">
                 <Nav.Item>
-                  <Nav.Link className="text-danger border-0 border-bottom border-danger border-2 fw-semibold">
+                  <Nav.Link className="border-0 border-bottom border-2 fw-semibold" style={{ color: '#FF5722', borderBottomColor: '#FF5722' }}>
                     Beacon
                   </Nav.Link>
                 </Nav.Item>
@@ -641,7 +641,7 @@ function App() {
                         sortedShipments.map((shipment, index) => (
                           <tr key={shipment.id}>
                             <td className="text-muted">{index + 1}</td>
-                            <td className="text-danger fw-semibold">
+                            <td className="fw-semibold" style={{ color: '#FF5722' }}>
                               {shipment.orderNumber || "-"}
                             </td>
                             <td>{shipment.supplier}</td>
