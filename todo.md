@@ -255,3 +255,13 @@
 - [x] Write unit tests for email service (1 test passing)
 - [x] Test email delivery for status change notifications
 - [x] Total tests: 40 passing
+
+## ShipStation API Integration (In Progress)
+- [ ] Set up ShipStation API credentials
+- [ ] Create tracking service module
+- [ ] Implement automatic tracking updates
+- [ ] Add scheduled background jobs for polling
+- [ ] Integrate with notification system
+- [ ] Add manual refresh tracking button
+- [ ] Write unit tests for tracking service
+- [ ] Test real-time tracking functionality
