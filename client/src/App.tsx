@@ -32,6 +32,39 @@ import {
 import { trpc } from "./lib/trpc";
 import { AddShipmentModal } from "./components/AddShipmentModal";
 
+// Status color mapping for visual recognition
+const getStatusVariant = (status: string): string => {
+  const statusLower = status.toLowerCase();
+  
+  // Green - Delivered/Arrived
+  if (statusLower.includes('delivered') || statusLower.includes('arrived') || statusLower.includes('completed')) {
+    return 'success';
+  }
+  
+  // Blue - In transit
+  if (statusLower.includes('transit') || statusLower.includes('shipping')) {
+    return 'primary';
+  }
+  
+  // Yellow/Warning - Pending/Processing
+  if (statusLower.includes('pending') || statusLower.includes('processing') || statusLower.includes('preparing')) {
+    return 'warning';
+  }
+  
+  // Red - Delayed/Issues
+  if (statusLower.includes('delayed') || statusLower.includes('issue') || statusLower.includes('problem')) {
+    return 'danger';
+  }
+  
+  // Gray - Cancelled/On hold
+  if (statusLower.includes('cancelled') || statusLower.includes('hold') || statusLower.includes('suspended')) {
+    return 'secondary';
+  }
+  
+  // Default - Info (light blue)
+  return 'info';
+};
+
 type Shipment = {
   id: string;
   orderNumber: string;
@@ -527,7 +560,7 @@ function App() {
                         <td>{shipment.mawbNumber || "-"}</td>
                         <td>{shipment.carrier}</td>
                         <td>
-                          <Badge bg="danger">{shipment.status}</Badge>
+                          <Badge bg={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
                         </td>
                         <td>{shipment.atd || "-"}</td>
                         <td>{shipment.eta}</td>
