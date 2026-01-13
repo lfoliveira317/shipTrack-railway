@@ -38,3 +38,11 @@
 - [x] Optimize tablet view for better usability
 - [x] Add search functionality across all shipment fields
 - [x] Add mobile search bar for better UX
+
+## Style Restoration (Completed)
+- [x] Restore original Swiss Style design system
+- [x] Add Signal Orange accent color (#FF5722)
+- [x] Restore proper Bootstrap styling and spacing
+- [x] Ensure typography matches original design
+- [x] Maintain functional improvements (filters, sorting, search)
+- [x] Import Bootstrap CSS properly in main.tsx
