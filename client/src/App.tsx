@@ -490,10 +490,10 @@ function App() {
           </div>
 
           {/* Data Grid */}
-          <div className="flex-grow-1 overflow-auto p-2 p-md-3">
+          <div className="flex-grow-1 p-2 p-md-3" style={{ overflow: 'hidden' }}>
             <div className="card shadow-sm border-0">
               <div className="card-body p-0">
-                <div className="table-responsive">
+                <div className="table-responsive table-sticky-header">
                   <Table bordered hover className="mb-0">
                 <thead className="table-light">
                   <tr>

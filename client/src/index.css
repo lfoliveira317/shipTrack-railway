@@ -285,3 +285,44 @@ h1, h2, h3, h4, h5, h6 {
     min-width: 1400px;
   }
 }
+
+/* Sticky Table Header */
+.table-sticky-header {
+  position: relative;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.table-sticky-header thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-sticky-header thead th {
+  background-color: #f8f9fa !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-sticky-header thead.is-stuck th {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure proper z-index layering */
+.table-sticky-header tbody {
+  position: relative;
+  z-index: 1;
+}
+
+/* Sticky header on mobile */
+@media (max-width: 768px) {
+  .table-sticky-header {
+    max-height: calc(100vh - 200px);
+  }
+  
+  .table-sticky-header thead th {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.25rem;
+  }
+}
