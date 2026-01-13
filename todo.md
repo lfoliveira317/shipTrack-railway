@@ -162,3 +162,13 @@
 - [x] Done button in notifications modal changed to orange
 - [x] Comment count badges changed to orange
 - [x] Sidebar user avatar changed to orange
+
+## API Configuration Modal (Completed)
+- [x] Create backend API endpoints for configuration management
+- [x] Create JSON storage for API configurations
+- [x] Build configuration modal component with checkbox options
+- [x] Add single API option for all shipments
+- [x] Add per-carrier API option with dropdown (MSC, etc.)
+- [x] Include fields: URL, Port, Token, User, Password
+- [x] Save configuration to separate JSON file
+- [x] Write unit tests for configuration endpoints (6 tests passing)

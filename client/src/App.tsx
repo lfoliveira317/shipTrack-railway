@@ -28,11 +28,13 @@ import {
   ChevronDown,
   Edit2,
   Download,
+  Settings,
 } from "lucide-react";
 import { trpc } from "./lib/trpc";
 import { AddShipmentModal } from "./components/AddShipmentModal";
 import { CommentsModal } from "./components/CommentsModal";
 import AttachmentsModal from "./components/AttachmentsModal";
+import { ApiConfigModal } from "./components/ApiConfigModal";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -100,6 +102,7 @@ function App() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showApiConfig, setShowApiConfig] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -312,7 +315,10 @@ function App() {
 
             <Dropdown.Menu>
               <Dropdown.Item href="#">Profile</Dropdown.Item>
-              <Dropdown.Item href="#">Settings</Dropdown.Item>
+              <Dropdown.Item onClick={() => setShowApiConfig(true)}>
+                <Settings size={16} className="me-2" />
+                API Configuration
+              </Dropdown.Item>
               <Dropdown.Divider />
               <Dropdown.Item href="#">Logout</Dropdown.Item>
             </Dropdown.Menu>
@@ -820,6 +826,12 @@ function App() {
         onHide={() => setAttachmentsModalShipment(null)}
         shipmentId={attachmentsModalShipment?.id || ""}
         shipmentLabel={attachmentsModalShipment?.label || ""}
+      />
+
+      {/* API Configuration Modal */}
+      <ApiConfigModal
+        show={showApiConfig}
+        onHide={() => setShowApiConfig(false)}
       />
     </div>
   );
