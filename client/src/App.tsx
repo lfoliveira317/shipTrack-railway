@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { trpc } from "./lib/trpc";
 import { AddShipmentModal } from "./components/AddShipmentModal";
+import { CommentsModal } from "./components/CommentsModal";
 
 // Status color mapping for visual recognition
 const getStatusVariant = (status: string): string => {
@@ -96,8 +97,10 @@ function App() {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [searchTerm, setSearchTerm] = useState("");
+  const [commentsModalShipment, setCommentsModalShipment] = useState<{ id: string; orderNumber: string } | null>(null);
 
   const { data: shipments = [], refetch } = trpc.shipments.list.useQuery();
+  const { data: commentCounts = {} } = trpc.comments.counts.useQuery();
 
   const handleSidebarToggle = () => setShowSidebar(!showSidebar);
   const handleAddModalClose = () => setShowAddModal(false);
@@ -568,20 +571,33 @@ function App() {
                         <td>{shipment.pol}</td>
                         <td>{shipment.pod || "-"}</td>
                         <td>
-                          <div className="d-flex gap-2">
+                          <div className="d-flex gap-2 align-items-center">
                             <Button
                               variant="link"
                               size="sm"
                               className="p-0 text-muted"
+                              title="Attachments"
                             >
                               <Paperclip size={16} />
                             </Button>
                             <Button
                               variant="link"
                               size="sm"
-                              className="p-0 text-muted"
+                              className="p-0 text-muted position-relative"
+                              title="Comments"
+                              onClick={() => setCommentsModalShipment({ id: shipment.id, orderNumber: shipment.orderNumber })}
                             >
                               <MessageSquare size={16} />
+                              {commentCounts[shipment.id] > 0 && (
+                                <Badge 
+                                  bg="danger" 
+                                  pill 
+                                  className="position-absolute"
+                                  style={{ top: -8, right: -8, fontSize: '0.6rem', padding: '2px 5px' }}
+                                >
+                                  {commentCounts[shipment.id]}
+                                </Badge>
+                              )}
                             </Button>
                           </div>
                         </td>
@@ -682,6 +698,14 @@ function App() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Comments Modal */}
+      <CommentsModal
+        show={commentsModalShipment !== null}
+        onHide={() => setCommentsModalShipment(null)}
+        shipmentId={commentsModalShipment?.id || ""}
+        orderNumber={commentsModalShipment?.orderNumber || ""}
+      />
     </div>
   );
 }

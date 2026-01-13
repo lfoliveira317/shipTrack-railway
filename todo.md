@@ -93,3 +93,13 @@
 - [x] Test on mobile and desktop devices
 - [x] Set max-height for scrollable area
 - [x] Add responsive adjustments for mobile
+
+## Shipment Comments Feature (Completed)
+- [x] Create comments data structure (separate comments.json file)
+- [x] Add backend API endpoints for comments (list, add, delete)
+- [x] Create comments modal component
+- [x] Display comment count badge on each row
+- [x] Add new comment form with timestamp
+- [x] Show comment author and date
+- [x] Integrate with shipment action buttons
+- [x] Write unit tests for comments API (6 tests passing)
