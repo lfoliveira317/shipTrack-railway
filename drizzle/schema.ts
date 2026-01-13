@@ -57,6 +57,8 @@ export const attachments = mysqlTable("attachments", {
   filename: varchar("filename", { length: 255 }).notNull(),
   fileType: varchar("fileType", { length: 100 }).notNull(),
   fileSize: int("fileSize").notNull(),
+  s3Key: varchar("s3Key", { length: 500 }),
+  s3Url: varchar("s3Url", { length: 1000 }),
   uploadedBy: varchar("uploadedBy", { length: 255 }).notNull(),
   uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
 });

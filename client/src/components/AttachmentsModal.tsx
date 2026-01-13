@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Modal, Button, Form, ListGroup, Badge, Spinner } from 'react-bootstrap';
-import { Paperclip, Upload, Trash2, FileText, Image, File, X, Eye, Download } from 'lucide-react';
+import { Modal, Button, Form, ListGroup, Badge, Spinner, Alert } from 'react-bootstrap';
+import { Paperclip, Upload, Trash2, FileText, Image, File, X, Eye, Download, CheckCircle, AlertCircle } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+import { toast } from 'sonner';
 
 interface AttachmentsModalProps {
   show: boolean;
@@ -15,6 +16,8 @@ interface Attachment {
   filename: string;
   fileSize: number;
   fileType: string;
+  s3Key: string | null;
+  s3Url: string | null;
   uploadedBy: string;
   uploadedAt: Date;
 }
@@ -28,6 +31,8 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const utils = trpc.useUtils();
@@ -37,14 +42,28 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     { enabled: show }
   );
   
-  const addAttachment = trpc.attachments.add.useMutation({
+  const uploadAttachment = trpc.attachments.upload.useMutation({
     onSuccess: () => {
       utils.attachments.byShipment.invalidate({ shipmentId });
       utils.attachments.counts.invalidate();
       setSelectedFile(null);
+      setIsUploading(false);
+      setUploadProgress(0);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      toast.success('File uploaded successfully!');
+    },
+    onError: (error) => {
+      setIsUploading(false);
+      setUploadProgress(0);
+      toast.error(`Upload failed: ${error.message}`);
+    },
+  });
+  
+  const getDownloadUrl = trpc.attachments.getDownloadUrl.useMutation({
+    onError: (error) => {
+      toast.error(`Failed to get download URL: ${error.message}`);
     },
   });
   
@@ -52,26 +71,69 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     onSuccess: () => {
       utils.attachments.byShipment.invalidate({ shipmentId });
       utils.attachments.counts.invalidate();
+      toast.success('Attachment deleted');
+    },
+    onError: (error) => {
+      toast.error(`Delete failed: ${error.message}`);
     },
   });
   
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size must be less than 10MB');
+        return;
+      }
       setSelectedFile(file);
     }
   };
   
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!selectedFile) return;
     
-    addAttachment.mutate({
-      shipmentId,
-      filename: selectedFile.name,
-      fileSize: selectedFile.size,
-      fileType: selectedFile.type || 'application/octet-stream',
-      uploadedBy: 'Admin User',
-    });
+    setIsUploading(true);
+    setUploadProgress(10);
+    
+    try {
+      // Read file as base64
+      const reader = new FileReader();
+      reader.onprogress = (event) => {
+        if (event.lengthComputable) {
+          setUploadProgress(Math.round((event.loaded / event.total) * 50));
+        }
+      };
+      
+      reader.onload = async () => {
+        setUploadProgress(60);
+        const base64Data = (reader.result as string).split(',')[1]; // Remove data URL prefix
+        
+        setUploadProgress(70);
+        
+        // Upload to S3 via API
+        await uploadAttachment.mutateAsync({
+          shipmentId,
+          filename: selectedFile.name,
+          fileSize: selectedFile.size,
+          fileType: selectedFile.type || 'application/octet-stream',
+          fileData: base64Data,
+          uploadedBy: 'Admin User',
+        });
+        
+        setUploadProgress(100);
+      };
+      
+      reader.onerror = () => {
+        setIsUploading(false);
+        toast.error('Failed to read file');
+      };
+      
+      reader.readAsDataURL(selectedFile);
+    } catch (error) {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
   
   const handleDelete = (attachmentId: number) => {
@@ -80,19 +142,28 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     }
   };
   
-  const handlePreview = (attachment: Attachment) => {
+  const handlePreview = async (attachment: Attachment) => {
     setPreviewAttachment(attachment);
     
-    // Generate a mock preview URL (in real implementation, this would fetch from server/S3)
-    // For demonstration, we'll create a placeholder based on file type
-    if (attachment.fileType.startsWith('image/')) {
-      // Mock image URL - in production, this would be the actual file URL
-      setPreviewUrl(`https://via.placeholder.com/800x600.png?text=${encodeURIComponent(attachment.filename)}`);
-    } else if (attachment.fileType.includes('pdf')) {
-      // Mock PDF preview
-      setPreviewUrl('about:blank'); // In production, use actual PDF URL
+    if (attachment.s3Key) {
+      try {
+        const result = await getDownloadUrl.mutateAsync({ attachmentId: attachment.id });
+        setPreviewUrl(result.url);
+      } catch (error) {
+        // Use placeholder if can't get URL
+        if (attachment.fileType.startsWith('image/')) {
+          setPreviewUrl(`https://via.placeholder.com/800x600.png?text=${encodeURIComponent(attachment.filename)}`);
+        } else {
+          setPreviewUrl('');
+        }
+      }
     } else {
-      setPreviewUrl('');
+      // No S3 key - use placeholder
+      if (attachment.fileType.startsWith('image/')) {
+        setPreviewUrl(`https://via.placeholder.com/800x600.png?text=${encodeURIComponent(attachment.filename)}`);
+      } else {
+        setPreviewUrl('');
+      }
     }
   };
   
@@ -101,9 +172,28 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     setPreviewUrl('');
   };
   
-  const handleDownload = (attachment: Attachment) => {
-    // Mock download - in production, this would download from server/S3
-    alert(`Downloading: ${attachment.filename}\n\nIn production, this would download the actual file from storage.`);
+  const handleDownload = async (attachment: Attachment) => {
+    if (!attachment.s3Key) {
+      toast.error('No file associated with this attachment');
+      return;
+    }
+    
+    try {
+      const result = await getDownloadUrl.mutateAsync({ attachmentId: attachment.id });
+      
+      // Open download URL in new tab or trigger download
+      const link = document.createElement('a');
+      link.href = result.url;
+      link.download = attachment.filename;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Download started');
+    } catch (error) {
+      toast.error('Failed to download file');
+    }
   };
   
   const formatFileSize = (bytes: number): string => {
@@ -138,6 +228,10 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     return fileType.startsWith('image/') || fileType.includes('pdf');
   };
   
+  const hasS3File = (attachment: Attachment): boolean => {
+    return !!attachment.s3Key;
+  };
+  
   // Preview Modal
   if (previewAttachment) {
     return (
@@ -146,11 +240,17 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
           <Modal.Title className="d-flex align-items-center gap-2">
             <Eye size={24} style={{ color: '#FF5722' }} />
             <span>{previewAttachment.filename}</span>
+            {hasS3File(previewAttachment) && (
+              <Badge bg="success" className="ms-2">
+                <CheckCircle size={12} className="me-1" />
+                Stored in Cloud
+              </Badge>
+            )}
           </Modal.Title>
         </Modal.Header>
         
         <Modal.Body className="p-4">
-          {previewAttachment.fileType.startsWith('image/') ? (
+          {previewAttachment.fileType.startsWith('image/') && previewUrl ? (
             <div className="text-center">
               <img
                 src={previewUrl}
@@ -161,22 +261,29 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
             </div>
           ) : previewAttachment.fileType.includes('pdf') ? (
             <div className="border rounded p-4 text-center bg-light" style={{ minHeight: '400px' }}>
-              <FileText size={64} className="text-muted mb-3" />
-              <h5>{previewAttachment.filename}</h5>
-              <p className="text-muted">PDF Preview</p>
-              <p className="small text-muted">
-                In production, this would display an embedded PDF viewer.
-                <br />
-                For now, use the download button to view the file.
-              </p>
-              <Button
-                style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}
-                onClick={() => handleDownload(previewAttachment)}
-                className="mt-3"
-              >
-                <Download size={18} className="me-2" />
-                Download PDF
-              </Button>
+              {previewUrl ? (
+                <iframe
+                  src={previewUrl}
+                  title={previewAttachment.filename}
+                  className="w-100 rounded"
+                  style={{ height: '500px', border: 'none' }}
+                />
+              ) : (
+                <>
+                  <FileText size={64} className="text-muted mb-3" />
+                  <h5>{previewAttachment.filename}</h5>
+                  <p className="text-muted">PDF Preview</p>
+                  <Button
+                    style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}
+                    onClick={() => handleDownload(previewAttachment)}
+                    className="mt-3"
+                    disabled={!hasS3File(previewAttachment)}
+                  >
+                    <Download size={18} className="me-2" />
+                    Download PDF
+                  </Button>
+                </>
+              )}
             </div>
           ) : (
             <div className="text-center py-5">
@@ -203,6 +310,20 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
                 <small className="text-muted d-block">File Type</small>
                 <strong>{previewAttachment.fileType}</strong>
               </div>
+              <div className="col-12">
+                <small className="text-muted d-block">Storage Status</small>
+                {hasS3File(previewAttachment) ? (
+                  <Badge bg="success">
+                    <CheckCircle size={12} className="me-1" />
+                    Stored in Cloud Storage
+                  </Badge>
+                ) : (
+                  <Badge bg="warning" text="dark">
+                    <AlertCircle size={12} className="me-1" />
+                    Metadata Only
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         </Modal.Body>
@@ -214,8 +335,13 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
           <Button
             style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}
             onClick={() => handleDownload(previewAttachment)}
+            disabled={!hasS3File(previewAttachment) || getDownloadUrl.isPending}
           >
-            <Download size={18} className="me-2" />
+            {getDownloadUrl.isPending ? (
+              <Spinner size="sm" animation="border" className="me-2" />
+            ) : (
+              <Download size={18} className="me-2" />
+            )}
             Download
           </Button>
         </Modal.Footer>
@@ -243,14 +369,15 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
               ref={fileInputRef}
               onChange={handleFileSelect}
               className="flex-grow-1"
+              disabled={isUploading}
             />
             <Button
               style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}
               onClick={handleUpload}
-              disabled={!selectedFile || addAttachment.isPending}
+              disabled={!selectedFile || isUploading}
               className="d-flex align-items-center gap-2"
             >
-              {addAttachment.isPending ? (
+              {isUploading ? (
                 <Spinner size="sm" animation="border" />
               ) : (
                 <Upload size={18} />
@@ -263,6 +390,24 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
               Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
             </div>
           )}
+          {isUploading && (
+            <div className="mt-2">
+              <div className="progress" style={{ height: '8px' }}>
+                <div
+                  className="progress-bar"
+                  role="progressbar"
+                  style={{ width: `${uploadProgress}%`, backgroundColor: '#FF5722' }}
+                  aria-valuenow={uploadProgress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                />
+              </div>
+              <small className="text-muted">Uploading... {uploadProgress}%</small>
+            </div>
+          )}
+          <Alert variant="info" className="mt-3 mb-0 small">
+            <strong>Note:</strong> Files are securely stored in cloud storage. Maximum file size: 10MB.
+          </Alert>
         </div>
         
         {/* Attachments List */}
@@ -287,7 +432,19 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
                 <div className="d-flex align-items-center gap-3">
                   {getFileIcon(attachment.fileType)}
                   <div>
-                    <div className="fw-medium">{attachment.filename}</div>
+                    <div className="fw-medium d-flex align-items-center gap-2">
+                      {attachment.filename}
+                      {hasS3File(attachment) ? (
+                        <Badge bg="success" className="small">
+                          <CheckCircle size={10} className="me-1" />
+                          Cloud
+                        </Badge>
+                      ) : (
+                        <Badge bg="warning" text="dark" className="small">
+                          Metadata
+                        </Badge>
+                      )}
+                    </div>
                     <small className="text-muted">
                       {formatFileSize(attachment.fileSize)} • Uploaded by {attachment.uploadedBy} • {formatDate(attachment.uploadedAt)}
                     </small>
@@ -309,6 +466,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
                     size="sm"
                     onClick={() => handleDownload(attachment)}
                     title="Download"
+                    disabled={!hasS3File(attachment) || getDownloadUrl.isPending}
                   >
                     <Download size={16} />
                   </Button>

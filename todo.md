@@ -204,3 +204,13 @@
 - [x] Update unit tests for database integration (13 tests passing)
 - [x] Test all functionality with database
 - [x] Remove JSON file storage dependencies
+
+## S3 Storage Integration for Attachments (Completed)
+- [x] Review existing S3 storage helpers in the template
+- [x] Update attachments API to use S3 for file storage
+- [x] Add presigned URL generation for secure uploads/downloads
+- [x] Update AttachmentsModal for real file uploads with progress bar
+- [x] Add file download functionality with presigned URLs
+- [x] Store file metadata (S3 key, URL) in database
+- [x] Write unit tests for S3 integration (16 tests passing)
+- [x] Test file upload and download functionality
