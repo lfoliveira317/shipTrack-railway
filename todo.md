@@ -228,3 +228,9 @@
 - [x] Add role badge in user header (Admin/Viewer)
 - [x] Write unit tests for ACL functionality (32 tests passing)
 - [x] Test admin and viewer role permissions
+
+## Neon Database Integration (Completed)
+- [x] Add Neon connection string to environment variables
+- [x] Push database schema to Neon (5 tables: users, shipments, comments, attachments, apiConfigs)
+- [x] Test connection and verify all tables created
+- [x] Verify application works with Neon database (32 tests passing)
