@@ -279,8 +279,8 @@ function App() {
           >
             <Bell size={20} />
             <span
-              className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style={{ fontSize: "0.6rem" }}
+              className="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+              style={{ backgroundColor: '#FF5722', fontSize: "0.6rem" }}
             >
               3
             </span>
@@ -294,8 +294,8 @@ function App() {
             >
               <div className="d-flex align-items-center gap-2">
                 <div
-                  className="rounded-circle bg-danger d-flex align-items-center justify-content-center text-white"
-                  style={{ width: "32px", height: "32px" }}
+                  className="rounded-circle d-flex align-items-center justify-content-center text-white"
+                  style={{ width: "32px", height: "32px", backgroundColor: '#FF5722' }}
                 >
                   A
                 </div>
@@ -345,8 +345,8 @@ function App() {
           <div className="mt-auto p-3 border-top">
             <div className="d-flex align-items-center gap-2">
               <div
-                className="rounded-circle bg-danger d-flex align-items-center justify-content-center text-white"
-                style={{ width: "36px", height: "36px" }}
+                className="rounded-circle d-flex align-items-center justify-content-center text-white"
+                style={{ width: "36px", height: "36px", backgroundColor: '#FF5722' }}
               >
                 A
               </div>
@@ -391,8 +391,8 @@ function App() {
             <div className="mt-auto p-3 border-top">
               <div className="d-flex align-items-center gap-2">
                 <div
-                  className="rounded-circle bg-danger d-flex align-items-center justify-content-center text-white"
-                  style={{ width: "36px", height: "36px" }}
+                  className="rounded-circle d-flex align-items-center justify-content-center text-white"
+                  style={{ width: "36px", height: "36px", backgroundColor: '#FF5722' }}
                 >
                   A
                 </div>
@@ -571,7 +571,7 @@ function App() {
                   <Mail size={16} className="me-1" />
                   Email alert
                 </Button>
-                <Button variant="danger" size="sm" onClick={handleAddModalShow}>
+                <Button size="sm" onClick={handleAddModalShow} style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}>
                   <Plus size={16} className="me-1" />
                   Add
                 </Button>
@@ -688,10 +688,9 @@ function App() {
                                   <MessageSquare size={16} />
                                   {commentCounts[shipment.id] > 0 && (
                                     <Badge 
-                                      bg="danger" 
-                                      pill 
+                                      pill
                                       className="position-absolute"
-                                      style={{ top: -8, right: -8, fontSize: '0.6rem', padding: '2px 5px' }}
+                                      style={{ backgroundColor: '#FF5722', top: -8, right: -8, fontSize: '0.6rem', padding: '2px 5px' }}
                                     >
                                       {commentCounts[shipment.id]}
                                     </Badge>
@@ -801,7 +800,7 @@ function App() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={handleNotificationsClose}>
+          <Button onClick={handleNotificationsClose} style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}>
             Done
           </Button>
         </Modal.Footer>

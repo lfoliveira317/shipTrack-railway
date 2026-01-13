@@ -154,3 +154,11 @@
 - [x] Update In transit status badge to orange/warning
 - [x] Ensure consistent orange theme across all components
 - [x] Updated tab underline to orange
+
+## Remaining Red Elements Fixed (Completed)
+- [x] Admin avatar circle changed to orange
+- [x] Notification badge changed to orange
+- [x] Add button changed to orange
+- [x] Done button in notifications modal changed to orange
+- [x] Comment count badges changed to orange
+- [x] Sidebar user avatar changed to orange
