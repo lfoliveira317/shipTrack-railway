@@ -181,3 +181,9 @@
 - [x] Add eye icon to view/preview attachments
 - [x] Display file metadata in preview (size, type, uploader, date)
 - [x] Full-screen preview modal for better viewing experience
+
+## Remove Air Shipments (Completed)
+- [x] Remove air shipments option from Add button dropdown
+- [x] Remove air shipment notification from notifications modal
+- [x] Ensure only ocean/container shipments are supported
+- [x] Simplified AddShipmentModal to ocean-only mode

@@ -785,25 +785,6 @@ function App() {
               </div>
             </div>
           </div>
-
-          <div className="mb-4">
-            <div className="d-flex justify-content-between align-items-start mb-2">
-              <div>
-                <h6 className="mb-1">Air: AWB departure confirmation</h6>
-                <p className="text-muted small mb-0">
-                  AWBs that have departed from origin airport
-                </p>
-              </div>
-              <div className="btn-group" role="group">
-                <Button variant="outline-secondary" size="sm">
-                  Off
-                </Button>
-                <Button variant="primary" size="sm">
-                  Live
-                </Button>
-              </div>
-            </div>
-          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={handleNotificationsClose} style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}>

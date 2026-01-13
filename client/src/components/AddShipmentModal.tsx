@@ -47,7 +47,7 @@ const initialFormData = {
 };
 
 export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentModalProps) {
-  const [shipmentType, setShipmentType] = useState<"ocean" | "air">("ocean");
+  const [shipmentType] = useState<"ocean" | "air">("ocean"); // Always ocean, air removed
   const [inputMethod, setInputMethod] = useState<"container" | "bol">("container");
   const [bulkText, setBulkText] = useState("");
   const [formData, setFormData] = useState(initialFormData);
@@ -73,10 +73,10 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
         ata: editingShipment.ata || "",
         bolNumber: editingShipment.bolNumber || "",
       });
-      setShipmentType(editingShipment.shipmentType || "ocean");
+      // shipmentType is always ocean now
     } else {
       setFormData(initialFormData);
-      setShipmentType("ocean");
+      // shipmentType is always ocean now
     }
   }, [editingShipment, show]);
 
@@ -184,41 +184,9 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
           {isEditing ? "Edit Shipment" : "Add or update"}
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="pt-2">
+      <Modal.Body>
         <Form onSubmit={handleSubmit}>
-          {/* Shipment Type Tabs */}
-          <div className="mb-4">
-            <div className="d-flex gap-3">
-              <Button
-                variant={shipmentType === "ocean" ? "primary" : "outline-secondary"}
-                className="flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-3"
-                onClick={() => setShipmentType("ocean")}
-                type="button"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 18h18M3 18s3-3 9-3 9 3 9 3M3 18v-2M21 18v-2M12 15V9M12 9L8 13M12 9l4 4" />
-                </svg>
-                <div className="text-start">
-                  <div className="fw-bold">Ocean shipments</div>
-                  <small className="text-muted">Add container numbers</small>
-                </div>
-              </Button>
-              <Button
-                variant={shipmentType === "air" ? "primary" : "outline-secondary"}
-                className="flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-3"
-                onClick={() => setShipmentType("air")}
-                type="button"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
-                </svg>
-                <div className="text-start">
-                  <div className="fw-bold">Air shipments</div>
-                  <small className="text-muted">Add AWB numbers</small>
-                </div>
-              </Button>
-            </div>
-          </div>
+          {/* Ocean shipments only - Air shipments removed */}
 
           {/* Input Method Tabs - Only show for new shipments */}
           {!isEditing && (
@@ -227,7 +195,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
               onSelect={(k) => setInputMethod(k as "container" | "bol")}
               className="mb-4"
             >
-              <Tab eventKey="container" title={shipmentType === "ocean" ? "Container numbers" : "AWB numbers"}>
+              <Tab eventKey="container" title="Container numbers">
                 {/* File Upload */}
                 <div className="border border-2 border-dashed rounded p-4 text-center mb-3 bg-light">
                   <Upload className="mx-auto mb-2 text-primary" size={32} />
