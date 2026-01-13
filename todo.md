@@ -24,3 +24,17 @@
 - [x] Email alert button (placeholder)
 - [x] Bulk shipment API endpoint
 - [x] Updated unit tests for new schema
+
+## New Requirements (Completed)
+- [x] Remove Live Boards, Plan, Report, Team navigation items
+- [x] Simplify sidebar to show only Orders & Shipments
+- [x] Implement functional filters to sort grid by columns
+- [x] Add sort by Order Number
+- [x] Add sort by Supplier
+- [x] Add sort by Status
+- [x] Add sort by Carrier
+- [x] Add sort by ETA
+- [x] Enhance mobile responsiveness for grid
+- [x] Optimize tablet view for better usability
+- [x] Add search functionality across all shipment fields
+- [x] Add mobile search bar for better UX
