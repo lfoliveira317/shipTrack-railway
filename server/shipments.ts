@@ -2,7 +2,7 @@ import { router, protectedProcedure, adminProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "./db";
-import { shipments, type Shipment, type InsertShipment } from "../drizzle/schema";
+import { shipments, notifications, users, type Shipment, type InsertShipment } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 export const shipmentSchema = z.object({
@@ -260,10 +260,33 @@ export const shipmentsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       const { id, data } = input;
+      
+      // Get old shipment data for comparison
+      const oldShipment = await db.select().from(shipments).where(eq(shipments.id, id)).limit(1);
+      
       const { id: _, ...updateData } = data;
       await db.update(shipments)
         .set(updateData as Partial<InsertShipment>)
         .where(eq(shipments.id, id));
+      
+      // Create notification if status changed
+      if (oldShipment.length > 0 && data.status && data.status !== oldShipment[0].status) {
+        // Get all users to notify (admins and regular users, not viewers)
+        const allUsers = await db.select().from(users);
+        const usersToNotify = allUsers.filter(u => u.role !== 'viewer');
+        
+        for (const user of usersToNotify) {
+          await db.insert(notifications).values({
+            userId: user.id,
+            shipmentId: id,
+            type: 'status_change',
+            title: `Shipment Status Updated`,
+            message: `Container ${oldShipment[0].container} status changed from "${oldShipment[0].status}" to "${data.status}"`,
+            isRead: 0,
+          });
+        }
+      }
+      
       return { success: true };
     }),
 

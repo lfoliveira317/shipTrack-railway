@@ -118,6 +118,11 @@ function App() {
   const { data: commentCounts = {} } = trpc.comments.counts.useQuery();
   const { data: attachmentCounts = {} } = trpc.attachments.counts.useQuery();
   const { data: currentUser } = trpc.users.me.useQuery();
+  const { data: notifications = [], refetch: refetchNotifications } = trpc.notifications.list.useQuery();
+  const { data: unreadData, refetch: refetchUnreadCount } = trpc.notifications.unreadCount.useQuery();
+  const unreadCount = unreadData?.count || 0;
+  const markAsReadMutation = trpc.notifications.markAsRead.useMutation();
+  const markAllAsReadMutation = trpc.notifications.markAllAsRead.useMutation();
   
   // Role-based access control helpers
   const isAdmin = currentUser?.role === 'admin';
@@ -290,12 +295,14 @@ function App() {
             onClick={handleNotificationsShow}
           >
             <Bell size={20} />
-            <span
-              className="position-absolute top-0 start-100 translate-middle badge rounded-pill"
-              style={{ backgroundColor: '#FF5722', fontSize: "0.6rem" }}
-            >
-              3
-            </span>
+            {unreadCount > 0 && (
+              <span
+                className="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                style={{ backgroundColor: '#FF5722', fontSize: "0.6rem" }}
+              >
+                {unreadCount}
+              </span>
+            )}
           </Button>
 
           <Dropdown align="end">
@@ -753,63 +760,84 @@ function App() {
         editingShipment={editingShipment}
       />
 
-      {/* Email Notifications Modal */}
+      {/* Notifications Modal */}
       <Modal
         show={showNotifications}
         onHide={handleNotificationsClose}
         size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Email notifications for Untitled Live Board</Modal.Title>
+          <Modal.Title>Notifications</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <div className="mb-4">
-            <div className="d-flex justify-content-between align-items-start mb-2">
-              <div>
-                <h6 className="mb-1">Ocean: Arrivals</h6>
-                <p className="text-muted small mb-0">
-                  A summary of containers that have arrived at PoD
-                </p>
-              </div>
-              <div className="btn-group" role="group">
-                <Button variant="outline-secondary" size="sm">
-                  Off
-                </Button>
-                <Button variant="primary" size="sm">
-                  Daily
-                </Button>
-                <Button variant="outline-secondary" size="sm">
-                  Weekly
-                </Button>
-              </div>
+        <Modal.Body style={{ maxHeight: '500px', overflowY: 'auto' }}>
+          {notifications.length === 0 ? (
+            <div className="text-center text-muted py-5">
+              <Bell size={48} className="mb-3" style={{ opacity: 0.3 }} />
+              <p>No notifications yet</p>
             </div>
-          </div>
-
-          <div className="mb-4">
-            <div className="d-flex justify-content-between align-items-start mb-2">
-              <div>
-                <h6 className="mb-1">Ocean: ETA changes</h6>
-                <p className="text-muted small mb-0">
-                  A summary of containers that have an ETA change
-                </p>
-              </div>
-              <div className="btn-group" role="group">
-                <Button variant="outline-secondary" size="sm">
-                  Off
-                </Button>
-                <Button variant="primary" size="sm">
-                  Daily
-                </Button>
-                <Button variant="outline-secondary" size="sm">
-                  Weekly
-                </Button>
-              </div>
+          ) : (
+            <div className="list-group list-group-flush">
+              {notifications.map((notification: any) => (
+                <div
+                  key={notification.id}
+                  className={`list-group-item ${!notification.isRead ? 'bg-light' : ''}`}
+                  style={{ border: 'none', borderBottom: '1px solid #dee2e6' }}
+                >
+                  <div className="d-flex justify-content-between align-items-start">
+                    <div className="flex-grow-1">
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <h6 className="mb-0">{notification.title}</h6>
+                        {!notification.isRead && (
+                          <Badge bg="warning" style={{ fontSize: '0.7rem' }}>New</Badge>
+                        )}
+                      </div>
+                      <p className="mb-1 text-muted small">{notification.message}</p>
+                      <small className="text-muted">
+                        {new Date(notification.createdAt).toLocaleString()}
+                      </small>
+                    </div>
+                    {!notification.isRead && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-muted"
+                        onClick={() => {
+                          markAsReadMutation.mutate(
+                            { id: notification.id },
+                            { onSuccess: () => {
+                              refetchNotifications();
+                              refetchUnreadCount();
+                            }}
+                          );
+                        }}
+                      >
+                        Mark as read
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
         </Modal.Body>
         <Modal.Footer>
+          {notifications.length > 0 && unreadCount > 0 && (
+            <Button
+              variant="outline-secondary"
+              onClick={() => {
+                markAllAsReadMutation.mutate(undefined, {
+                  onSuccess: () => {
+                    refetchNotifications();
+                    refetchUnreadCount();
+                  }
+                });
+              }}
+            >
+              Mark all as read
+            </Button>
+          )}
           <Button onClick={handleNotificationsClose} style={{ backgroundColor: '#FF5722', borderColor: '#FF5722' }}>
-            Done
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

@@ -8,6 +8,7 @@ import { commentsRouter } from "./comments";
 import { attachmentsRouter } from "./attachments";
 import { apiConfigRouter } from "./api-config";
 import { usersRouter } from "./users";
+import { notificationsRouter } from "./notifications";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -32,6 +33,8 @@ export const appRouter = router({
   attachments: attachmentsRouter,
 
   users: usersRouter,
+
+  notifications: notificationsRouter,
 });
 
 export type AppRouter = typeof appRouter;

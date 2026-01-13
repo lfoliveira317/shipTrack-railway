@@ -234,3 +234,14 @@
 - [x] Push database schema to Neon (5 tables: users, shipments, comments, attachments, apiConfigs)
 - [x] Test connection and verify all tables created
 - [x] Verify application works with Neon database (32 tests passing)
+
+## Notification System (Completed)
+- [x] Create notifications database schema
+- [x] Create notification API endpoints (list, create, markAsRead, markAllAsRead, delete, unreadCount)
+- [x] Add notification triggers for shipment status changes
+- [x] Update notification UI to display real notifications
+- [x] Add unread notification badge in header with count
+- [x] Implement mark as read functionality
+- [x] Implement mark all as read functionality
+- [x] Write unit tests for notification system (7 tests passing)
+- [x] Total tests: 39 passing

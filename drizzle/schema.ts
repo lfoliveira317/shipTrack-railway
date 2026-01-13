@@ -94,3 +94,18 @@ export const apiConfigs = mysqlTable("apiConfigs", {
 
 export type ApiConfig = typeof apiConfigs.$inferSelect;
 export type InsertApiConfig = typeof apiConfigs.$inferInsert;
+
+// Notifications table
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  shipmentId: int("shipmentId"),
+  type: varchar("type", { length: 50 }).notNull(), // "status_change", "delay", "arrival", "comment", etc.
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  isRead: int("isRead").default(0).notNull(), // 0 = unread, 1 = read
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
