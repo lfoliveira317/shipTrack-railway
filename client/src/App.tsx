@@ -461,11 +461,6 @@ function App() {
                     Orders & Shipments
                   </Nav.Link>
                 </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link className="text-muted border-0">
-                    Live Boards
-                  </Nav.Link>
-                </Nav.Item>
               </Nav>
             </div>
 

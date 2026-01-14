@@ -308,3 +308,6 @@
 
 ## Project Name Update (Completed)
 - [x] Update project display name from "Beacon Supply Chain Mockup" to "ShipTrack"
+
+## Remove Live Boards Tab (Completed)
+- [x] Remove Live Boards tab from navigation
