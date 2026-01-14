@@ -350,3 +350,8 @@
 ## Fix Navigation Between Views (Completed)
 - [x] Fix Orders & Shipments tab to switch back to shipments view
 - [x] Ensure both sidebar and tab navigation work correctly
+
+## Bug Fixes - Dropdown Management & Right Menu (Completed)
+- [x] Fix port addition issue in dropdown management (added missing TRPCError import)
+- [x] Make right-side menu work correctly for both views (conditional rendering)
+- [x] Ensure all dropdown CRUD operations function properly

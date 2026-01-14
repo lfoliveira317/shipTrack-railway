@@ -658,6 +658,7 @@ function App() {
                 </div>
               </div>
 
+              {currentView === 'shipments' && (
               <div className="d-flex align-items-center gap-2 flex-wrap">
                 <Button
                   variant="outline-secondary"
@@ -687,6 +688,7 @@ function App() {
                 </Button>
                 )}
               </div>
+              )}
             </div>
           </div>
 
