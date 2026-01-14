@@ -346,3 +346,7 @@
 - [x] Create dropdown management page component
 - [x] Update Add Shipment modal to use dropdown values
 - [x] Add navigation link to dropdown management page
+
+## Fix Navigation Between Views (Completed)
+- [x] Fix Orders & Shipments tab to switch back to shipments view
+- [x] Ensure both sidebar and tab navigation work correctly

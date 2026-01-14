@@ -513,12 +513,26 @@ function App() {
             <div className="d-flex flex-wrap align-items-center justify-content-between p-2 p-md-3 gap-2">
               <Nav variant="tabs" className="border-0 flex-nowrap">
                 <Nav.Item>
-                  <Nav.Link className="border-0 border-bottom border-2 fw-semibold" style={{ color: '#FF5722', borderBottomColor: '#FF5722' }}>
+                  <Nav.Link 
+                    className="border-0 border-bottom border-2 fw-semibold" 
+                    style={{ color: '#FF5722', borderBottomColor: '#FF5722', cursor: "pointer" }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentView("shipments");
+                    }}
+                  >
                     ShipTrack
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link className="text-muted border-0">
+                  <Nav.Link 
+                    className="border-0"
+                    style={{ cursor: "pointer" }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentView("shipments");
+                    }}
+                  >
                     Orders & Shipments
                   </Nav.Link>
                 </Nav.Item>
