@@ -57,6 +57,13 @@
       "when": 1768407596375,
       "tag": "0007_fancy_exiles",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1768416811770,
+      "tag": "0008_shiny_human_cannonball",
+      "breakpoints": true
     }
   ]
 }

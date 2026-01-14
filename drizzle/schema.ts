@@ -61,6 +61,7 @@ export const attachments = mysqlTable("attachments", {
   s3Key: varchar("s3Key", { length: 500 }),
   s3Url: varchar("s3Url", { length: 1000 }),
   uploadedBy: varchar("uploadedBy", { length: 255 }).notNull(),
+  documentType: varchar("documentType", { length: 255 }), // BOL, Purchase Invoice, Sold Invoice, Packing Slip, Arrival Notice
   uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
 });
 
@@ -142,3 +143,14 @@ export const ports = mysqlTable("ports", {
 
 export type Port = typeof ports.$inferSelect;
 export type InsertPort = typeof ports.$inferInsert;
+
+// Document types table for managing attachment document types
+export const documentTypes = mysqlTable("documentTypes", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DocumentType = typeof documentTypes.$inferSelect;
+export type InsertDocumentType = typeof documentTypes.$inferInsert;

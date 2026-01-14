@@ -20,6 +20,7 @@ interface Attachment {
   s3Url: string | null;
   uploadedBy: string;
   uploadedAt: Date;
+  documentType?: string | null;
 }
 
 const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
@@ -29,6 +30,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
   shipmentLabel,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
   const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
@@ -42,11 +44,14 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
     { enabled: show }
   );
   
+  const { data: documentTypes } = trpc.dropdowns.documentTypes.list.useQuery(undefined, { enabled: show });
+  
   const uploadAttachment = trpc.attachments.upload.useMutation({
     onSuccess: () => {
       utils.attachments.byShipment.invalidate({ shipmentId });
       utils.attachments.counts.invalidate();
       setSelectedFile(null);
+      setSelectedDocumentType('');
       setIsUploading(false);
       setUploadProgress(0);
       if (fileInputRef.current) {
@@ -119,6 +124,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
           fileType: selectedFile.type || 'application/octet-stream',
           fileData: base64Data,
           uploadedBy: 'Admin User',
+          documentType: selectedDocumentType || null,
         });
         
         setUploadProgress(100);
@@ -363,6 +369,21 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
         {/* Upload Section */}
         <div className="mb-4 p-3 bg-light rounded-3">
           <h6 className="mb-3">Upload New Attachment</h6>
+          <div className="mb-2">
+            <Form.Select
+              value={selectedDocumentType}
+              onChange={(e) => setSelectedDocumentType(e.target.value)}
+              disabled={isUploading}
+              className="mb-2"
+            >
+              <option value="">Select Document Type (Optional)</option>
+              {documentTypes?.map((type) => (
+                <option key={type.id} value={type.name}>
+                  {type.name}
+                </option>
+              ))}
+            </Form.Select>
+          </div>
           <div className="d-flex gap-2 align-items-center">
             <Form.Control
               type="file"

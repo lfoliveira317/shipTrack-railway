@@ -364,3 +364,11 @@
 ## Fix Tab Indicator for Current View (Completed)
 - [x] Fix right menu tabs to show correct active page
 - [x] Ensure tab indicator reflects ShipTrack vs Orders & Shipments view
+
+## Document Type Features (In Progress)
+- [x] Add document type schema and database tables
+- [x] Add document type dropdown to attachment screen
+- [x] Update backend to accept and store document types
+- [ ] Add document type management UI to dropdown management page
+- [ ] Add green clipper icon with attachment count to shipment list
+- [ ] Initialize default document types (BOL, Purchase Invoice, Sold Invoice, Packing Slip, Arrival Notice)

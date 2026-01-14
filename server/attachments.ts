@@ -60,6 +60,7 @@ export const attachmentsRouter = router({
       fileType: z.string(),
       fileData: z.string(), // Base64 encoded file data
       uploadedBy: z.string(),
+      documentType: z.string().nullable().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       if (ctx.user.role === 'viewer') {
@@ -88,6 +89,7 @@ export const attachmentsRouter = router({
         s3Key: key,
         s3Url: url,
         uploadedBy: input.uploadedBy,
+        documentType: input.documentType || null,
       });
       
       return { success: true, id: result.insertId, s3Key: key, s3Url: url };

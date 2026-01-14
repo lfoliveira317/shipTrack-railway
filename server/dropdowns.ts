@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "./db";
-import { suppliers, carriers, ports, type InsertSupplier, type InsertCarrier, type InsertPort } from "../drizzle/schema";
+import { suppliers, carriers, ports, documentTypes, type InsertSupplier, type InsertCarrier, type InsertPort, type InsertDocumentType } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { adminProcedure, publicProcedure } from "./_core/trpc";
 
@@ -18,6 +18,10 @@ const portSchema = z.object({
   name: z.string().min(1, "Port name is required"),
   code: z.string().optional(),
   type: z.enum(["loading", "discharge"]),
+});
+
+const documentTypeSchema = z.object({
+  name: z.string().min(1, "Document type name is required"),
 });
 
 export const dropdownsRouter = {
@@ -95,7 +99,7 @@ export const dropdownsRouter = {
     }),
   },
 
-  // Ports (for both POL and POD)
+  // Ports
   ports: {
     list: publicProcedure.query(async () => {
       const db = await getDb();
@@ -136,6 +140,43 @@ export const dropdownsRouter = {
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
       await db.delete(ports).where(eq(ports.id, input.id));
+      return { success: true };
+    }),
+  },
+
+  // Document Types
+  documentTypes: {
+    list: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      return await db.select().from(documentTypes);
+    }),
+
+    add: adminProcedure.input(documentTypeSchema).mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      try {
+        const result = await db.insert(documentTypes).values({
+          name: input.name,
+        });
+        return { success: true, id: result[0] };
+      } catch (error: any) {
+        if (error.code === "ER_DUP_ENTRY") {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Document type already exists",
+          });
+        }
+        throw error;
+      }
+    }),
+
+    delete: adminProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      await db.delete(documentTypes).where(eq(documentTypes.id, input.id));
       return { success: true };
     }),
   },
