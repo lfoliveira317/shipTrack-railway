@@ -120,11 +120,15 @@ export function DropdownManagement() {
   };
 
   return (
-    <Container fluid className="py-4">
-      <h2 className="mb-4 fw-bold">Dropdown Management</h2>
-      <p className="text-muted mb-4">Manage dropdown values for Suppliers, Carriers, and Ports</p>
+    <div className="d-flex flex-column h-100" style={{ overflow: 'hidden' }}>
+      <div className="p-3 border-bottom bg-white">
+        <h2 className="mb-2 fw-bold">Dropdown Management</h2>
+        <p className="text-muted mb-0">Manage dropdown values for Suppliers, Carriers, and Ports</p>
+      </div>
 
-      <Row className="g-4">
+      <div className="flex-grow-1" style={{ overflow: 'auto' }}>
+        <Container fluid className="py-4">
+          <Row className="g-4">
         {/* Suppliers */}
         <Col lg={4}>
           <Card className="h-100">
@@ -283,7 +287,9 @@ export function DropdownManagement() {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
+          </Row>
+        </Container>
+      </div>
 
       {/* Add Supplier Modal */}
       <Modal show={showAddSupplier} onHide={() => setShowAddSupplier(false)}>
@@ -396,6 +402,6 @@ export function DropdownManagement() {
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+    </div>
   );
 }

@@ -355,3 +355,8 @@
 - [x] Fix port addition issue in dropdown management (added missing TRPCError import)
 - [x] Make right-side menu work correctly for both views (conditional rendering)
 - [x] Ensure all dropdown CRUD operations function properly
+
+## Scrollable Dropdown Management UI (Completed)
+- [x] Add scrollable container to dropdown management page
+- [x] Improve layout for adding ports with better spacing
+- [x] Make the interface more user-friendly for managing all dropdown values
