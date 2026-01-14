@@ -54,6 +54,13 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
   const [bulkText, setBulkText] = useState("");
   const [formData, setFormData] = useState(initialFormData);
 
+  // Fetch dropdown values
+  const { data: suppliers } = trpc.dropdowns.suppliers.list.useQuery();
+  const { data: carriers } = trpc.dropdowns.carriers.list.useQuery();
+  const { data: ports } = trpc.dropdowns.ports.list.useQuery();
+  const polPorts = ports?.filter((p) => p.type === "loading") || [];
+  const podPorts = ports?.filter((p) => p.type === "discharge") || [];
+
   const isEditing = !!editingShipment;
 
   // Populate form when editing
@@ -282,23 +289,33 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-medium small">Supplier</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="e.g., Dhaka Trim Supplies"
+                  <Form.Select
                     value={formData.supplier}
                     onChange={(e) => handleChange("supplier", e.target.value)}
-                  />
+                  >
+                    <option value="">Select a supplier</option>
+                    {suppliers?.map((supplier) => (
+                      <option key={supplier.id} value={supplier.name}>
+                        {supplier.name}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-medium small">Carrier</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="e.g., MSC"
+                  <Form.Select
                     value={formData.carrier}
                     onChange={(e) => handleChange("carrier", e.target.value)}
-                  />
+                  >
+                    <option value="">Select a carrier</option>
+                    {carriers?.map((carrier) => (
+                      <option key={carrier.id} value={carrier.name}>
+                        {carrier.name}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
               </Col>
               {isEditing && (
@@ -361,23 +378,33 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-medium small">Port of Loading</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="e.g., Chittagong"
+                  <Form.Select
                     value={formData.pol}
                     onChange={(e) => handleChange("pol", e.target.value)}
-                  />
+                  >
+                    <option value="">Select a port</option>
+                    {polPorts.map((port) => (
+                      <option key={port.id} value={port.name}>
+                        {port.name} {port.code && `(${port.code})`}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-medium small">Port of Discharge</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="e.g., Savannah"
+                  <Form.Select
                     value={formData.pod}
                     onChange={(e) => handleChange("pod", e.target.value)}
-                  />
+                  >
+                    <option value="">Select a port</option>
+                    {podPorts.map((port) => (
+                      <option key={port.id} value={port.name}>
+                        {port.name} {port.code && `(${port.code})`}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
               </Col>
               <Col md={6}>

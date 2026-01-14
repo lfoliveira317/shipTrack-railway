@@ -110,3 +110,35 @@ export const notifications = mysqlTable("notifications", {
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
+// Dropdown values tables for managing Supplier, Carrier, Port of Loading, Port of Discharge
+export const suppliers = mysqlTable("suppliers", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Supplier = typeof suppliers.$inferSelect;
+export type InsertSupplier = typeof suppliers.$inferInsert;
+
+export const carriers = mysqlTable("carriers", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Carrier = typeof carriers.$inferSelect;
+export type InsertCarrier = typeof carriers.$inferInsert;
+
+export const ports = mysqlTable("ports", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  code: varchar("code", { length: 10 }), // Port code like SG, LA, etc.
+  type: mysqlEnum("type", ["loading", "discharge"]).notNull(), // loading (POL) or discharge (POD)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Port = typeof ports.$inferSelect;
+export type InsertPort = typeof ports.$inferInsert;

@@ -339,3 +339,10 @@
 - [x] Update form labels and placeholders
 - [x] Update table column headers and display
 - [x] Update all references throughout the app
+
+## Dropdown Management Feature (Completed)
+- [x] Create database schema for dropdown values (Supplier, Carrier, POL, POD)
+- [x] Create backend API procedures for dropdown CRUD operations (admin-only)
+- [x] Create dropdown management page component
+- [x] Update Add Shipment modal to use dropdown values
+- [x] Add navigation link to dropdown management page

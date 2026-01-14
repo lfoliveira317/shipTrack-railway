@@ -33,6 +33,7 @@ import {
 import { trpc } from "./lib/trpc";
 import { AddShipmentModal } from "./components/AddShipmentModal";
 import { CommentsModal } from "./components/CommentsModal";
+import { DropdownManagement } from "./pages/DropdownManagement";
 import AttachmentsModal from "./components/AttachmentsModal";
 import { ApiConfigModal } from "./components/ApiConfigModal";
 import UserManagementModal from "./components/UserManagementModal";
@@ -102,6 +103,7 @@ type SortField = "sellerCloudNumber" | "supplier" | "status" | "carrier" | "eta"
 type SortDirection = "asc" | "desc";
 
 function App() {
+  const [currentView, setCurrentView] = useState<'shipments' | 'dropdowns'>('shipments');
   const [showSidebar, setShowSidebar] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -464,6 +466,20 @@ function App() {
                   <LayoutGrid size={18} />
                   Orders & Shipments
                 </Nav.Link>
+                {currentUser?.role === 'admin' && (
+                  <Nav.Link
+                    href="#"
+                    className="text-dark d-flex align-items-center gap-2 py-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentView('dropdowns');
+                      setShowSidebar(false);
+                    }}
+                  >
+                    <Settings size={18} />
+                    Dropdown Management
+                  </Nav.Link>
+                )}
               </Nav>
             </div>
 
@@ -660,7 +676,10 @@ function App() {
             </div>
           </div>
 
-          {/* Data Grid */}
+          {/* Data Grid or Dropdown Management */}
+          {currentView === 'dropdowns' ? (
+            <DropdownManagement />
+          ) : (
           <div className="flex-grow-1 p-2 p-md-3" style={{ overflow: 'hidden' }}>
             <div className="card shadow-sm border-0">
               <div className="card-body p-0">
@@ -801,6 +820,7 @@ function App() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
 

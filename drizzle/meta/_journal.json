@@ -50,6 +50,13 @@
       "when": 1768407183984,
       "tag": "0006_panoramic_kinsey_walden",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1768407596375,
+      "tag": "0007_fancy_exiles",
+      "breakpoints": true
     }
   ]
 }
