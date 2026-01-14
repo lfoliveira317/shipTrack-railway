@@ -36,7 +36,7 @@ import { CommentsModal } from "./components/CommentsModal";
 import AttachmentsModal from "./components/AttachmentsModal";
 import { ApiConfigModal } from "./components/ApiConfigModal";
 import UserManagementModal from "./components/UserManagementModal";
-import { Users, Shield, Eye } from "lucide-react";
+import { Users, Shield, Eye, LogOut } from "lucide-react";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -141,6 +141,20 @@ function App() {
   const handleEditShipment = (shipment: Shipment) => {
     setEditingShipment(shipment);
     setShowAddModal(true);
+  };
+
+  // Logout mutation
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      // Redirect to login page
+      window.location.href = '/';
+    },
+  });
+
+  const handleLogout = () => {
+    if (confirm('Are you sure you want to logout?')) {
+      logoutMutation.mutate();
+    }
   };
 
   const handleSort = (field: SortField) => {
@@ -344,7 +358,10 @@ function App() {
                 </Dropdown.Item>
               )}
               <Dropdown.Divider />
-              <Dropdown.Item href="#">Logout</Dropdown.Item>
+              <Dropdown.Item onClick={handleLogout}>
+                <LogOut size={16} className="me-2" />
+                Logout
+              </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Nav>
