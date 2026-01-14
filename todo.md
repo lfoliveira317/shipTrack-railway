@@ -327,3 +327,15 @@
 - [x] Add PO Number field for SellerCloud integration
 - [x] Implement customizable column visibility for shipments table (state added, UI pending)
 - [x] Replace manual date input with calendar picker in forms
+
+## localStorage Integration for Column Preferences (Completed)
+- [x] Create custom hook for localStorage persistence
+- [x] Load column preferences from localStorage on app mount
+- [x] Save column preference changes to localStorage
+- [x] Test persistence across browser sessions
+
+## Replace Order Number with SellerCloud # (Completed)
+- [x] Rename orderNumber field to sellerCloudNumber in database schema
+- [x] Update form labels and placeholders
+- [x] Update table column headers and display
+- [x] Update all references throughout the app

@@ -28,7 +28,7 @@ export type InsertUser = typeof users.$inferInsert;
 // Shipments table
 export const shipments = mysqlTable("shipments", {
   id: int("id").autoincrement().primaryKey(),
-  orderNumber: varchar("orderNumber", { length: 255 }),
+  sellerCloudNumber: varchar("sellerCloudNumber", { length: 255 }), // SellerCloud #
   label: varchar("label", { length: 255 }),
   supplier: varchar("supplier", { length: 255 }),
   cro: varchar("cro", { length: 255 }),

@@ -41,7 +41,7 @@ describe("shipments API", () => {
     const caller = appRouter.createCaller(ctx);
 
     const newShipment = {
-      orderNumber: "PO-TEST-001",
+      sellerCloudNumber: "PO-TEST-001",
       label: "Test Product",
       supplier: "Test Supplier Inc",
       cro: "CRO-TEST-001",
@@ -71,7 +71,7 @@ describe("shipments API", () => {
 
     const bulkShipments = [
       {
-        orderNumber: "PO-BULK-001",
+        sellerCloudNumber: "PO-BULK-001",
         label: "Bulk Product 1",
         supplier: "Bulk Supplier",
         container: "BULK1111111",
@@ -83,7 +83,7 @@ describe("shipments API", () => {
         shipmentType: "ocean" as const,
       },
       {
-        orderNumber: "PO-BULK-002",
+        sellerCloudNumber: "PO-BULK-002",
         label: "Bulk Product 2",
         supplier: "Bulk Supplier",
         container: "BULK2222222",
@@ -108,7 +108,7 @@ describe("shipments API", () => {
     const caller = appRouter.createCaller(ctx);
 
     const shipment1 = await caller.shipments.add({
-      orderNumber: "PO-UNIQUE-001",
+      sellerCloudNumber: "PO-UNIQUE-001",
       label: "Product A",
       supplier: "Supplier A",
       container: "CONT1111111",
@@ -121,7 +121,7 @@ describe("shipments API", () => {
     });
 
     const shipment2 = await caller.shipments.add({
-      orderNumber: "PO-UNIQUE-002",
+      sellerCloudNumber: "PO-UNIQUE-002",
       label: "Product B",
       supplier: "Supplier B",
       container: "CONT2222222",
@@ -144,7 +144,7 @@ describe("shipments API", () => {
 
     // First add a shipment
     const newShipment = await caller.shipments.add({
-      orderNumber: "PO-UPDATE-001",
+      sellerCloudNumber: "PO-UPDATE-001",
       label: "Original Label",
       supplier: "Original Supplier",
       container: "UPDATE111111",
@@ -158,7 +158,7 @@ describe("shipments API", () => {
 
     // Get the list to find the shipment
     const shipments = await caller.shipments.list();
-    const addedShipment = shipments.find(s => s.orderNumber === "PO-UPDATE-001");
+    const addedShipment = shipments.find(s => s.sellerCloudNumber === "PO-UPDATE-001");
     expect(addedShipment).toBeDefined();
 
     // Update the shipment
@@ -188,7 +188,7 @@ describe("shipments API", () => {
 
     // First add a shipment
     const addResult = await caller.shipments.add({
-      orderNumber: "PO-DELETE-001",
+      sellerCloudNumber: "PO-DELETE-001",
       label: "To Delete",
       supplier: "Delete Supplier",
       container: "DELETE11111",
@@ -202,7 +202,7 @@ describe("shipments API", () => {
 
     // Get the shipment ID
     const shipments = await caller.shipments.list();
-    const shipmentToDelete = shipments.find(s => s.orderNumber === "PO-DELETE-001");
+    const shipmentToDelete = shipments.find(s => s.sellerCloudNumber === "PO-DELETE-001");
     expect(shipmentToDelete).toBeDefined();
 
     // Delete the shipment

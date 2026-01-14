@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 type Shipment = {
   id: number;
-  orderNumber: string | null;
+  sellerCloudNumber: string | null;
   label: string | null;
   supplier: string | null;
   cro?: string | null;
@@ -31,7 +31,7 @@ interface AddShipmentModalProps {
 }
 
 const initialFormData = {
-  orderNumber: "",
+  sellerCloudNumber: "",
   label: "",
   supplier: "",
   cro: "",
@@ -60,7 +60,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
   useEffect(() => {
     if (editingShipment) {
       setFormData({
-        orderNumber: editingShipment.orderNumber || "",
+        sellerCloudNumber: editingShipment.sellerCloudNumber || "",
         label: editingShipment.label || "",
         supplier: editingShipment.supplier || "",
         cro: editingShipment.cro || "",
@@ -248,12 +248,12 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
             <Row className="g-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label className="fw-medium small">Order Number</Form.Label>
+                  <Form.Label className="fw-medium small">SellerCloud #</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="e.g., PO-2889-BD"
-                    value={formData.orderNumber}
-                    onChange={(e) => handleChange("orderNumber", e.target.value)}
+                    placeholder="e.g., SC-2889-BD"
+                    value={formData.sellerCloudNumber}
+                    onChange={(e) => handleChange("sellerCloudNumber", e.target.value)}
                   />
                 </Form.Group>
               </Col>

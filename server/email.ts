@@ -8,7 +8,7 @@ export interface EmailNotification {
   subject: string;
   shipmentInfo: {
     container: string;
-    orderNumber?: string;
+    sellerCloudNumber?: string;
     oldStatus: string;
     newStatus: string;
     carrier: string;
@@ -124,10 +124,10 @@ export async function sendStatusChangeEmail(notification: EmailNotification): Pr
           <span class="info-label">Container:</span>
           <span class="info-value">${shipmentInfo.container}</span>
         </div>
-        ${shipmentInfo.orderNumber ? `
+        ${shipmentInfo.sellerCloudNumber ? `
         <div class="info-row">
           <span class="info-label">Order Number:</span>
-          <span class="info-value">${shipmentInfo.orderNumber}</span>
+          <span class="info-value">${shipmentInfo.sellerCloudNumber}</span>
         </div>
         ` : ''}
         <div class="info-row">
@@ -162,7 +162,7 @@ Status Change: ${shipmentInfo.oldStatus} → ${shipmentInfo.newStatus}
 
 Shipment Details:
 - Container: ${shipmentInfo.container}
-${shipmentInfo.orderNumber ? `- Order Number: ${shipmentInfo.orderNumber}\n` : ''}
+${shipmentInfo.sellerCloudNumber ? `- Order Number: ${shipmentInfo.sellerCloudNumber}\n` : ''}
 - Carrier: ${shipmentInfo.carrier}
 ${shipmentInfo.eta ? `- ETA: ${shipmentInfo.eta}\n` : ''}
 

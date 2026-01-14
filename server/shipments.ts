@@ -8,7 +8,7 @@ import { sendStatusChangeEmail } from "./email";
 
 export const shipmentSchema = z.object({
   id: z.number().optional(),
-  orderNumber: z.string().optional(),
+  sellerCloudNumber: z.string().optional(),
   label: z.string().optional(),
   supplier: z.string().optional(),
   cro: z.string().optional(),
@@ -37,7 +37,7 @@ async function seedDefaultShipments() {
 
   const defaultShipments: Omit<InsertShipment, 'id' | 'createdAt' | 'updatedAt'>[] = [
     { 
-      orderNumber: "PO-TEST-001",
+      sellerCloudNumber: "PO-TEST-001",
       label: "Cotton", 
       supplier: "Test Supplier Inc", 
       cro: "CRO-TEST-001",
@@ -54,7 +54,7 @@ async function seedDefaultShipments() {
       bolNumber: "BOL123456"
     },
     { 
-      orderNumber: "",
+      sellerCloudNumber: "",
       label: "", 
       supplier: "Supplier A", 
       cro: "",
@@ -71,7 +71,7 @@ async function seedDefaultShipments() {
       bolNumber: ""
     },
     { 
-      orderNumber: "",
+      sellerCloudNumber: "",
       label: "", 
       supplier: "Supplier B", 
       cro: "",
@@ -88,7 +88,7 @@ async function seedDefaultShipments() {
       bolNumber: ""
     },
     { 
-      orderNumber: "",
+      sellerCloudNumber: "",
       label: "", 
       supplier: "Test Supplier Inc", 
       cro: "",
@@ -105,7 +105,7 @@ async function seedDefaultShipments() {
       bolNumber: ""
     },
     { 
-      orderNumber: "",
+      sellerCloudNumber: "",
       label: "", 
       supplier: "Supplier A", 
       cro: "",
@@ -122,7 +122,7 @@ async function seedDefaultShipments() {
       bolNumber: ""
     },
     { 
-      orderNumber: "",
+      sellerCloudNumber: "",
       label: "", 
       supplier: "Supplier B", 
       cro: "",
@@ -139,7 +139,7 @@ async function seedDefaultShipments() {
       bolNumber: ""
     },
     { 
-      orderNumber: "PO-BULK-001",
+      sellerCloudNumber: "PO-BULK-001",
       label: "Bulk Order 1", 
       supplier: "Bulk Supplier", 
       cro: "",
@@ -156,7 +156,7 @@ async function seedDefaultShipments() {
       bolNumber: ""
     },
     { 
-      orderNumber: "PO-BULK-002",
+      sellerCloudNumber: "PO-BULK-002",
       label: "Bulk Order 2", 
       supplier: "Bulk Supplier", 
       cro: "",
@@ -173,7 +173,7 @@ async function seedDefaultShipments() {
       bolNumber: ""
     },
     { 
-      orderNumber: "PO-UNIQUE-001",
+      sellerCloudNumber: "PO-UNIQUE-001",
       label: "Unique Item 1", 
       supplier: "Supplier A", 
       cro: "",
@@ -190,7 +190,7 @@ async function seedDefaultShipments() {
       bolNumber: ""
     },
     { 
-      orderNumber: "PO-UNIQUE-002",
+      sellerCloudNumber: "PO-UNIQUE-002",
       label: "Unique Item 2", 
       supplier: "Supplier B", 
       cro: "",
@@ -295,7 +295,7 @@ export const shipmentsRouter = router({
               subject: `Shipment Status Updated: ${oldShipment[0].container}`,
               shipmentInfo: {
                 container: oldShipment[0].container || '',
-                orderNumber: oldShipment[0].orderNumber || undefined,
+                sellerCloudNumber: oldShipment[0].sellerCloudNumber || undefined,
                 oldStatus: oldShipment[0].status || '',
                 newStatus: data.status,
                 carrier: oldShipment[0].carrier || '',

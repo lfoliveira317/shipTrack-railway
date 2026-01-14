@@ -37,6 +37,7 @@ import AttachmentsModal from "./components/AttachmentsModal";
 import { ApiConfigModal } from "./components/ApiConfigModal";
 import UserManagementModal from "./components/UserManagementModal";
 import { Users, Shield, Eye, LogOut } from "lucide-react";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -79,7 +80,7 @@ const getStatusVariant = (status: string): string => {
 
 type Shipment = {
   id: number;
-  orderNumber: string | null;
+  sellerCloudNumber: string | null;
   label: string | null;
   supplier: string | null;
   cro?: string | null;
@@ -97,7 +98,7 @@ type Shipment = {
 };
 
 type ViewMode = "grid" | "list" | "calendar" | "globe";
-type SortField = "orderNumber" | "supplier" | "status" | "carrier" | "eta";
+type SortField = "sellerCloudNumber" | "supplier" | "status" | "carrier" | "eta";
 type SortDirection = "asc" | "desc";
 
 function App() {
@@ -110,12 +111,12 @@ function App() {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [searchTerm, setSearchTerm] = useState("");
-  const [commentsModalShipment, setCommentsModalShipment] = useState<{ id: number; orderNumber: string } | null>(null);
+  const [commentsModalShipment, setCommentsModalShipment] = useState<{ id: number; sellerCloudNumber: string } | null>(null);
   const [attachmentsModalShipment, setAttachmentsModalShipment] = useState<{ id: number; label: string } | null>(null);
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
   const [showColumnSettings, setShowColumnSettings] = useState(false);
-  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
-    orderNumber: true,
+  const defaultColumns: Record<string, boolean> = {
+    sellerCloudNumber: true,
     supplier: true,
     cro: true,
     container: true,
@@ -125,7 +126,21 @@ function App() {
     atd: true,
     eta: true,
     poNumber: true,
-  });
+  };
+  const [visibleColumns, setVisibleColumns] = useLocalStorage<Record<string, boolean>>("shiptrack_column_visibility", defaultColumns);
+
+  // Handler to toggle column visibility
+  const handleToggleColumn = (columnName: string) => {
+    setVisibleColumns({
+      ...visibleColumns,
+      [columnName]: !visibleColumns[columnName],
+    });
+  };
+
+  // Handler to reset columns to default
+  const handleResetColumns = () => {
+    setVisibleColumns(defaultColumns);
+  };
 
   const { data: shipments = [], refetch } = trpc.shipments.list.useQuery();
   const { data: commentCounts = {} } = trpc.comments.counts.useQuery();
@@ -187,7 +202,7 @@ function App() {
     if (searchTerm) {
       filtered = filtered.filter(
         (s) =>
-          s.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          s.sellerCloudNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           s.supplier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           s.container?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           s.carrier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -232,7 +247,7 @@ function App() {
     ];
 
     const csvData = sortedShipments.map((s) => [
-      s.orderNumber || "",
+      s.sellerCloudNumber || "",
       s.supplier || "",
       s.cro || "",
       s.container || "",
@@ -526,9 +541,9 @@ function App() {
 
                   <Dropdown.Menu>
                     <Dropdown.Header>Sort by</Dropdown.Header>
-                    <Dropdown.Item onClick={() => handleSort("orderNumber")}>
+                    <Dropdown.Item onClick={() => handleSort("sellerCloudNumber")}>
                       Order Number{" "}
-                      {sortField === "orderNumber" && (
+                      {sortField === "sellerCloudNumber" && (
                         <span className="float-end">
                           {sortDirection === "asc" ? "↑" : "↓"}
                         </span>
@@ -656,9 +671,9 @@ function App() {
                         <th style={{ width: "40px" }}>#</th>
                         <th
                           style={{ cursor: "pointer" }}
-                          onClick={() => handleSort("orderNumber")}
+                          onClick={() => handleSort("sellerCloudNumber")}
                         >
-                          ORDER NUMBER <SortIcon field="orderNumber" />
+                          SELLERCLOUD # <SortIcon field="sellerCloudNumber" />
                         </th>
                         <th
                           style={{ cursor: "pointer" }}
@@ -708,7 +723,7 @@ function App() {
                           <tr key={shipment.id}>
                             <td className="text-muted">{index + 1}</td>
                             <td className="fw-semibold" style={{ color: '#FF5722' }}>
-                              {shipment.orderNumber || "-"}
+                              {shipment.sellerCloudNumber || "-"}
                             </td>
                             <td>{shipment.supplier}</td>
                             <td>{shipment.cro || "-"}</td>
@@ -731,7 +746,7 @@ function App() {
                                   size="sm"
                                   className="p-0 text-muted position-relative"
                                   title="Attachments"
-                                  onClick={() => setAttachmentsModalShipment({ id: shipment.id, label: shipment.orderNumber || shipment.label || '' })}
+                                  onClick={() => setAttachmentsModalShipment({ id: shipment.id, label: shipment.sellerCloudNumber || shipment.label || '' })}
                                 >
                                   <Paperclip size={16} />
                                   {attachmentCounts[shipment.id] > 0 && (
@@ -751,7 +766,7 @@ function App() {
                                   size="sm"
                                   className="p-0 text-muted position-relative"
                                   title="Comments"
-                                  onClick={() => setCommentsModalShipment({ id: shipment.id, orderNumber: shipment.orderNumber || '' })}
+                                  onClick={() => setCommentsModalShipment({ id: shipment.id, sellerCloudNumber: shipment.sellerCloudNumber || '' })}
                                 >
                                   <MessageSquare size={16} />
                                   {commentCounts[shipment.id] > 0 && (
@@ -883,7 +898,7 @@ function App() {
         show={commentsModalShipment !== null}
         onHide={() => setCommentsModalShipment(null)}
         shipmentId={commentsModalShipment?.id || 0}
-        orderNumber={commentsModalShipment?.orderNumber || ""}
+        sellerCloudNumber={commentsModalShipment?.sellerCloudNumber || ""}
       />
 
       {/* Attachments Modal */}

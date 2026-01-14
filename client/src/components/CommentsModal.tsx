@@ -7,10 +7,10 @@ interface CommentsModalProps {
   show: boolean;
   onHide: () => void;
   shipmentId: number;
-  orderNumber: string;
+  sellerCloudNumber: string;
 }
 
-export function CommentsModal({ show, onHide, shipmentId, orderNumber }: CommentsModalProps) {
+export function CommentsModal({ show, onHide, shipmentId, sellerCloudNumber }: CommentsModalProps) {
   const [newComment, setNewComment] = useState("");
   const [authorName, setAuthorName] = useState("");
 
@@ -82,7 +82,7 @@ export function CommentsModal({ show, onHide, shipmentId, orderNumber }: Comment
       <Modal.Header closeButton className="border-0 pb-0">
         <Modal.Title className="d-flex align-items-center gap-2">
           <MessageCircle size={24} className="text-primary" />
-          <span>Comments for {orderNumber}</span>
+          <span>Comments for {sellerCloudNumber}</span>
           {comments && comments.length > 0 && (
             <Badge bg="secondary" pill>
               {comments.length}
