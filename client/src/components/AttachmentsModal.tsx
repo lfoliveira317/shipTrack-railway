@@ -31,6 +31,7 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
+  const [filterDocumentType, setFilterDocumentType] = useState<string>('all');
   const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
@@ -432,12 +433,27 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
         </div>
         
         {/* Attachments List */}
-        <h6 className="mb-3">
-          Uploaded Files
-          {attachments && attachments.length > 0 && (
-            <Badge bg="secondary" className="ms-2">{attachments.length}</Badge>
-          )}
-        </h6>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h6 className="mb-0">
+            Uploaded Files
+            {attachments && attachments.length > 0 && (
+              <Badge bg="secondary" className="ms-2">{attachments.length}</Badge>
+            )}
+          </h6>
+          <Form.Select
+            size="sm"
+            value={filterDocumentType}
+            onChange={(e) => setFilterDocumentType(e.target.value)}
+            style={{ width: 'auto', minWidth: '180px' }}
+          >
+            <option value="all">All Document Types</option>
+            {documentTypes?.map((docType) => (
+              <option key={docType.id} value={docType.name}>
+                {docType.name}
+              </option>
+            ))}
+          </Form.Select>
+        </div>
         
         {isLoading ? (
           <div className="text-center py-4">
@@ -445,7 +461,9 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({
           </div>
         ) : attachments && attachments.length > 0 ? (
           <ListGroup variant="flush">
-            {attachments.map((attachment) => (
+            {attachments
+              .filter(attachment => filterDocumentType === 'all' || attachment.documentType === filterDocumentType)
+              .map((attachment) => (
               <ListGroup.Item
                 key={attachment.id}
                 className="d-flex justify-content-between align-items-center py-3"

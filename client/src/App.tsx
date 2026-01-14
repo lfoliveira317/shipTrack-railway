@@ -779,14 +779,15 @@ function App() {
                                 <Button
                                   variant="link"
                                   size="sm"
-                                  className="p-0 text-muted position-relative"
-                                  title="Attachments"
+                                  className="p-0 position-relative"
+                                  style={{ color: attachmentCounts[shipment.id] >= 5 ? '#28a745' : '#6c757d' }}
+                                  title={attachmentCounts[shipment.id] >= 5 ? "All document types present" : "Attachments"}
                                   onClick={() => setAttachmentsModalShipment({ id: shipment.id, label: shipment.sellerCloudNumber || shipment.label || '' })}
                                 >
                                   <Paperclip size={16} />
                                   {attachmentCounts[shipment.id] > 0 && (
                                     <Badge 
-                                      bg="primary" 
+                                      bg={attachmentCounts[shipment.id] >= 5 ? "success" : "primary"}
                                       pill 
                                       className="position-absolute"
                                       style={{ top: -8, right: -8, fontSize: '0.6rem', padding: '2px 5px' }}

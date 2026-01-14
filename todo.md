@@ -370,5 +370,6 @@
 - [x] Add document type dropdown to attachment screen
 - [x] Update backend to accept and store document types
 - [x] Implement document type management UI on dropdown management page
-- [ ] Add green clipper icon with attachment count to shipment list
-- [ ] Initialize default document types (BOL, Purchase Invoice, Sold Invoice, Packing Slip, Arrival Notice)
+- [x] Create database seed script for default document types
+- [x] Add green clipper icon with attachment count badge to shipment list
+- [x] Implement attachment filtering by document type in AttachmentsModal
