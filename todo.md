@@ -319,3 +319,6 @@
 ## Logout Feature (Completed)
 - [x] Add logout button to user menu
 - [x] Implement logout functionality
+
+## Email Branding Update (Completed)
+- [x] Update email templates to use ShipTrack branding

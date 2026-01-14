@@ -106,11 +106,11 @@ export async function sendStatusChangeEmail(notification: EmailNotification): Pr
 </head>
 <body>
   <div class="header">
-    <h1 style="margin: 0;">🚢 Beacon Shipment Update</h1>
+    <h1 style="margin: 0;">🚢 ShipTrack Shipment Update</h1>
   </div>
   <div class="content">
     <h2>Shipment Status Changed</h2>
-    <p>Your shipment status has been updated:</p>
+    <p>Your shipment status has been updated. Track it in real-time on ShipTrack:</p>
     
     <div class="status-change">
       <div style="text-align: center; margin: 20px 0;">
@@ -143,18 +143,18 @@ export async function sendStatusChangeEmail(notification: EmailNotification): Pr
       </div>
     </div>
     
-    <p>Log in to your Beacon dashboard to view more details and track your shipment.</p>
+    <p>Log in to your ShipTrack dashboard to view more details and track your shipment.</p>
   </div>
   <div class="footer">
-    <p>This is an automated notification from Beacon Supply Chain Management.</p>
-    <p>© ${new Date().getFullYear()} Beacon. All rights reserved.</p>
+    <p>This is an automated notification from ShipTrack Supply Chain Management.</p>
+    <p>© ${new Date().getFullYear()} ShipTrack. All rights reserved.</p>
   </div>
 </body>
 </html>
     `;
 
     const textContent = `
-Beacon Shipment Update
+ShipTrack Shipment Update
 
 Your shipment status has been updated:
 
@@ -166,11 +166,11 @@ ${shipmentInfo.orderNumber ? `- Order Number: ${shipmentInfo.orderNumber}\n` : '
 - Carrier: ${shipmentInfo.carrier}
 ${shipmentInfo.eta ? `- ETA: ${shipmentInfo.eta}\n` : ''}
 
-Log in to your Beacon dashboard to view more details and track your shipment.
+Log in to your ShipTrack dashboard to view more details and track your shipment.
 
 ---
-This is an automated notification from Beacon Supply Chain Management.
-© ${new Date().getFullYear()} Beacon. All rights reserved.
+This is an automated notification from ShipTrack Supply Chain Management.
+© ${new Date().getFullYear()} ShipTrack. All rights reserved.
     `;
 
     const result = await resend.emails.send({
@@ -201,9 +201,9 @@ export async function testEmailService(testEmail: string): Promise<{ success: bo
     const result = await resend.emails.send({
       from: fromEmail,
       to: testEmail,
-      subject: 'Beacon Email Service Test',
-      html: '<p>This is a test email from Beacon. Your email service is configured correctly!</p>',
-      text: 'This is a test email from Beacon. Your email service is configured correctly!',
+      subject: 'ShipTrack Email Service Test',
+      html: '<p>This is a test email from ShipTrack. Your email service is configured correctly!</p>',
+      text: 'This is a test email from ShipTrack. Your email service is configured correctly!',
     });
 
     if (result.error) {
