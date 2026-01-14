@@ -360,3 +360,7 @@
 - [x] Add scrollable container to dropdown management page
 - [x] Improve layout for adding ports with better spacing
 - [x] Make the interface more user-friendly for managing all dropdown values
+
+## Fix Tab Indicator for Current View (Completed)
+- [x] Fix right menu tabs to show correct active page
+- [x] Ensure tab indicator reflects ShipTrack vs Orders & Shipments view

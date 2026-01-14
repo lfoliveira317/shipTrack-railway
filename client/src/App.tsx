@@ -515,7 +515,7 @@ function App() {
                 <Nav.Item>
                   <Nav.Link 
                     className="border-0 border-bottom border-2 fw-semibold" 
-                    style={{ color: '#FF5722', borderBottomColor: '#FF5722', cursor: "pointer" }}
+                    style={{ color: currentView === 'shipments' ? '#FF5722' : '#6c757d', borderBottomColor: currentView === 'shipments' ? '#FF5722' : 'transparent', cursor: "pointer" }}
                     onClick={(e) => {
                       e.preventDefault();
                       setCurrentView("shipments");
@@ -526,11 +526,11 @@ function App() {
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link 
-                    className="border-0"
-                    style={{ cursor: "pointer" }}
+                    className="border-0 border-bottom border-2"
+                    style={{ color: currentView === 'dropdowns' ? '#FF5722' : '#6c757d', borderBottomColor: currentView === 'dropdowns' ? '#FF5722' : 'transparent', cursor: "pointer" }}
                     onClick={(e) => {
                       e.preventDefault();
-                      setCurrentView("shipments");
+                      setCurrentView("dropdowns");
                     }}
                   >
                     Orders & Shipments
