@@ -8,6 +8,7 @@ export function DropdownManagement() {
   const [showAddSupplier, setShowAddSupplier] = useState(false);
   const [showAddCarrier, setShowAddCarrier] = useState(false);
   const [showAddPort, setShowAddPort] = useState(false);
+  const [showAddDocumentType, setShowAddDocumentType] = useState(false);
 
   const [newSupplier, setNewSupplier] = useState("");
   const [newCarrier, setNewCarrier] = useState("");
@@ -16,6 +17,7 @@ export function DropdownManagement() {
     code: "",
     type: "loading",
   });
+  const [newDocumentType, setNewDocumentType] = useState("");
 
   const utils = trpc.useUtils();
 
@@ -91,6 +93,30 @@ export function DropdownManagement() {
     },
   });
 
+  // Document Types
+  const { data: documentTypes, isLoading: loadingDocumentTypes } = trpc.dropdowns.documentTypes.list.useQuery();
+  const addDocumentTypeMutation = trpc.dropdowns.documentTypes.add.useMutation({
+    onSuccess: () => {
+      toast.success("Document type added successfully");
+      setNewDocumentType("");
+      setShowAddDocumentType(false);
+      utils.dropdowns.documentTypes.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to add document type");
+    },
+  });
+
+  const deleteDocumentTypeMutation = trpc.dropdowns.documentTypes.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Document type deleted successfully");
+      utils.dropdowns.documentTypes.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete document type");
+    },
+  });
+
   const handleAddSupplier = () => {
     if (!newSupplier.trim()) {
       toast.error("Please enter a supplier name");
@@ -119,11 +145,19 @@ export function DropdownManagement() {
     });
   };
 
+  const handleAddDocumentType = () => {
+    if (!newDocumentType.trim()) {
+      toast.error("Please enter a document type name");
+      return;
+    }
+    addDocumentTypeMutation.mutate({ name: newDocumentType });
+  };
+
   return (
     <div className="d-flex flex-column h-100" style={{ overflow: 'hidden' }}>
       <div className="p-3 border-bottom bg-white">
         <h2 className="mb-2 fw-bold">Dropdown Management</h2>
-        <p className="text-muted mb-0">Manage dropdown values for Suppliers, Carriers, and Ports</p>
+        <p className="text-muted mb-0">Manage dropdown values for Suppliers, Carriers, Ports, and Document Types</p>
       </div>
 
       <div className="flex-grow-1" style={{ overflow: 'auto' }}>
@@ -287,6 +321,60 @@ export function DropdownManagement() {
             </Card.Body>
           </Card>
         </Col>
+
+        {/* Document Types */}
+        <Col lg={4}>
+          <Card className="h-100">
+            <Card.Header className="bg-light">
+              <h5 className="mb-0 d-flex align-items-center gap-2">
+                <span>Document Types</span>
+                <Badge bg="secondary">{documentTypes?.length || 0}</Badge>
+              </h5>
+            </Card.Header>
+            <Card.Body>
+              {loadingDocumentTypes ? (
+                <div className="text-center">
+                  <Spinner animation="border" size="sm" />
+                </div>
+              ) : (
+                <>
+                  <ListGroup variant="flush" className="mb-3">
+                    {documentTypes && documentTypes.length > 0 ? (
+                      documentTypes.map((docType) => (
+                        <ListGroup.Item
+                          key={docType.id}
+                          className="d-flex justify-content-between align-items-center"
+                        >
+                          <span>{docType.name}</span>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => deleteDocumentTypeMutation.mutate({ id: docType.id })}
+                            disabled={deleteDocumentTypeMutation.isPending}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </ListGroup.Item>
+                      ))
+                    ) : (
+                      <p className="text-muted text-center py-3">No document types added yet</p>
+                    )}
+                  </ListGroup>
+
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="w-100"
+                    onClick={() => setShowAddDocumentType(true)}
+                  >
+                    <Plus size={16} className="me-2" />
+                    Add Document Type
+                  </Button>
+                </>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
           </Row>
         </Container>
       </div>
@@ -399,6 +487,36 @@ export function DropdownManagement() {
             disabled={addPortMutation.isPending}
           >
             {addPortMutation.isPending ? "Adding..." : "Add Port"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Add Document Type Modal */}
+      <Modal show={showAddDocumentType} onHide={() => setShowAddDocumentType(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Document Type</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Document Type Name</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter document type (e.g., BOL, Invoice)"
+              value={newDocumentType}
+              onChange={(e) => setNewDocumentType(e.target.value)}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAddDocumentType(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleAddDocumentType}
+            disabled={addDocumentTypeMutation.isPending}
+          >
+            {addDocumentTypeMutation.isPending ? "Adding..." : "Add Document Type"}
           </Button>
         </Modal.Footer>
       </Modal>
