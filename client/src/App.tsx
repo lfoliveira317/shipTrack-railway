@@ -699,6 +699,7 @@ function App() {
                             <td>{shipment.pod || "-"}</td>
                             <td>
                               <div className="d-flex gap-2 align-items-center">
+                                {canModify && (
                                 <Button
                                   variant="link"
                                   size="sm"
@@ -718,6 +719,7 @@ function App() {
                                     </Badge>
                                   )}
                                 </Button>
+                                )}
                                 <Button
                                   variant="link"
                                   size="sm"

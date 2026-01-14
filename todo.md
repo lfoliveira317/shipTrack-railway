@@ -294,3 +294,7 @@
 - [x] Update app title in index.html
 - [x] Update package.json name to "shiptrack"
 - [x] All UI references changed from Beacon to ShipTrack
+
+## Viewer Attachment Fixes (Completed)
+- [x] Allow viewers to see/download attachments (fix ACL)
+- [x] Hide attachment upload (clipper) icon for viewer users
