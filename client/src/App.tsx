@@ -113,6 +113,19 @@ function App() {
   const [commentsModalShipment, setCommentsModalShipment] = useState<{ id: number; orderNumber: string } | null>(null);
   const [attachmentsModalShipment, setAttachmentsModalShipment] = useState<{ id: number; label: string } | null>(null);
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
+  const [showColumnSettings, setShowColumnSettings] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
+    orderNumber: true,
+    supplier: true,
+    cro: true,
+    container: true,
+    mawbNumber: true,
+    carrier: true,
+    status: true,
+    atd: true,
+    eta: true,
+    poNumber: true,
+  });
 
   const { data: shipments = [], refetch } = trpc.shipments.list.useQuery();
   const { data: commentCounts = {} } = trpc.comments.counts.useQuery();

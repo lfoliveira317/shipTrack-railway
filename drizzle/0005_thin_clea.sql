@@ -1,0 +1,1 @@
+ALTER TABLE `shipments` ADD `poNumber` varchar(255);

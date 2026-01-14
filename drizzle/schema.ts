@@ -42,6 +42,7 @@ export const shipments = mysqlTable("shipments", {
   eta: varchar("eta", { length: 255 }).notNull(),
   ata: varchar("ata", { length: 255 }),
   bolNumber: varchar("bolNumber", { length: 255 }),
+  poNumber: varchar("poNumber", { length: 255 }), // PO Number for SellerCloud
   shipmentType: varchar("shipmentType", { length: 50 }).default("ocean"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

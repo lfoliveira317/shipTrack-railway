@@ -21,6 +21,7 @@ type Shipment = {
   ata?: string | null;
   shipmentType?: "ocean" | "air" | string | null;
   bolNumber?: string | null;
+  poNumber?: string | null;
 };
 
 interface AddShipmentModalProps {
@@ -44,6 +45,7 @@ const initialFormData = {
   eta: "",
   ata: "",
   bolNumber: "",
+  poNumber: "",
 };
 
 export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentModalProps) {
@@ -72,6 +74,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
         eta: editingShipment.eta || "",
         ata: editingShipment.ata || "",
         bolNumber: editingShipment.bolNumber || "",
+        poNumber: editingShipment.poNumber || "",
       });
       // shipmentType is always ocean now
     } else {
@@ -256,6 +259,17 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
               </Col>
               <Col md={6}>
                 <Form.Group>
+                  <Form.Label className="fw-medium small">PO Number (SellerCloud)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="e.g., PO-123456"
+                    value={formData.poNumber}
+                    onChange={(e) => handleChange("poNumber", e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
                   <Form.Label className="fw-medium small">Label</Form.Label>
                   <Form.Control
                     type="text"
@@ -326,8 +340,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                     <Form.Group>
                       <Form.Label className="fw-medium small">ATD</Form.Label>
                       <Form.Control
-                        type="text"
-                        placeholder="e.g., Mon, 20 Jan"
+                        type="date"
                         value={formData.atd}
                         onChange={(e) => handleChange("atd", e.target.value)}
                       />
@@ -337,8 +350,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                     <Form.Group>
                       <Form.Label className="fw-medium small">ATA</Form.Label>
                       <Form.Control
-                        type="text"
-                        placeholder="e.g., Thu, 30 Jan"
+                        type="date"
                         value={formData.ata}
                         onChange={(e) => handleChange("ata", e.target.value)}
                       />
@@ -372,8 +384,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                 <Form.Group>
                   <Form.Label className="fw-medium small">ETA</Form.Label>
                   <Form.Control
-                    type="text"
-                    placeholder="e.g., Thu, 30 Jan"
+                    type="date"
                     value={formData.eta}
                     onChange={(e) => handleChange("eta", e.target.value)}
                   />

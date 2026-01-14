@@ -23,6 +23,7 @@ export const shipmentSchema = z.object({
   pod: z.string().optional(), // Port of Discharge
   shipmentType: z.enum(["ocean", "air"]).default("ocean"),
   bolNumber: z.string().optional(), // Bill of Lading number
+  poNumber: z.string().optional(), // PO Number for SellerCloud
 });
 
 export type ShipmentType = z.infer<typeof shipmentSchema>;

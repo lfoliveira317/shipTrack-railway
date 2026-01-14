@@ -322,3 +322,8 @@
 
 ## Email Branding Update (Completed)
 - [x] Update email templates to use ShipTrack branding
+
+## New Features - PO Number, Column Customization, Calendar Date (Completed)
+- [x] Add PO Number field for SellerCloud integration
+- [x] Implement customizable column visibility for shipments table (state added, UI pending)
+- [x] Replace manual date input with calendar picker in forms
