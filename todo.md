@@ -311,3 +311,7 @@
 
 ## Remove Live Boards Tab (Completed)
 - [x] Remove Live Boards tab from navigation
+
+## Comments Modal User Name Fix (Completed)
+- [x] Show logged-in user name automatically in comments modal
+- [x] Make user name field non-editable

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal, Button, Form, ListGroup, Badge, Spinner } from "react-bootstrap";
 import { MessageCircle, Send, Trash2, User } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -12,9 +12,19 @@ interface CommentsModalProps {
 
 export function CommentsModal({ show, onHide, shipmentId, orderNumber }: CommentsModalProps) {
   const [newComment, setNewComment] = useState("");
-  const [authorName, setAuthorName] = useState("Admin User");
+  const [authorName, setAuthorName] = useState("");
 
   const utils = trpc.useUtils();
+
+  // Fetch current user
+  const { data: currentUser } = trpc.auth.me.useQuery();
+
+  // Set author name from logged-in user
+  useEffect(() => {
+    if (currentUser?.name) {
+      setAuthorName(currentUser.name);
+    }
+  }, [currentUser]);
 
   // Fetch comments for this shipment
   const { data: comments, isLoading } = trpc.comments.byShipment.useQuery(
@@ -88,9 +98,10 @@ export function CommentsModal({ show, onHide, shipmentId, orderNumber }: Comment
             <Form.Control
               type="text"
               value={authorName}
-              onChange={(e) => setAuthorName(e.target.value)}
+              disabled
               placeholder="Enter your name"
               size="sm"
+              className="bg-light"
             />
           </Form.Group>
           <Form.Group className="mb-3">
