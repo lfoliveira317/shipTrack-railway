@@ -305,3 +305,6 @@
 ## Additional Orange Theme Updates (Completed)
 - [x] Change Admin badge to orange
 - [x] Change Grid view button to orange (conditional - only when active)
+
+## Project Name Update (Completed)
+- [x] Update project display name from "Beacon Supply Chain Mockup" to "ShipTrack"
