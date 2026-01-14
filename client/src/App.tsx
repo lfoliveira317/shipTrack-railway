@@ -270,7 +270,7 @@ function App() {
         </Button>
 
         <Navbar.Brand href="#" className="fw-bold fs-4 mb-0" style={{ color: '#FF5722' }}>
-          <span style={{ color: '#FF5722' }}>●</span> Beacon
+          <span style={{ color: '#FF5722' }}>●</span> ShipTrack
         </Navbar.Brand>
 
         <Nav className="ms-auto d-flex flex-row align-items-center gap-2">
@@ -402,7 +402,7 @@ function App() {
         >
           <Offcanvas.Header closeButton>
             <Offcanvas.Title className="fw-bold" style={{ color: '#FF5722' }}>
-              <span style={{ color: '#FF5722' }}>●</span> Beacon
+              <span style={{ color: '#FF5722' }}>●</span> ShipTrack
             </Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body className="p-0">
@@ -453,7 +453,7 @@ function App() {
               <Nav variant="tabs" className="border-0 flex-nowrap">
                 <Nav.Item>
                   <Nav.Link className="border-0 border-bottom border-2 fw-semibold" style={{ color: '#FF5722', borderBottomColor: '#FF5722' }}>
-                    Beacon
+                    ShipTrack
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>

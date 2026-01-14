@@ -288,3 +288,9 @@
 - [x] Display actual user email
 - [x] Display actual user role (Admin/User/Viewer) with badges
 - [x] Test with different user roles
+
+## Rename App to ShipTrack (Completed)
+- [x] Update app name in App.tsx (logo, header, tabs)
+- [x] Update app title in index.html
+- [x] Update package.json name to "shiptrack"
+- [x] All UI references changed from Beacon to ShipTrack
