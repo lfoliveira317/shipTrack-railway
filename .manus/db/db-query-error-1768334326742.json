@@ -1,0 +1,8 @@
+{
+  "query": "SELECT NOW() as current_time, version() as pg_version; SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 49PuSKHNJVwaYJS.6dee92bac2a7 --database MhzwHgR8AejWKvAATctNq9 --execute SELECT NOW() as current_time, version() as pg_version; SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 1 column 28 near \"current_time, version() as pg_version\""
+  ]
+}
