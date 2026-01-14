@@ -381,9 +381,13 @@ function App() {
                 A
               </div>
               <div>
-                <div className="fw-semibold small">Admin User</div>
+                <div className="fw-semibold small d-flex align-items-center gap-2">
+                  {currentUser?.name || 'Admin User'}
+                  {currentUser?.role === 'admin' && <Badge bg="danger" style={{ fontSize: '0.6rem' }}><Shield size={10} /> Admin</Badge>}
+                  {currentUser?.role === 'viewer' && <Badge bg="secondary" style={{ fontSize: '0.6rem' }}><Eye size={10} /> Viewer</Badge>}
+                </div>
                 <div className="text-muted" style={{ fontSize: "0.75rem" }}>
-                  Logistics Manager
+                  {currentUser?.email || 'user@example.com'}
                 </div>
               </div>
             </div>
@@ -427,9 +431,13 @@ function App() {
                   A
                 </div>
                 <div>
-                  <div className="fw-semibold small">Admin User</div>
+                  <div className="fw-semibold small d-flex align-items-center gap-2">
+                    {currentUser?.name || 'Admin User'}
+                    {currentUser?.role === 'admin' && <Badge bg="danger" style={{ fontSize: '0.6rem' }}><Shield size={10} /> Admin</Badge>}
+                    {currentUser?.role === 'viewer' && <Badge bg="secondary" style={{ fontSize: '0.6rem' }}><Eye size={10} /> Viewer</Badge>}
+                  </div>
                   <div className="text-muted" style={{ fontSize: "0.75rem" }}>
-                    Logistics Manager
+                    {currentUser?.email || 'user@example.com'}
                   </div>
                 </div>
               </div>
