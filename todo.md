@@ -298,3 +298,6 @@
 ## Viewer Attachment Fixes (Completed)
 - [x] Allow viewers to see/download attachments (fix ACL)
 - [x] Hide attachment upload (clipper) icon for viewer users
+
+## Status Badge Style Fix (Completed)
+- [x] Remove inline style override to restore color-coded status system
