@@ -273,3 +273,11 @@
 - [x] Fix build configuration for Vercel deployment
 - [x] Create comprehensive VERCEL_DEPLOYMENT.md guide
 - [x] Document common issues and solutions
+
+## Replace Vite with esbuild (In Progress)
+- [ ] Update package.json to remove Vite dependencies
+- [ ] Create esbuild configuration for frontend
+- [ ] Update build scripts to use esbuild
+- [ ] Test local build
+- [ ] Update vercel.json configuration
+- [ ] Deploy and verify on Vercel
