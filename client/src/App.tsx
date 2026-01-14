@@ -321,7 +321,7 @@ function App() {
                 <div className="d-none d-md-block text-start">
                   <div className="fw-semibold d-flex align-items-center gap-2" style={{ fontSize: "0.9rem" }}>
                     {currentUser?.name || 'Admin User'}
-                    {currentUser?.role === 'admin' && <Badge bg="danger" style={{ fontSize: '0.6rem' }}><Shield size={10} /> Admin</Badge>}
+                    {currentUser?.role === 'admin' && <Badge bg="danger" style={{ fontSize: '0.6rem', backgroundColor: '#ff5722' }}><Shield size={10} /> Admin</Badge>}
                     {currentUser?.role === 'viewer' && <Badge bg="secondary" style={{ fontSize: '0.6rem' }}><Eye size={10} /> Viewer</Badge>}
                   </div>
                   <div className="text-muted" style={{ fontSize: "0.75rem" }}>
@@ -558,6 +558,7 @@ function App() {
                     variant={viewMode === "grid" ? "danger" : "outline-secondary"}
                     size="sm"
                     onClick={() => setViewMode("grid")}
+                    style={viewMode === "grid" ? {backgroundColor: '#ff5722', borderColor: '#ff5722'} : {}}
                   >
                     <LayoutGrid size={16} />
                   </Button>

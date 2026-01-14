@@ -301,3 +301,7 @@
 
 ## Status Badge Style Fix (Completed)
 - [x] Remove inline style override to restore color-coded status system
+
+## Additional Orange Theme Updates (Completed)
+- [x] Change Admin badge to orange
+- [x] Change Grid view button to orange (conditional - only when active)
