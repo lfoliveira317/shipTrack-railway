@@ -81,17 +81,17 @@ export function NotificationSettings() {
   }
 
   return (
-    <div className="flex-grow-1 p-2 p-md-3" style={{ overflow: 'hidden' }}>
-      <div className="row">
-        <div className="col-lg-8 mx-auto" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <div className="card shadow-sm" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <div className="card-header bg-primary text-white" style={{ flexShrink: 0 }}>
+    <div className="flex-grow-1 d-flex flex-column p-2 p-md-3" style={{ minHeight: 0 }}>
+      <div className="row flex-grow-1" style={{ minHeight: 0 }}>
+        <div className="col-lg-8 mx-auto d-flex flex-column" style={{ minHeight: 0 }}>
+          <div className="card shadow-sm d-flex flex-column" style={{ minHeight: 0, maxHeight: '100%' }}>
+            <div className="card-header bg-primary text-white flex-shrink-0">
               <h4 className="mb-0">
                 <i className="bi bi-bell me-2"></i>
                 Notification Settings
               </h4>
             </div>
-            <div className="card-body" style={{ overflowY: 'auto', flexGrow: 1 }}>
+            <div className="card-body overflow-auto" style={{ minHeight: 0 }}>
               <form onSubmit={handleSubmit}>
                 {/* Email Notifications Toggle */}
                 <div className="mb-4">

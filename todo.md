@@ -677,3 +677,7 @@
 - [x] Convert email.ts from Resend to EmailJS
 - [x] Update test-email-router.ts references to EmailJS
 - [x] Test all converted templates (14 tests passing)
+
+
+## UI Improvements - Notification Settings (Completed)
+- [x] Fix notification settings screen scrolling issue with proper flexbox layout
