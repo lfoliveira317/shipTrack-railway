@@ -629,3 +629,10 @@
 - [x] Add vessel and voyage columns to database schema
 - [x] Display vessel and voyage in shipment grid
 - [x] Add vessel and voyage inputs to add/edit modal
+
+
+## Email Notification Testing (Completed)
+- [x] Create comprehensive email notification tests
+- [x] Test immediate notifications
+- [x] Test digest emails
+- [x] Test webhook notifications

@@ -161,7 +161,7 @@ async function getDigestData(hoursBack: number): Promise<DigestData> {
 /**
  * Send digest email to a user
  */
-async function sendDigestEmail(
+export async function sendDigestEmail(
   user: any,
   digestType: 'hourly' | 'daily' | 'weekly',
   data: DigestData
