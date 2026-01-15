@@ -208,7 +208,7 @@ export function ContainerTrackingModal({
                   </Col>
                 </Row>
 
-                {Object.keys(trackingData.references).length > 0 && (
+                {trackingData.references && Object.keys(trackingData.references).length > 0 && (
                   <div className="mt-3">
                     <strong>References:</strong>
                     <ul className="mb-0 mt-2">

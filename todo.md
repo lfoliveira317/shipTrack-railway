@@ -447,3 +447,6 @@
 - [x] Update TimeToGo API endpoint from /track to /container
 - [x] Change authentication from Bearer token to api_key query parameter
 - [x] Update response parsing to match TimeToGo API structure
+
+- [x] Fix TypeError: Cannot convert undefined or null to object in ContainerTrackingModal line 334
+- [x] Add null check for trackingData.references before calling Object.keys()
