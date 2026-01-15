@@ -484,3 +484,10 @@
 - [x] Validate container number format (4 letters + 7 digits)
 - [x] Auto-uppercase container number input
 - [x] Show helper text to guide users
+
+## Bug Fix: Auto-Tracking Not Triggering (Completed)
+- [x] Debug why auto-tracking doesn't trigger when container number is entered
+- [x] Fixed condition - container field was only showing for editing, not for new shipments
+- [x] Moved container field outside isEditing condition
+- [x] Verified onBlur handler is properly attached
+- [x] Helper text now only shows for new shipments

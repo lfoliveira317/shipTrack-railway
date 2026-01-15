@@ -361,27 +361,29 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                   </Form.Select>
                 </Form.Group>
               </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label className="fw-medium small">
+                    Container Number
+                    {isAutoTracking && <span className="ms-2 text-muted small">(Loading tracking data...)</span>}
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="e.g., MSCU8473920"
+                    value={formData.container}
+                    onChange={(e) => handleChange("container", e.target.value.toUpperCase())}
+                    onBlur={handleContainerBlur}
+                    disabled={isAutoTracking}
+                  />
+                  {!isEditing && (
+                    <Form.Text className="text-muted">
+                      Enter container number to auto-load tracking information
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
               {isEditing && (
                 <>
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label className="fw-medium small">
-                        Container Number
-                        {isAutoTracking && <span className="ms-2 text-muted small">(Loading tracking data...)</span>}
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="e.g., MSCU8473920"
-                        value={formData.container}
-                        onChange={(e) => handleChange("container", e.target.value.toUpperCase())}
-                        onBlur={handleContainerBlur}
-                        disabled={isAutoTracking}
-                      />
-                      <Form.Text className="text-muted">
-                        Enter container number to auto-load tracking information
-                      </Form.Text>
-                    </Form.Group>
-                  </Col>
                   <Col md={6}>
                     <Form.Group>
                       <Form.Label className="fw-medium small">MAWB Number</Form.Label>
