@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
   Navbar,
@@ -191,10 +191,29 @@ function App() {
     },
   });
 
+  // Test email mutation
+  const testEmailMutation = trpc.testEmail.sendTestEmail.useMutation({
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success(`Test email sent to ${data.email}! Check your inbox.`);
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(`Failed to send test email: ${error.message}`);
+    },
+  });
+
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
       logoutMutation.mutate();
     }
+  };
+
+  const handleSendTestEmail = () => {
+    toast.info('Sending test email...');
+    testEmailMutation.mutate();
   };
 
   const handleSort = (field: SortField) => {
@@ -406,6 +425,10 @@ function App() {
               <Dropdown.Item onClick={() => setCurrentView('notifications')}>
                 <Bell size={16} className="me-2" />
                 Notification Settings
+              </Dropdown.Item>
+              <Dropdown.Item onClick={handleSendTestEmail}>
+                <Mail size={16} className="me-2" />
+                Send Test Email
               </Dropdown.Item>
               {isAdmin && (
                 <>

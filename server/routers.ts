@@ -14,6 +14,7 @@ import { maerskTrackingRouter } from "./maersk-tracking";
 import { userPreferencesRouter } from "./user-preferences";
 import { referenceDataRouter } from "./reference-data";
 import { webhooksRouter } from "./routers/webhooks";
+import { testEmailRouter } from "./test-email-router";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -50,6 +51,8 @@ export const appRouter = router({
   referenceData: referenceDataRouter,
 
   webhooks: webhooksRouter,
+
+  testEmail: testEmailRouter,
 });
 
 export type AppRouter = typeof appRouter;
