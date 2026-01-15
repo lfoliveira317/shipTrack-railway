@@ -1,0 +1,302 @@
+import { useState } from 'react';
+import { Modal, Button, Form, Alert, Spinner, Badge, Card, Row, Col } from 'react-bootstrap';
+import { trpc } from '@/lib/trpc';
+import { Ship, Package, FileText, Calendar, MapPin } from 'lucide-react';
+
+interface MaerskTrackingModalProps {
+  show: boolean;
+  onHide: () => void;
+  shipmentId: number;
+  containerNumber?: string;
+  onUpdateShipment: (updates: any) => void;
+}
+
+export function MaerskTrackingModal({
+  show,
+  onHide,
+  shipmentId,
+  containerNumber: initialContainerNumber,
+  onUpdateShipment,
+}: MaerskTrackingModalProps) {
+  const [trackingType, setTrackingType] = useState<'container' | 'bol' | 'booking'>('container');
+  const [trackingValue, setTrackingValue] = useState(initialContainerNumber || '');
+  const [trackingData, setTrackingData] = useState<any>(null);
+  const [suggestedUpdates, setSuggestedUpdates] = useState<any>(null);
+
+  const trackMutation = trpc.maerskTracking.trackAndUpdateShipment.useMutation({
+    onSuccess: (data) => {
+      setTrackingData(data.trackingData);
+      setSuggestedUpdates(data.suggestedUpdates);
+    },
+  });
+
+  const handleTrack = () => {
+    if (!trackingValue.trim()) {
+      return;
+    }
+
+    trackMutation.mutate({
+      shipmentId,
+      trackingType,
+      trackingValue: trackingValue.trim(),
+      scac: 'MAEU',
+    });
+  };
+
+  const handleApplyUpdates = () => {
+    if (suggestedUpdates) {
+      onUpdateShipment(suggestedUpdates);
+      onHide();
+    }
+  };
+
+  const handleClose = () => {
+    setTrackingData(null);
+    setSuggestedUpdates(null);
+    setTrackingValue(initialContainerNumber || '');
+    onHide();
+  };
+
+  return (
+    <Modal show={show} onHide={handleClose} size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>
+          <Ship size={20} className="me-2" />
+          Track Container with Maersk API
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {!trackingData ? (
+          <>
+            <Form.Group className="mb-3">
+              <Form.Label>Tracking Type</Form.Label>
+              <Form.Select
+                value={trackingType}
+                onChange={(e) => setTrackingType(e.target.value as any)}
+              >
+                <option value="container">Container Number</option>
+                <option value="bol">Bill of Lading</option>
+                <option value="booking">Booking Number</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>
+                {trackingType === 'container'
+                  ? 'Container Number'
+                  : trackingType === 'bol'
+                  ? 'Bill of Lading Number'
+                  : 'Booking Number'}
+              </Form.Label>
+              <Form.Control
+                type="text"
+                value={trackingValue}
+                onChange={(e) => setTrackingValue(e.target.value)}
+                placeholder={
+                  trackingType === 'container'
+                    ? 'e.g., MAEU1234567'
+                    : trackingType === 'bol'
+                    ? 'e.g., MAEU123456789'
+                    : 'e.g., BK123456789'
+                }
+              />
+            </Form.Group>
+
+            {trackMutation.error && (
+              <Alert variant="danger">
+                {trackMutation.error.message}
+              </Alert>
+            )}
+          </>
+        ) : (
+          <>
+            <Alert variant="success">
+              <strong>Tracking Data Retrieved Successfully!</strong>
+            </Alert>
+
+            <Card className="mb-3">
+              <Card.Header>
+                <strong>Container Information</strong>
+              </Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={6}>
+                    <p>
+                      <Package size={16} className="me-2" />
+                      <strong>Container:</strong> {trackingData.containerNumber}
+                    </p>
+                    <p>
+                      <FileText size={16} className="me-2" />
+                      <strong>Type:</strong> {trackingData.containerType}
+                    </p>
+                  </Col>
+                  <Col md={6}>
+                    <p>
+                      <strong>Status:</strong>{' '}
+                      <Badge bg="info">{trackingData.status}</Badge>
+                    </p>
+                    <p>
+                      <strong>Journey ID:</strong> {trackingData.journeyId}
+                    </p>
+                  </Col>
+                </Row>
+
+                {Object.keys(trackingData.references).length > 0 && (
+                  <div className="mt-3">
+                    <strong>References:</strong>
+                    <ul className="mb-0 mt-2">
+                      {Object.entries(trackingData.references).map(([key, value]) => (
+                        <li key={key}>
+                          {key}: {value as string}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+
+            {trackingData.legs && trackingData.legs.length > 0 && (
+              <Card className="mb-3">
+                <Card.Header>
+                  <strong>Journey Legs</strong>
+                </Card.Header>
+                <Card.Body>
+                  {trackingData.legs.map((leg: any, index: number) => (
+                    <div key={index} className="mb-3 pb-3 border-bottom">
+                      <h6>
+                        Leg {leg.sequence} - {leg.mode}
+                      </h6>
+                      <Row>
+                        <Col md={6}>
+                          <p className="mb-1">
+                            <MapPin size={14} className="me-1" />
+                            <strong>From:</strong> {leg.from}
+                          </p>
+                          <p className="mb-1">
+                            <MapPin size={14} className="me-1" />
+                            <strong>To:</strong> {leg.to}
+                          </p>
+                        </Col>
+                        <Col md={6}>
+                          {leg.vesselName && (
+                            <p className="mb-1">
+                              <Ship size={14} className="me-1" />
+                              <strong>Vessel:</strong> {leg.vesselName}
+                            </p>
+                          )}
+                          {leg.voyageNumber && (
+                            <p className="mb-1">
+                              <strong>Voyage:</strong> {leg.voyageNumber}
+                            </p>
+                          )}
+                        </Col>
+                      </Row>
+                      <Row className="mt-2">
+                        <Col md={6}>
+                          {leg.etd && (
+                            <p className="mb-1">
+                              <Calendar size={14} className="me-1" />
+                              <strong>ETD:</strong>{' '}
+                              {new Date(leg.etd).toLocaleString()}
+                            </p>
+                          )}
+                          {leg.atd && (
+                            <p className="mb-1">
+                              <Calendar size={14} className="me-1" />
+                              <strong>ATD:</strong>{' '}
+                              {new Date(leg.atd).toLocaleString()}
+                            </p>
+                          )}
+                        </Col>
+                        <Col md={6}>
+                          {leg.eta && (
+                            <p className="mb-1">
+                              <Calendar size={14} className="me-1" />
+                              <strong>ETA:</strong>{' '}
+                              {new Date(leg.eta).toLocaleString()}
+                            </p>
+                          )}
+                          {leg.ata && (
+                            <p className="mb-1">
+                              <Calendar size={14} className="me-1" />
+                              <strong>ATA:</strong>{' '}
+                              {new Date(leg.ata).toLocaleString()}
+                            </p>
+                          )}
+                        </Col>
+                      </Row>
+                    </div>
+                  ))}
+                </Card.Body>
+              </Card>
+            )}
+
+            {suggestedUpdates && (
+              <Alert variant="info">
+                <strong>Suggested Updates:</strong>
+                <ul className="mb-0 mt-2">
+                  {suggestedUpdates.status && (
+                    <li>Status: {suggestedUpdates.status}</li>
+                  )}
+                  {suggestedUpdates.carrier && (
+                    <li>Carrier: {suggestedUpdates.carrier}</li>
+                  )}
+                  {suggestedUpdates.vesselName && (
+                    <li>Vessel: {suggestedUpdates.vesselName}</li>
+                  )}
+                  {suggestedUpdates.portOfLoading && (
+                    <li>Port of Loading: {suggestedUpdates.portOfLoading}</li>
+                  )}
+                  {suggestedUpdates.portOfDischarge && (
+                    <li>Port of Discharge: {suggestedUpdates.portOfDischarge}</li>
+                  )}
+                  {suggestedUpdates.eta && (
+                    <li>ETA: {new Date(suggestedUpdates.eta).toLocaleDateString()}</li>
+                  )}
+                </ul>
+              </Alert>
+            )}
+          </>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        {!trackingData ? (
+          <>
+            <Button variant="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleTrack}
+              disabled={trackMutation.isPending || !trackingValue.trim()}
+            >
+              {trackMutation.isPending ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    className="me-2"
+                  />
+                  Tracking...
+                </>
+              ) : (
+                'Track Container'
+              )}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handleApplyUpdates}>
+              Apply Suggested Updates
+            </Button>
+          </>
+        )}
+      </Modal.Footer>
+    </Modal>
+  );
+}

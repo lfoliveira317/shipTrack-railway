@@ -378,3 +378,12 @@
 - [x] Check server logs for backend errors
 - [x] Fix backend issue causing HTML response instead of JSON
 - [x] Restart server and verify API is working
+
+## Maersk API Integration (In Progress)
+- [x] Add Maersk API credentials to environment variables
+- [x] Create Maersk API client module for container tracking
+- [x] Add backend procedures for tracking containers (by container number, BOL, booking number)
+- [x] Add UI button to manually fetch container tracking data from Maersk
+- [x] Create MaerskTrackingModal component for tracking and updating shipments
+- [ ] Integrate Track button into shipment list
+- [ ] Add webhook endpoint for real-time Maersk tracking events (future enhancement)

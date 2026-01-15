@@ -7,4 +7,7 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  maerskClientId: process.env.MAERSK_CLIENT_ID ?? "",
+  maerskClientSecret: process.env.MAERSK_CLIENT_SECRET ?? "",
+  maerskEnvironment: process.env.MAERSK_ENVIRONMENT ?? "sandbox",
 };
