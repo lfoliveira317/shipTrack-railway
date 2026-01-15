@@ -611,3 +611,7 @@
 
 ## UI Improvements (Completed)
 - [x] Make notification settings page scrollable
+
+
+## Bug Fixes (Completed)
+- [x] Fix edit shipment modal not loading existing container information

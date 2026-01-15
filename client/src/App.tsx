@@ -101,6 +101,7 @@ type Shipment = {
   ata?: string | null;
   shipmentType?: "ocean" | "air" | string | null;
   bolNumber?: string | null;
+  poNumber?: string | null;
 };
 
 type ViewMode = "grid" | "list" | "calendar" | "globe";
