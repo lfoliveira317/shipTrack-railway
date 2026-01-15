@@ -420,3 +420,11 @@
 ## Bug Fixes
 - [x] Fix "Failed to track and update shipment" error in Maersk tracking mutation
 - [x] Improve error handling to show clear authentication error messages
+
+## Dropdown Management System (Completed)
+- [x] Create database schema for reference data (suppliers, carriers, ports, statuses)
+- [x] Create seed script to populate dropdown data
+- [x] Create API endpoints to fetch dropdown options
+- [x] Update UI forms to use dropdown data from API
+- [x] Populated 20 suppliers, 20 carriers, and 47 ports
+- [ ] Add admin interface to manage reference data (future enhancement)

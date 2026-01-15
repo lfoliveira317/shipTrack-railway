@@ -54,12 +54,12 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
   const [bulkText, setBulkText] = useState("");
   const [formData, setFormData] = useState(initialFormData);
 
-  // Fetch dropdown values
-  const { data: suppliers } = trpc.dropdowns.suppliers.list.useQuery();
-  const { data: carriers } = trpc.dropdowns.carriers.list.useQuery();
-  const { data: ports } = trpc.dropdowns.ports.list.useQuery();
-  const polPorts = ports?.filter((p) => p.type === "loading") || [];
-  const podPorts = ports?.filter((p) => p.type === "discharge") || [];
+  // Fetch dropdown values from reference data API
+  const { data: suppliers } = trpc.referenceData.getSuppliers.useQuery();
+  const { data: carriers } = trpc.referenceData.getCarriers.useQuery();
+  const { data: statuses } = trpc.referenceData.getStatuses.useQuery();
+  const { data: polPorts } = trpc.referenceData.getPorts.useQuery({ type: 'loading' });
+  const { data: podPorts } = trpc.referenceData.getPorts.useQuery({ type: 'discharge' });
 
   const isEditing = !!editingShipment;
 
@@ -383,7 +383,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                     onChange={(e) => handleChange("pol", e.target.value)}
                   >
                     <option value="">Select a port</option>
-                    {polPorts.map((port) => (
+                    {polPorts?.map((port) => (
                       <option key={port.id} value={port.name}>
                         {port.name} {port.code && `(${port.code})`}
                       </option>
@@ -399,7 +399,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                     onChange={(e) => handleChange("pod", e.target.value)}
                   >
                     <option value="">Select a port</option>
-                    {podPorts.map((port) => (
+                    {podPorts?.map((port) => (
                       <option key={port.id} value={port.name}>
                         {port.name} {port.code && `(${port.code})`}
                       </option>
