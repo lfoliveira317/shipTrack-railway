@@ -87,14 +87,15 @@ export async function trackContainerTimeToGo(
     console.log(`[TimeToGo] Tracking container: ${containerNumber} with company: ${company}`);
 
     // Make request to TimeToGo API
-    const response = await axios.get(`${config.baseUrl}/track`, {
+    // Endpoint: GET /v1/container?api_key=<TOKEN>&company=<COMPANY>&container_number=<CONTAINER>
+    const response = await axios.get(`${config.baseUrl}/container`, {
       params: {
-        container: containerNumber,
+        api_key: config.token,
         company: company,
+        container_number: containerNumber,
       },
       headers: {
-        'Authorization': `Bearer ${config.token}`,
-        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       timeout: 30000,
     });
@@ -102,26 +103,35 @@ export async function trackContainerTimeToGo(
     console.log('[TimeToGo] Tracking response received:', response.data);
 
     // Parse and normalize the response
-    const trackingData = response.data;
+    // TimeToGo API response structure: { data: { summary: {...}, container: {...} } }
+    const apiData = response.data?.data;
+    const summary = apiData?.summary || {};
+    const container = apiData?.container || {};
+    const events = container?.events || [];
 
     return {
       success: true,
       data: {
-        container: containerNumber,
-        carrier: trackingData.carrier || trackingData.company || company,
-        status: trackingData.status || trackingData.containerStatus,
-        location: trackingData.location || trackingData.currentLocation,
-        eta: trackingData.eta || trackingData.estimatedArrival,
-        events: trackingData.events || trackingData.history || [],
+        container: container.number || containerNumber,
+        carrier: summary?.company?.full_name || summary?.company?.code || company,
+        status: container.status || (events[0]?.status),
+        location: events[0]?.location || events[0]?.place,
+        eta: summary.eta || container.eta,
+        events: events.map((event: any) => ({
+          date: event.date || event.timestamp,
+          location: event.location || event.place,
+          description: event.description || event.event,
+          status: event.status,
+        })),
         vessel: {
-          name: trackingData.vessel?.name || trackingData.vesselName,
-          voyage: trackingData.vessel?.voyage || trackingData.voyageNumber,
+          name: summary.vessel?.name || container.vessel_name,
+          voyage: summary.vessel?.voyage || container.voyage_number,
         },
         route: {
-          pol: trackingData.pol || trackingData.portOfLoading,
-          pod: trackingData.pod || trackingData.portOfDischarge,
-          atd: trackingData.atd || trackingData.actualDeparture,
-          ata: trackingData.ata || trackingData.actualArrival,
+          pol: summary.pol || container.port_of_loading,
+          pod: summary.pod || container.port_of_discharge,
+          atd: summary.atd || container.actual_departure,
+          ata: summary.ata || container.actual_arrival,
         },
       },
     };

@@ -441,3 +441,9 @@
 - [x] Remove Maersk-specific branding from UI
 - [x] Rename component from MaerskTrackingModal to ContainerTrackingModal
 - [x] Update provider selector to "Multi-Carrier Tracking (Recommended)" and "Maersk Direct API"
+
+## Bug Fixes
+- [x] Fix HTTP 404 error in API mutation calls
+- [x] Update TimeToGo API endpoint from /track to /container
+- [x] Change authentication from Bearer token to api_key query parameter
+- [x] Update response parsing to match TimeToGo API structure
