@@ -1,7 +1,4 @@
-import { Resend } from 'resend';
-import { ENV } from './_core/env';
-
-const resend = new Resend(ENV.resendApiKey);
+import { sendEmailViaEmailJS, htmlToPlainText } from './services/emailjs-backend';
 
 interface EmailNotificationParams {
   to: string;
@@ -10,23 +7,27 @@ interface EmailNotificationParams {
 }
 
 /**
- * Send email notification using Resend API
+ * Send email notification using EmailJS API
  */
 export async function sendEmail(params: EmailNotificationParams): Promise<boolean> {
   try {
-    const { data, error } = await resend.emails.send({
-      from: ENV.emailFrom,
-      to: params.to,
+    // Convert HTML to plain text for EmailJS template
+    const plainTextMessage = htmlToPlainText(params.html);
+    
+    const success = await sendEmailViaEmailJS({
+      to_email: params.to,
+      to_name: params.to.split('@')[0], // Use email username as name
+      from_name: 'ShipTrack',
       subject: params.subject,
-      html: params.html,
+      message: plainTextMessage,
     });
 
-    if (error) {
-      console.error('[Email] Failed to send email:', error);
+    if (!success) {
+      console.error('[Email] Failed to send email via EmailJS');
       return false;
     }
 
-    console.log(`[Email] Email sent successfully to ${params.to}:`, data?.id);
+    console.log(`[Email] Email sent successfully to ${params.to} via EmailJS`);
     return true;
   } catch (error: any) {
     console.error('[Email] Error sending email:', error.message);

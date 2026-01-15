@@ -654,3 +654,12 @@
 - [x] Configure EmailJS service with Service ID and Template ID
 - [x] Update test email to use EmailJS
 - [x] Send test email successfullyst email and verify delivery
+
+
+## Backend EmailJS Migration (Completed)
+- [x] Create backend EmailJS service wrapper with Node.js SDK
+- [x] Replace Resend calls in email-service.ts with EmailJS
+- [x] Update immediate notification emails to use EmailJS
+- [x] Update digest emails to use EmailJS
+- [x] Update webhook notification emails to use EmailJS
+- [x] Test all email notification types (13 tests passing)
