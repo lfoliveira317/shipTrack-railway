@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET email = 'lfoliveira317@gmail.com' WHERE openId = 'o92rUq6wa7S2hEa2xqwnnL';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 49PuSKHNJVwaYJS.6dee92bac2a7 --database MhzwHgR8AejWKvAATctNq9 --execute UPDATE users SET email = 'lfoliveira317@gmail.com' WHERE openId = 'o92rUq6wa7S2hEa2xqwnnL';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 80
+}

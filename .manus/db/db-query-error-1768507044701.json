@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE users SET email = 'lfoliveira317@gmail.com' WHERE openId = (SELECT OWNER_OPEN_ID FROM (SELECT 'dummy') AS dummy);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 49PuSKHNJVwaYJS.6dee92bac2a7 --database MhzwHgR8AejWKvAATctNq9 --execute UPDATE users SET email = 'lfoliveira317@gmail.com' WHERE openId = (SELECT OWNER_OPEN_ID FROM (SELECT 'dummy') AS dummy);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'owner_open_id' in 'field list'"
+  ]
+}

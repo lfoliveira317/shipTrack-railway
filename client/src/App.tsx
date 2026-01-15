@@ -45,6 +45,7 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import { ContainerTrackingModal } from "./components/ContainerTrackingModal";
 import { NotificationSettings } from "./pages/NotificationSettings";
 import { formatDateOnly } from "./utils/dateFormatter";
+import { sendEmailViaEmailJS } from "./services/emailjs-service";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -191,29 +192,31 @@ function App() {
     },
   });
 
-  // Test email mutation
-  const testEmailMutation = trpc.testEmail.sendTestEmail.useMutation({
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success(`Test email sent to ${data.email}! Check your inbox.`);
-      } else {
-        toast.error(data.message);
-      }
-    },
-    onError: (error) => {
-      toast.error(`Failed to send test email: ${error.message}`);
-    },
-  });
-
   const handleLogout = () => {
-    if (confirm('Are you sure you want to logout?')) {
-      logoutMutation.mutate();
-    }
+    logoutMutation.mutate();
   };
 
-  const handleSendTestEmail = () => {
-    toast.info('Sending test email...');
-    testEmailMutation.mutate();
+  const handleSendTestEmail = async () => {
+    toast.info('Sending test email via EmailJS...');
+    
+    try {
+      const success = await sendEmailViaEmailJS({
+        to_email: currentUser?.email || 'lfoliveira317@gmail.com',
+        to_name: currentUser?.name || 'User',
+        from_name: 'ShipTrack',
+        subject: '✅ ShipTrack Email Test - EmailJS Deliverability Check',
+        message: `Hello ${currentUser?.name || 'User'},\n\nThis is a test email from ShipTrack to verify EmailJS integration is working correctly.\n\nIf you're reading this, email delivery is functioning properly!\n\nBest regards,\nShipTrack Team`,
+      });
+      
+      if (success) {
+        toast.success(`Test email sent to ${currentUser?.email}! Check your inbox.`);
+      } else {
+        toast.error('Failed to send test email. Please check EmailJS configuration.');
+      }
+    } catch (error) {
+      console.error('Test email error:', error);
+      toast.error('Failed to send test email. Please check EmailJS configuration.');
+    }
   };
 
   const handleSort = (field: SortField) => {
