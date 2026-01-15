@@ -3,6 +3,7 @@ import { Modal, Button, Form, Row, Col, Tabs, Tab } from "react-bootstrap";
 import { Upload } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { formatDateOnly } from "@/utils/dateFormatter";
 
 type Shipment = {
   id: number;
@@ -139,11 +140,11 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
         mawbNumber: editingShipment.mawbNumber || "",
         carrier: editingShipment.carrier || "",
         status: editingShipment.status || "In transit",
-        atd: editingShipment.atd || "",
+        atd: editingShipment.atd ? formatDateOnly(editingShipment.atd) : "",
         pol: editingShipment.pol || "",
         pod: editingShipment.pod || "",
-        eta: editingShipment.eta || "",
-        ata: editingShipment.ata || "",
+        eta: editingShipment.eta ? formatDateOnly(editingShipment.eta) : "",
+        ata: editingShipment.ata ? formatDateOnly(editingShipment.ata) : "",
         bolNumber: editingShipment.bolNumber || "",
         poNumber: editingShipment.poNumber || "",
       });

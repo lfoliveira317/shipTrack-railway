@@ -619,3 +619,7 @@
 
 ## Date Formatting (Completed)
 - [x] Format ATA, ATD, ETA fields to show only date (no time)
+
+
+## Date Input Formatting (Completed)
+- [x] Fix ATD, ATA, ETA date input fields to use yyyy-mm-dd format in edit modal
