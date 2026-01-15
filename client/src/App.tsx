@@ -40,7 +40,7 @@ import { ApiConfigModal } from "./components/ApiConfigModal";
 import UserManagementModal from "./components/UserManagementModal";
 import { Users, Shield, Eye, LogOut } from "lucide-react";
 import { useLocalStorage } from "./hooks/useLocalStorage";
-import { MaerskTrackingModal } from "./components/MaerskTrackingModal";
+import { ContainerTrackingModal } from "./components/ContainerTrackingModal";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -972,14 +972,14 @@ function App() {
         />
       )}
 
-      {/* Maersk Tracking Modal */}
+      {/* Container Tracking Modal */}
       {trackingModalShipment && (
-        <MaerskTrackingModal
+        <ContainerTrackingModal
           show={true}
           onHide={() => setTrackingModalShipment(null)}
           shipmentId={trackingModalShipment.id}
           containerNumber={trackingModalShipment.containerNumber}
-          onUpdateShipment={(updates) => {
+          onUpdateShipment={(updates: any) => {
             // Refresh shipments after update
             refetch();
             setTrackingModalShipment(null);

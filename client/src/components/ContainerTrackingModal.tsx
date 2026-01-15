@@ -3,7 +3,7 @@ import { Modal, Button, Form, Alert, Spinner, Badge, Card, Row, Col } from 'reac
 import { trpc } from '@/lib/trpc';
 import { Ship, Package, FileText, Calendar, MapPin, RefreshCw } from 'lucide-react';
 
-interface MaerskTrackingModalProps {
+interface ContainerTrackingModalProps {
   show: boolean;
   onHide: () => void;
   shipmentId: number;
@@ -11,13 +11,13 @@ interface MaerskTrackingModalProps {
   onUpdateShipment: (updates: any) => void;
 }
 
-export function MaerskTrackingModal({
+export function ContainerTrackingModal({
   show,
   onHide,
   shipmentId,
   containerNumber: initialContainerNumber,
   onUpdateShipment,
-}: MaerskTrackingModalProps) {
+}: ContainerTrackingModalProps) {
   const [trackingType, setTrackingType] = useState<'container' | 'bol' | 'booking'>('container');
   const [trackingValue, setTrackingValue] = useState(initialContainerNumber || '');
   const [trackingData, setTrackingData] = useState<any>(null);
@@ -121,11 +121,11 @@ export function MaerskTrackingModal({
                 value={trackingProvider}
                 onChange={(e) => setTrackingProvider(e.target.value as any)}
               >
-                <option value="timetogo">TimeToGo (Recommended)</option>
-                <option value="maersk">Maersk API</option>
+                <option value="timetogo">Multi-Carrier Tracking (Recommended)</option>
+                <option value="maersk">Maersk Direct API</option>
               </Form.Select>
               <Form.Text className="text-muted">
-                TimeToGo supports multiple carriers with auto-detection
+                Multi-carrier tracking supports automatic carrier detection for all major shipping lines
               </Form.Text>
             </Form.Group>
 

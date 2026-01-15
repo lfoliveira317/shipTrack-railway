@@ -435,3 +435,9 @@
 - [x] Integrate TimeToGo tracking with existing tracking modal
 - [x] Add provider selector (TimeToGo recommended, Maersk alternative)
 - [ ] Test tracking with real container numbers
+
+## Tracking Modal Rebranding (Completed)
+- [x] Update modal title from "Track Container with Maersk API" to generic "Track Container"
+- [x] Remove Maersk-specific branding from UI
+- [x] Rename component from MaerskTrackingModal to ContainerTrackingModal
+- [x] Update provider selector to "Multi-Carrier Tracking (Recommended)" and "Maersk Direct API"
