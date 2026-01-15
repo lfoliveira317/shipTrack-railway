@@ -53,6 +53,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
   const [inputMethod, setInputMethod] = useState<"container" | "bol">("container");
   const [bulkText, setBulkText] = useState("");
   const [formData, setFormData] = useState(initialFormData);
+  const [isAutoTracking, setIsAutoTracking] = useState(false);
 
   // Fetch dropdown values from reference data API
   const { data: suppliers } = trpc.referenceData.getSuppliers.useQuery();
@@ -60,6 +61,48 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
   const { data: statuses } = trpc.referenceData.getStatuses.useQuery();
   const { data: polPorts } = trpc.referenceData.getPorts.useQuery({ type: 'loading' });
   const { data: podPorts } = trpc.referenceData.getPorts.useQuery({ type: 'discharge' });
+
+  // Auto-tracking mutation
+  const autoTrackMutation = trpc.maerskTracking.trackWithTimeToGo.useMutation({
+    onSuccess: (data) => {
+      if (data?.data) {
+        // Auto-populate fields from tracking data
+        setFormData(prev => ({
+          ...prev,
+          carrier: data.data?.carrier || prev.carrier,
+          status: data.data?.status || prev.status,
+          pol: data.data?.portOfLoading || prev.pol,
+          pod: data.data?.portOfDischarge || prev.pod,
+          atd: data.data?.atd ? new Date(data.data.atd).toISOString().split('T')[0] : prev.atd,
+          eta: data.data?.eta ? new Date(data.data.eta).toISOString().split('T')[0] : prev.eta,
+          ata: data.data?.ata ? new Date(data.data.ata).toISOString().split('T')[0] : prev.ata,
+        }));
+        toast.success('Container information loaded successfully!');
+      }
+      setIsAutoTracking(false);
+    },
+    onError: (error) => {
+      console.error('Auto-tracking error:', error);
+      toast.error('Could not load container information. Please enter manually.');
+      setIsAutoTracking(false);
+    },
+  });
+
+  // Handle container number blur to trigger auto-tracking
+  const handleContainerBlur = () => {
+    const containerNumber = formData.container.trim();
+    // Only auto-track if:
+    // 1. Not editing an existing shipment
+    // 2. Container number is valid (4 letters + 7 digits)
+    // 3. Not already tracking
+    if (!isEditing && containerNumber && /^[A-Z]{4}\d{7}$/.test(containerNumber) && !isAutoTracking) {
+      setIsAutoTracking(true);
+      autoTrackMutation.mutate({
+        containerNumber,
+        company: 'AUTO',
+      });
+    }
+  };
 
   const isEditing = !!editingShipment;
 
@@ -322,13 +365,21 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                 <>
                   <Col md={6}>
                     <Form.Group>
-                      <Form.Label className="fw-medium small">Container Number</Form.Label>
+                      <Form.Label className="fw-medium small">
+                        Container Number
+                        {isAutoTracking && <span className="ms-2 text-muted small">(Loading tracking data...)</span>}
+                      </Form.Label>
                       <Form.Control
                         type="text"
                         placeholder="e.g., MSCU8473920"
                         value={formData.container}
-                        onChange={(e) => handleChange("container", e.target.value)}
+                        onChange={(e) => handleChange("container", e.target.value.toUpperCase())}
+                        onBlur={handleContainerBlur}
+                        disabled={isAutoTracking}
                       />
+                      <Form.Text className="text-muted">
+                        Enter container number to auto-load tracking information
+                      </Form.Text>
                     </Form.Group>
                   </Col>
                   <Col md={6}>

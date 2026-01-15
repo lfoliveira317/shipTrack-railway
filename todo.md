@@ -474,3 +474,13 @@
 - [x] Install react-toastify package
 - [x] Add ToastContainer to App component
 - [x] Show error toast if update fails
+
+## Auto-Track on Container Input (Completed)
+- [x] Add automatic tracking when container number is entered in Add Shipment modal
+- [x] Fetch tracking data from TimeToGo API on container number blur/change
+- [x] Auto-populate carrier, status, ports, dates, vessel fields from API response
+- [x] Show loading indicator while fetching tracking data
+- [x] Handle cases where container is not found or API fails
+- [x] Validate container number format (4 letters + 7 digits)
+- [x] Auto-uppercase container number input
+- [x] Show helper text to guide users
