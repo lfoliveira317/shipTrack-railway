@@ -103,6 +103,8 @@ type Shipment = {
   shipmentType?: "ocean" | "air" | string | null;
   bolNumber?: string | null;
   poNumber?: string | null;
+  vesselName?: string | null;
+  voyageNumber?: string | null;
 };
 
 type ViewMode = "grid" | "list" | "calendar" | "globe";
@@ -759,13 +761,15 @@ function App() {
                         <th>ATA</th>
                         <th>PORT OF LOADING</th>
                         <th>PORT OF DISCHARGE</th>
+                        <th>VESSEL</th>
+                        <th>VOYAGE</th>
                         <th style={{ width: "120px" }}>ACTIONS</th>
                       </tr>
                     </thead>
                     <tbody>
                       {sortedShipments.length === 0 ? (
                         <tr>
-                          <td colSpan={14} className="text-center text-muted py-5">
+                          <td colSpan={16} className="text-center text-muted py-5">
                             {searchTerm
                               ? "No shipments found matching your search"
                               : "No shipments yet. Click 'Add' to create your first shipment."}
@@ -791,6 +795,8 @@ function App() {
                             <td>{formatDateOnly(shipment.ata)}</td>
                             <td>{shipment.pol}</td>
                             <td>{shipment.pod || "-"}</td>
+                            <td>{shipment.vesselName || "-"}</td>
+                            <td>{shipment.voyageNumber || "-"}</td>
                             <td>
                               <div className="d-flex gap-2 align-items-center">
                                 {canModify && (

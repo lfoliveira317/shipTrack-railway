@@ -54,6 +54,8 @@ export const shipments = mysqlTable("shipments", {
   ata: varchar("ata", { length: 255 }),
   bolNumber: varchar("bolNumber", { length: 255 }),
   poNumber: varchar("poNumber", { length: 255 }), // PO Number for SellerCloud
+  vesselName: varchar("vesselName", { length: 255 }),
+  voyageNumber: varchar("voyageNumber", { length: 255 }),
   shipmentType: varchar("shipmentType", { length: 50 }).default("ocean"),
   autoTrackingEnabled: int("autoTrackingEnabled").default(0).notNull(), // 0 = disabled, 1 = enabled
   lastTrackedAt: timestamp("lastTrackedAt"),

@@ -623,3 +623,9 @@
 
 ## Date Input Formatting (Completed)
 - [x] Fix ATD, ATA, ETA date input fields to use yyyy-mm-dd format in edit modal
+
+
+## Vessel and Voyage Fields (Completed)
+- [x] Add vessel and voyage columns to database schema
+- [x] Display vessel and voyage in shipment grid
+- [x] Add vessel and voyage inputs to add/edit modal

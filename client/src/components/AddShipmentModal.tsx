@@ -23,6 +23,8 @@ type Shipment = {
   shipmentType?: "ocean" | "air" | string | null;
   bolNumber?: string | null;
   poNumber?: string | null;
+  vesselName?: string | null;
+  voyageNumber?: string | null;
 };
 
 interface AddShipmentModalProps {
@@ -47,6 +49,8 @@ const initialFormData = {
   ata: "",
   bolNumber: "",
   poNumber: "",
+  vesselName: "",
+  voyageNumber: "",
 };
 
 export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentModalProps) {
@@ -147,6 +151,8 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
         ata: editingShipment.ata ? formatDateOnly(editingShipment.ata) : "",
         bolNumber: editingShipment.bolNumber || "",
         poNumber: editingShipment.poNumber || "",
+        vesselName: editingShipment.vesselName || "",
+        voyageNumber: editingShipment.voyageNumber || "",
       });
       // shipmentType is always ocean now
     } else {
@@ -494,6 +500,28 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                       </option>
                     ))}
                   </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label className="fw-medium small">Vessel Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="e.g., MSC EMMA"
+                    value={formData.vesselName}
+                    onChange={(e) => handleChange("vesselName", e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label className="fw-medium small">Voyage Number</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="e.g., 245W"
+                    value={formData.voyageNumber}
+                    onChange={(e) => handleChange("voyageNumber", e.target.value)}
+                  />
                 </Form.Group>
               </Col>
               <Col md={6}>
