@@ -1,7 +1,4 @@
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-const fromEmail = process.env.EMAIL_FROM || 'notifications@yourdomain.com';
+import { sendEmailViaEmailJS } from './services/emailjs-backend';
 
 export interface EmailNotification {
   to: string;
@@ -173,20 +170,15 @@ This is an automated notification from ShipTrack Supply Chain Management.
 © ${new Date().getFullYear()} ShipTrack. All rights reserved.
     `;
 
-    const result = await resend.emails.send({
-      from: fromEmail,
-      to,
+    const success = await sendEmailViaEmailJS({
+      to_email: to,
+      to_name: to.split('@')[0], // Use email username as name
+      from_name: 'ShipTrack',
       subject,
-      html: htmlContent,
-      text: textContent,
+      message: textContent, // EmailJS uses plain text in template
     });
 
-    if (result.error) {
-      console.error('Email send error:', result.error);
-      return { success: false, error: result.error.message };
-    }
-
-    return { success: true };
+    return { success };
   } catch (error: any) {
     console.error('Email send exception:', error);
     return { success: false, error: error.message };
@@ -198,19 +190,15 @@ This is an automated notification from ShipTrack Supply Chain Management.
  */
 export async function testEmailService(testEmail: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const result = await resend.emails.send({
-      from: fromEmail,
-      to: testEmail,
+    const success = await sendEmailViaEmailJS({
+      to_email: testEmail,
+      to_name: testEmail.split('@')[0],
+      from_name: 'ShipTrack',
       subject: 'ShipTrack Email Service Test',
-      html: '<p>This is a test email from ShipTrack. Your email service is configured correctly!</p>',
-      text: 'This is a test email from ShipTrack. Your email service is configured correctly!',
+      message: 'This is a test email from ShipTrack. Your email service is configured correctly!',
     });
 
-    if (result.error) {
-      return { success: false, error: result.error.message };
-    }
-
-    return { success: true };
+    return { success };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

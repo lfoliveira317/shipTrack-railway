@@ -19,7 +19,7 @@ export const testEmailRouter = router({
 
     const result = await sendEmail({
       to: user.email,
-      subject: '✅ ShipTrack Email Test - Resend Deliverability Check',
+      subject: '✅ ShipTrack Email Test - EmailJS Deliverability Check',
       html: `
 <!DOCTYPE html>
 <html>
@@ -88,17 +88,17 @@ export const testEmailRouter = router({
   </div>
   
   <div class="content">
-    <div class="success-badge">✅ Resend API Working</div>
+    <div class="success-badge">✅ EmailJS API Working</div>
     
     <h2>Hello ${user.name || 'there'}!</h2>
     
-    <p>This is a test email from your <strong>ShipTrack</strong> application to verify that the Resend email delivery service is working correctly.</p>
+    <p>This is a test email from your <strong>ShipTrack</strong> application to verify that the EmailJS email delivery service is working correctly.</p>
     
     <div class="info-box">
       <strong>📊 Test Details:</strong>
       <ul>
         <li><strong>Recipient:</strong> ${user.email}</li>
-        <li><strong>Service:</strong> Resend API</li>
+        <li><strong>Service:</strong> EmailJS API</li>
         <li><strong>Timestamp:</strong> ${new Date().toLocaleString()}</li>
         <li><strong>Environment:</strong> Production</li>
       </ul>
@@ -106,7 +106,7 @@ export const testEmailRouter = router({
     
     <h3>✨ What's Working:</h3>
     <ul>
-      <li>✅ Resend API integration</li>
+      <li>✅ EmailJS API integration</li>
       <li>✅ Email template rendering</li>
       <li>✅ Database connection</li>
       <li>✅ Environment configuration</li>
@@ -145,7 +145,7 @@ export const testEmailRouter = router({
       email: user.email,
       message: result 
         ? 'Test email sent successfully! Please check your inbox.' 
-        : 'Failed to send test email. Please check your Resend configuration.',
+        : 'Failed to send test email. Please check your EmailJS configuration.',
     };
   }),
 });

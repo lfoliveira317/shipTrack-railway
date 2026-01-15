@@ -670,3 +670,10 @@
 - [x] Verify digest queue population when notifications are created
 - [x] Fix integration between email-notifications.ts and digest service
 - [x] Test complete notification-to-digest-to-email flow (2 tests passing)
+
+
+## EmailJS Template Conversion (Completed)
+- [x] Audit all email templates for Resend-specific code
+- [x] Convert email.ts from Resend to EmailJS
+- [x] Update test-email-router.ts references to EmailJS
+- [x] Test all converted templates (14 tests passing)
