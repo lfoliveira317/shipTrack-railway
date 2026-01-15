@@ -365,7 +365,7 @@
 - [x] Fix right menu tabs to show correct active page
 - [x] Ensure tab indicator reflects ShipTrack vs Orders & Shipments view
 
-## Document Type Features (In Progress)
+## Document Type Features (Completed)
 - [x] Add document type schema and database tables
 - [x] Add document type dropdown to attachment screen
 - [x] Update backend to accept and store document types
@@ -373,3 +373,8 @@
 - [x] Create database seed script for default document types
 - [x] Add green clipper icon with attachment count badge to shipment list
 - [x] Implement attachment filtering by document type in AttachmentsModal
+
+## Fix tRPC API Error (Completed)
+- [x] Check server logs for backend errors
+- [x] Fix backend issue causing HTML response instead of JSON
+- [x] Restart server and verify API is working
