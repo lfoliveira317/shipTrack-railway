@@ -399,10 +399,16 @@ function App() {
                 API Configuration
               </Dropdown.Item>
               {isAdmin && (
-                <Dropdown.Item onClick={() => setShowUserManagement(true)}>
-                  <Users size={16} className="me-2" />
-                  User Management
-                </Dropdown.Item>
+                <>
+                  <Dropdown.Item onClick={() => setShowUserManagement(true)}>
+                    <Users size={16} className="me-2" />
+                    User Management
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setCurrentView('dropdowns')}>
+                    <Settings size={16} className="me-2" />
+                    Dropdown Management
+                  </Dropdown.Item>
+                </>
               )}
               <Dropdown.Divider />
               <Dropdown.Item onClick={handleLogout}>
@@ -483,20 +489,6 @@ function App() {
                   <LayoutGrid size={18} />
                   Orders & Shipments
                 </Nav.Link>
-                {currentUser?.role === 'admin' && (
-                  <Nav.Link
-                    href="#"
-                    className="text-dark d-flex align-items-center gap-2 py-2"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCurrentView('dropdowns');
-                      setShowSidebar(false);
-                    }}
-                  >
-                    <Settings size={18} />
-                    Dropdown Management
-                  </Nav.Link>
-                )}
               </Nav>
             </div>
 

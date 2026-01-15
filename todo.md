@@ -511,3 +511,7 @@
 - [x] Integrated with applyTrackingUpdates mutation
 - [x] Invalidate ports cache after updates
 - [ ] Test with tracking data containing new ports
+
+## Navigation Menu Reordering
+- [x] Move dropdown management menu item below user management in header dropdown
+- [x] Remove dropdown management from sidebar navigation
