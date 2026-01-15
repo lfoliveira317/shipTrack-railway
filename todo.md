@@ -515,3 +515,15 @@
 ## Navigation Menu Reordering
 - [x] Move dropdown management menu item below user management in header dropdown
 - [x] Remove dropdown management from sidebar navigation
+
+## Email Templates for Notifications
+- [x] Create email template for container tracking updates
+- [x] Create email template for discharge date changes
+- [x] Create email template for missing documents alert
+- [x] Integrate templates with Resend email service
+- [x] Add email sending functions for each notification type
+- [x] Create professional HTML email templates with responsive design
+- [x] Add summary boxes and color-coded badges
+- [x] Implement sendContainerUpdatesNotification function
+- [x] Implement sendDateChangesNotification function
+- [x] Implement sendMissingDocumentsNotification function
