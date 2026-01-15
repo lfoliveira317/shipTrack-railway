@@ -615,3 +615,7 @@
 
 ## Bug Fixes (Completed)
 - [x] Fix edit shipment modal not loading existing container information
+
+
+## Date Formatting (Completed)
+- [x] Format ATA, ATD, ETA fields to show only date (no time)

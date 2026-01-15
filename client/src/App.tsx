@@ -44,6 +44,7 @@ import { Users, Shield, Eye, LogOut } from "lucide-react";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { ContainerTrackingModal } from "./components/ContainerTrackingModal";
 import { NotificationSettings } from "./pages/NotificationSettings";
+import { formatDateOnly } from "./utils/dateFormatter";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -785,9 +786,9 @@ function App() {
                             <td>
                               <Badge bg={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
                             </td>
-                            <td>{shipment.atd || "-"}</td>
-                            <td>{shipment.eta}</td>
-                            <td>{shipment.ata || "-"}</td>
+                            <td>{formatDateOnly(shipment.atd)}</td>
+                            <td>{formatDateOnly(shipment.eta)}</td>
+                            <td>{formatDateOnly(shipment.ata)}</td>
                             <td>{shipment.pol}</td>
                             <td>{shipment.pod || "-"}</td>
                             <td>
