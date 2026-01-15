@@ -501,3 +501,13 @@
 - [x] Show toast warning when duplicate is detected
 - [x] Clear duplicate warning when modal closes
 - [ ] Test duplicate detection with existing containers
+
+## Auto-Add Ports from API (Completed)
+- [x] Implement backend logic to check if port exists in database
+- [x] Auto-insert new ports when loaded from tracking API
+- [x] Refresh port dropdowns after new ports are added
+- [x] Handle both POL and POD ports
+- [x] Created ensurePortsExist utility function
+- [x] Integrated with applyTrackingUpdates mutation
+- [x] Invalidate ports cache after updates
+- [ ] Test with tracking data containing new ports

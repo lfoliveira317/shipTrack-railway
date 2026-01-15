@@ -71,8 +71,12 @@ export function ContainerTrackingModal({
     },
   });
 
+  const utils = trpc.useUtils();
+
   const applyUpdatesMutation = trpc.maerskTracking.applyTrackingUpdates.useMutation({
     onSuccess: () => {
+      // Invalidate ports query to refresh dropdowns with newly added ports
+      utils.referenceData.getPorts.invalidate();
       // Build list of updated fields
       const updatedFields: string[] = [];
       if (suggestedUpdates) {
@@ -140,6 +144,10 @@ export function ContainerTrackingModal({
   const handleApplyUpdates = () => {
     if (suggestedUpdates) {
       onUpdateShipment(suggestedUpdates);
+      
+      // Refresh shipments list to show updated data
+      utils.shipments.list.invalidate();
+      
       onHide();
     }
   };

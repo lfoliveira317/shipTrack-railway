@@ -7,6 +7,7 @@ import { runAutomaticTracking, getTrackingStats, startTrackingScheduler, stopTra
 import { getDb } from './db';
 import { shipments, trackingHistory } from '../drizzle/schema';
 import { eq, desc } from 'drizzle-orm';
+import { ensurePortsExist } from './port-utils';
 
 export const maerskTrackingRouter = router({
   /**
@@ -295,12 +296,20 @@ export const maerskTrackingRouter = router({
           });
         }
 
+        // Ensure ports exist in database before updating
+        await ensurePortsExist(
+          input.updates.portOfLoading,
+          undefined, // POL code not available in updates
+          input.updates.portOfDischarge,
+          undefined  // POD code not available in updates
+        );
+
         // Build update object with only provided fields
         const updateData: any = {};
         if (input.updates.status) updateData.status = input.updates.status;
         if (input.updates.carrier) updateData.carrier = input.updates.carrier;
-        if (input.updates.portOfLoading) updateData.portOfLoading = input.updates.portOfLoading;
-        if (input.updates.portOfDischarge) updateData.portOfDischarge = input.updates.portOfDischarge;
+        if (input.updates.portOfLoading) updateData.pol = input.updates.portOfLoading;
+        if (input.updates.portOfDischarge) updateData.pod = input.updates.portOfDischarge;
         if (input.updates.atd) updateData.atd = new Date(input.updates.atd);
         if (input.updates.eta) updateData.eta = new Date(input.updates.eta);
         if (input.updates.ata) updateData.ata = new Date(input.updates.ata);
