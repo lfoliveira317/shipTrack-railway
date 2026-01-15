@@ -20,6 +20,7 @@ export const users = mysqlTable("users", {
   notifyOnStatusChange: int("notifyOnStatusChange").default(1).notNull(), // 0 = disabled, 1 = enabled
   notifyOnDelay: int("notifyOnDelay").default(1).notNull(),
   notifyOnArrival: int("notifyOnArrival").default(1).notNull(),
+  emailNotifications: int("emailNotifications").default(1).notNull(), // 0 = disabled, 1 = enabled
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

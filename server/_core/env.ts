@@ -10,4 +10,6 @@ export const ENV = {
   maerskClientId: process.env.MAERSK_CLIENT_ID ?? "",
   maerskClientSecret: process.env.MAERSK_CLIENT_SECRET ?? "",
   maerskEnvironment: process.env.MAERSK_ENVIRONMENT ?? "sandbox",
+  resendApiKey: process.env.RESEND_API_KEY ?? "",
+  emailFrom: process.env.EMAIL_FROM ?? "",
 };

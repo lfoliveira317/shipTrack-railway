@@ -408,3 +408,11 @@
 - [x] Add owner notification support for critical events
 - [x] Respect user preferences when sending notifications
 - [ ] Test notification triggers with real tracking updates
+
+## Email Notifications (Completed)
+- [x] Add email notification preference to user schema
+- [x] Create Resend API email service module
+- [x] Integrate email sending into tracking notification logic
+- [x] Add email templates for status changes, delays, and arrivals
+- [x] Install Resend package
+- [ ] Test email notifications with real email addresses

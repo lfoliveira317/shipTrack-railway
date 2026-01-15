@@ -3,6 +3,12 @@ import { shipments, trackingHistory, notifications, users } from '../drizzle/sch
 import { eq, and, isNotNull } from 'drizzle-orm';
 import { maerskClient } from './maersk';
 import { notifyOwner } from './_core/notification';
+import { 
+  sendEmail, 
+  generateStatusChangeEmail, 
+  generateDelayEmail, 
+  generateArrivalEmail 
+} from './email-service';
 
 /**
  * Automatic tracking service that polls Maersk API for shipment updates
@@ -59,7 +65,7 @@ async function sendTrackingNotifications(
         })
       );
 
-      // Create in-app notifications for admins who have this preference enabled
+      // Create in-app notifications and send emails for admins who have this preference enabled
       for (const admin of adminUsers) {
         if (admin.notifyOnStatusChange === 1) {
           notificationPromises.push(
@@ -72,6 +78,22 @@ async function sendTrackingNotifications(
               isRead: 0,
             })
           );
+
+          // Send email if email notifications are enabled and user has email
+          if (admin.emailNotifications === 1 && admin.email) {
+            const emailHtml = generateStatusChangeEmail(
+              shipment.sellerCloudNumber || shipment.container,
+              events.newStatus,
+              shipment.container
+            );
+            notificationPromises.push(
+              sendEmail({
+                to: admin.email,
+                subject: `Shipment Status Update: ${events.newStatus}`,
+                html: emailHtml,
+              })
+            );
+          }
         }
       }
     }
@@ -90,7 +112,7 @@ async function sendTrackingNotifications(
         })
       );
 
-      // Create in-app notifications for admins who have this preference enabled
+      // Create in-app notifications and send emails for admins who have this preference enabled
       for (const admin of adminUsers) {
         if (admin.notifyOnDelay === 1) {
           notificationPromises.push(
@@ -103,6 +125,23 @@ async function sendTrackingNotifications(
               isRead: 0,
             })
           );
+
+          // Send email if email notifications are enabled and user has email
+          if (admin.emailNotifications === 1 && admin.email) {
+            const emailHtml = generateDelayEmail(
+              shipment.sellerCloudNumber || shipment.container,
+              shipment.container,
+              oldDate,
+              newDate
+            );
+            notificationPromises.push(
+              sendEmail({
+                to: admin.email,
+                subject: `Shipment Delayed: ${shipment.sellerCloudNumber || shipment.container}`,
+                html: emailHtml,
+              })
+            );
+          }
         }
       }
     }
@@ -119,7 +158,7 @@ async function sendTrackingNotifications(
         })
       );
 
-      // Create in-app notifications for admins who have this preference enabled
+      // Create in-app notifications and send emails for admins who have this preference enabled
       for (const admin of adminUsers) {
         if (admin.notifyOnArrival === 1) {
           notificationPromises.push(
@@ -132,6 +171,22 @@ async function sendTrackingNotifications(
               isRead: 0,
             })
           );
+
+          // Send email if email notifications are enabled and user has email
+          if (admin.emailNotifications === 1 && admin.email) {
+            const emailHtml = generateArrivalEmail(
+              shipment.sellerCloudNumber || shipment.container,
+              shipment.container,
+              shipment.pod || 'Unknown'
+            );
+            notificationPromises.push(
+              sendEmail({
+                to: admin.email,
+                subject: `Shipment Arrived: ${shipment.sellerCloudNumber || shipment.container}`,
+                html: emailHtml,
+              })
+            );
+          }
         }
       }
     }

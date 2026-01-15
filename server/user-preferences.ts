@@ -24,6 +24,7 @@ export const userPreferencesRouter = router({
           notifyOnStatusChange: users.notifyOnStatusChange,
           notifyOnDelay: users.notifyOnDelay,
           notifyOnArrival: users.notifyOnArrival,
+          emailNotifications: users.emailNotifications,
         })
         .from(users)
         .where(eq(users.id, ctx.user.id))
@@ -55,6 +56,7 @@ export const userPreferencesRouter = router({
         notifyOnStatusChange: z.boolean().optional(),
         notifyOnDelay: z.boolean().optional(),
         notifyOnArrival: z.boolean().optional(),
+        emailNotifications: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -76,6 +78,9 @@ export const userPreferencesRouter = router({
         }
         if (input.notifyOnArrival !== undefined) {
           updates.notifyOnArrival = input.notifyOnArrival ? 1 : 0;
+        }
+        if (input.emailNotifications !== undefined) {
+          updates.emailNotifications = input.emailNotifications ? 1 : 0;
         }
 
         await db.update(users).set(updates).where(eq(users.id, ctx.user.id));
