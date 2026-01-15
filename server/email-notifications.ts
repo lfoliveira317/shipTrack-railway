@@ -9,6 +9,7 @@ import {
   generateDateChangesEmail,
   generateMissingDocumentsEmail,
 } from "./email-templates";
+import { routeNotificationToUsers } from "./services/notification-router";
 import { getDb } from "./db";
 import { users, shipments, attachments } from "../drizzle/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
@@ -66,26 +67,20 @@ export async function sendContainerUpdatesNotification(
       changes: ["Tracking information updated from API"],
     }));
 
-    // Send email to each admin user
-    const results = await Promise.allSettled(
-      adminUsers.map(async (user: any) => {
-        const emailHtml = generateContainerUpdatesEmail(
-          containerUpdates,
-          user.name || "Team"
-        );
-
-        return sendEmail({
-          to: user.email,
-          subject: `Container Tracking Updates - ${containerUpdates.length} Container${containerUpdates.length !== 1 ? "s" : ""} Updated`,
-          html: emailHtml,
-        });
-      })
+    // Route notifications to each admin user (respects email frequency preferences)
+    const userIds = adminUsers.map((u: any) => u.id);
+    const emailHtml = generateContainerUpdatesEmail(
+      containerUpdates,
+      "Team"
     );
 
-    const failures = results.filter((r: any) => r.status === "rejected");
-    if (failures.length > 0) {
-      console.error("Some emails failed to send:", failures);
-    }
+    await routeNotificationToUsers(userIds, {
+      type: 'container_update',
+      title: `Container Tracking Updates`,
+      message: `${containerUpdates.length} container${containerUpdates.length !== 1 ? 's' : ''} updated`,
+      emailSubject: `Container Tracking Updates - ${containerUpdates.length} Container${containerUpdates.length !== 1 ? "s" : ""} Updated`,
+      emailHtml,
+    });
 
     return { success: true };
   } catch (error) {
@@ -170,26 +165,20 @@ export async function sendDateChangesNotification(
       return { success: true };
     }
 
-    // Send email to each admin user
-    const results = await Promise.allSettled(
-      adminUsers.map(async (user: any) => {
-        const emailHtml = generateDateChangesEmail(
-          dateChanges,
-          user.name || "Team"
-        );
-
-        return sendEmail({
-          to: user.email,
-          subject: `⚠ Discharge Date Changes - ${dateChanges.length} Container${dateChanges.length !== 1 ? "s" : ""} Affected`,
-          html: emailHtml,
-        });
-      })
+    // Route notifications to each admin user (respects email frequency preferences)
+    const userIds = adminUsers.map((u: any) => u.id);
+    const emailHtml = generateDateChangesEmail(
+      dateChanges,
+      "Team"
     );
 
-    const failures = results.filter((r: any) => r.status === "rejected");
-    if (failures.length > 0) {
-      console.error("Some emails failed to send:", failures);
-    }
+    await routeNotificationToUsers(userIds, {
+      type: 'date_change',
+      title: `Discharge Date Changes`,
+      message: `${dateChanges.length} container${dateChanges.length !== 1 ? 's' : ''} affected`,
+      emailSubject: `⚠ Discharge Date Changes - ${dateChanges.length} Container${dateChanges.length !== 1 ? "s" : ""} Affected`,
+      emailHtml,
+    });
 
     return { success: true };
   } catch (error) {
@@ -277,26 +266,20 @@ export async function sendMissingDocumentsNotification(): Promise<{
       return { success: true }; // No missing documents
     }
 
-    // Send email to each admin user
-    const results = await Promise.allSettled(
-      adminUsers.map(async (user: any) => {
-        const emailHtml = generateMissingDocumentsEmail(
-          missingDocsList,
-          user.name || "Team"
-        );
-
-        return sendEmail({
-          to: user.email,
-          subject: `📋 Missing Documents Alert - ${missingDocsList.length} Container${missingDocsList.length !== 1 ? "s" : ""} Require Attention`,
-          html: emailHtml,
-        });
-      })
+    // Route notifications to each admin user (respects email frequency preferences)
+    const userIds = adminUsers.map((u: any) => u.id);
+    const emailHtml = generateMissingDocumentsEmail(
+      missingDocsList,
+      "Team"
     );
 
-    const failures = results.filter((r: any) => r.status === "rejected");
-    if (failures.length > 0) {
-      console.error("Some emails failed to send:", failures);
-    }
+    await routeNotificationToUsers(userIds, {
+      type: 'missing_document',
+      title: `Missing Documents Alert`,
+      message: `${missingDocsList.length} container${missingDocsList.length !== 1 ? 's' : ''} require attention`,
+      emailSubject: `📋 Missing Documents Alert - ${missingDocsList.length} Container${missingDocsList.length !== 1 ? "s" : ""} Require Attention`,
+      emailHtml,
+    });
 
     return { success: true };
   } catch (error) {

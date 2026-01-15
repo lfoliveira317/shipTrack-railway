@@ -4,7 +4,7 @@
  */
 
 import { getDb } from '../db';
-import { users, shipments, attachments, trackingHistory, emailDigestQueue } from '../../drizzle/schema';
+import { users, shipments, attachments, trackingHistory, emailDigestQueue, notifications } from '../../drizzle/schema';
 import { eq, and, gte, lte, sql, isNull, desc } from 'drizzle-orm';
 import { sendEmail } from '../email-service';
 // Email templates imported but not used in digest - we generate inline
@@ -48,14 +48,33 @@ function isInQuietHours(user: any): boolean {
 
 /**
  * Get digest data for a specific time period
+ * Pulls from both trackingHistory and notifications tables
  */
-async function getDigestData(hoursBack: number): Promise<DigestData> {
+async function getDigestData(hoursBack: number, userId?: number): Promise<DigestData> {
   const db = await getDb();
   if (!db) {
     throw new Error('Database not available');
   }
 
   const cutoffTime = new Date(Date.now() - hoursBack * 60 * 60 * 1000);
+
+  // Get unread notifications for this user (if userId provided)
+  let userNotifications: any[] = [];
+  if (userId) {
+    userNotifications = await db
+      .select()
+      .from(notifications)
+      .where(
+        and(
+          eq(notifications.userId, userId),
+          eq(notifications.isRead, 0),
+          gte(notifications.createdAt, cutoffTime)
+        )
+      )
+      .orderBy(desc(notifications.createdAt));
+    
+    console.log(`[Digest] Found ${userNotifications.length} unread notifications for user ${userId}`);
+  }
 
   // Get container updates from tracking history
   const recentUpdates = await db
@@ -391,7 +410,7 @@ export async function processScheduledDigests(): Promise<void> {
       if (digest.digestType === 'daily') hoursBack = 24;
       if (digest.digestType === 'weekly') hoursBack = 168;
 
-      const data = await getDigestData(hoursBack);
+      const data = await getDigestData(hoursBack, user.id);
 
       // Send digest
       const sent = await sendDigestEmail(user, digest.digestType, data);

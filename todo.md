@@ -663,3 +663,10 @@
 - [x] Update digest emails to use EmailJS
 - [x] Update webhook notification emails to use EmailJS
 - [x] Test all email notification types (13 tests passing)
+
+
+## Digest Queue Integration (Completed)
+- [x] Review notification creation logic
+- [x] Verify digest queue population when notifications are created
+- [x] Fix integration between email-notifications.ts and digest service
+- [x] Test complete notification-to-digest-to-email flow (2 tests passing)
