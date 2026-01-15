@@ -58,11 +58,13 @@ export function ContainerTrackingModal({
         setSuggestedUpdates({
           status: data.data.status,
           eta: data.data.eta,
-          pol: data.data.route?.pol,
-          pod: data.data.route?.pod,
-          atd: data.data.route?.atd,
-          ata: data.data.route?.ata,
+          pol: data.data.portOfLoading,
+          pod: data.data.portOfDischarge,
+          atd: data.data.atd,
+          ata: data.data.ata,
           carrier: data.data.carrier,
+          vesselName: data.data.vesselName,
+          voyageNumber: data.data.voyageNumber,
         });
       }
     },
@@ -181,120 +183,172 @@ export function ContainerTrackingModal({
               <strong>Tracking Data Retrieved Successfully!</strong>
             </Alert>
 
+            {/* Container & Shipment Overview */}
             <Card className="mb-3">
               <Card.Header>
-                <strong>Container Information</strong>
+                <strong>Container & Shipment Information</strong>
               </Card.Header>
               <Card.Body>
                 <Row>
                   <Col md={6}>
-                    <p>
+                    <p className="mb-2">
                       <Package size={16} className="me-2" />
                       <strong>Container:</strong> {trackingData.containerNumber}
                     </p>
-                    <p>
+                    <p className="mb-2">
                       <FileText size={16} className="me-2" />
-                      <strong>Type:</strong> {trackingData.containerType}
+                      <strong>Type:</strong> {trackingData.containerType || 'N/A'}
                     </p>
+                    <p className="mb-2">
+                      <Ship size={16} className="me-2" />
+                      <strong>Carrier:</strong> {trackingData.carrier || 'N/A'}
+                    </p>
+                    {trackingData.carrierScac && (
+                      <p className="mb-2">
+                        <strong>SCAC:</strong> {trackingData.carrierScac}
+                      </p>
+                    )}
                   </Col>
                   <Col md={6}>
-                    <p>
+                    <p className="mb-2">
                       <strong>Status:</strong>{' '}
-                      <Badge bg="info">{trackingData.status}</Badge>
+                      <Badge bg={trackingData.status === 'DELIVERED' ? 'success' : trackingData.status === 'IN_TRANSIT' ? 'info' : 'warning'}>
+                        {trackingData.status || 'N/A'}
+                      </Badge>
                     </p>
-                    <p>
-                      <strong>Journey ID:</strong> {trackingData.journeyId}
-                    </p>
+                    {trackingData.vesselName && (
+                      <p className="mb-2">
+                        <strong>Vessel:</strong> {trackingData.vesselName}
+                      </p>
+                    )}
+                    {trackingData.voyageNumber && (
+                      <p className="mb-2">
+                        <strong>Voyage:</strong> {trackingData.voyageNumber}
+                      </p>
+                    )}
                   </Col>
                 </Row>
-
-                {trackingData.references && Object.keys(trackingData.references).length > 0 && (
-                  <div className="mt-3">
-                    <strong>References:</strong>
-                    <ul className="mb-0 mt-2">
-                      {Object.entries(trackingData.references).map(([key, value]) => (
-                        <li key={key}>
-                          {key}: {value as string}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </Card.Body>
             </Card>
 
-            {trackingData.legs && trackingData.legs.length > 0 && (
+            {/* Ports & Dates */}
+            <Card className="mb-3">
+              <Card.Header>
+                <strong>Ports & Dates</strong>
+              </Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={6}>
+                    <div className="mb-3">
+                      <h6 className="text-primary mb-2">
+                        <MapPin size={16} className="me-1" />
+                        Port of Loading (POL)
+                      </h6>
+                      <p className="mb-1">
+                        <strong>Port:</strong> {trackingData.portOfLoading || 'N/A'}
+                      </p>
+                      {trackingData.portOfLoadingCode && (
+                        <p className="mb-1 text-muted small">
+                          Code: {trackingData.portOfLoadingCode}
+                        </p>
+                      )}
+                      {trackingData.atd && (
+                        <p className="mb-1">
+                          <strong>ATD:</strong> {new Date(trackingData.atd).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </Col>
+                  <Col md={6}>
+                    <div className="mb-3">
+                      <h6 className="text-success mb-2">
+                        <MapPin size={16} className="me-1" />
+                        Port of Discharge (POD)
+                      </h6>
+                      <p className="mb-1">
+                        <strong>Port:</strong> {trackingData.portOfDischarge || 'N/A'}
+                      </p>
+                      {trackingData.portOfDischargeCode && (
+                        <p className="mb-1 text-muted small">
+                          Code: {trackingData.portOfDischargeCode}
+                        </p>
+                      )}
+                      {trackingData.eta && (
+                        <p className="mb-1">
+                          <strong>ETA:</strong> {new Date(trackingData.eta).toLocaleDateString()}
+                        </p>
+                      )}
+                      {trackingData.ata && (
+                        <p className="mb-1">
+                          <strong>ATA:</strong> {new Date(trackingData.ata).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+
+            {/* Container Events Timeline */}
+            {trackingData.events && trackingData.events.length > 0 && (
               <Card className="mb-3">
                 <Card.Header>
-                  <strong>Journey Legs</strong>
+                  <strong>Container Events Timeline</strong>
                 </Card.Header>
                 <Card.Body>
-                  {trackingData.legs.map((leg: any, index: number) => (
-                    <div key={index} className="mb-3 pb-3 border-bottom">
-                      <h6>
-                        Leg {leg.sequence} - {leg.mode}
-                      </h6>
-                      <Row>
-                        <Col md={6}>
-                          <p className="mb-1">
-                            <MapPin size={14} className="me-1" />
-                            <strong>From:</strong> {leg.from}
-                          </p>
-                          <p className="mb-1">
-                            <MapPin size={14} className="me-1" />
-                            <strong>To:</strong> {leg.to}
-                          </p>
-                        </Col>
-                        <Col md={6}>
-                          {leg.vesselName && (
-                            <p className="mb-1">
-                              <Ship size={14} className="me-1" />
-                              <strong>Vessel:</strong> {leg.vesselName}
-                            </p>
-                          )}
-                          {leg.voyageNumber && (
-                            <p className="mb-1">
-                              <strong>Voyage:</strong> {leg.voyageNumber}
-                            </p>
-                          )}
-                        </Col>
-                      </Row>
-                      <Row className="mt-2">
-                        <Col md={6}>
-                          {leg.etd && (
-                            <p className="mb-1">
+                  <div className="timeline">
+                    {trackingData.events.map((event: any, index: number) => (
+                      <div key={index} className="mb-3 pb-3 border-bottom">
+                        <Row>
+                          <Col md={8}>
+                            <div className="d-flex align-items-start">
+                              <div className="me-3">
+                                {event.actual ? (
+                                  <Badge bg="success" className="px-2 py-1">Actual</Badge>
+                                ) : (
+                                  <Badge bg="secondary" className="px-2 py-1">Estimated</Badge>
+                                )}
+                              </div>
+                              <div>
+                                <h6 className="mb-1">{event.status}</h6>
+                                <p className="mb-1 text-muted small">
+                                  <MapPin size={14} className="me-1" />
+                                  {event.location}
+                                  {event.locationCode && ` (${event.locationCode})`}
+                                </p>
+                                {event.terminal && (
+                                  <p className="mb-1 text-muted small">
+                                    Terminal: {event.terminal}
+                                  </p>
+                                )}
+                                {event.vessel && (
+                                  <p className="mb-1 text-muted small">
+                                    <Ship size={14} className="me-1" />
+                                    {event.vessel}
+                                    {event.voyage && ` - Voyage: ${event.voyage}`}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </Col>
+                          <Col md={4} className="text-end">
+                            <p className="mb-0">
                               <Calendar size={14} className="me-1" />
-                              <strong>ETD:</strong>{' '}
-                              {new Date(leg.etd).toLocaleString()}
+                              <strong>{new Date(event.date).toLocaleDateString()}</strong>
                             </p>
-                          )}
-                          {leg.atd && (
-                            <p className="mb-1">
-                              <Calendar size={14} className="me-1" />
-                              <strong>ATD:</strong>{' '}
-                              {new Date(leg.atd).toLocaleString()}
+                            <p className="mb-0 text-muted small">
+                              {new Date(event.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                             </p>
-                          )}
-                        </Col>
-                        <Col md={6}>
-                          {leg.eta && (
-                            <p className="mb-1">
-                              <Calendar size={14} className="me-1" />
-                              <strong>ETA:</strong>{' '}
-                              {new Date(leg.eta).toLocaleString()}
-                            </p>
-                          )}
-                          {leg.ata && (
-                            <p className="mb-1">
-                              <Calendar size={14} className="me-1" />
-                              <strong>ATA:</strong>{' '}
-                              {new Date(leg.ata).toLocaleString()}
-                            </p>
-                          )}
-                        </Col>
-                      </Row>
-                    </div>
-                  ))}
+                            {event.statusCode && (
+                              <Badge bg="light" text="dark" className="mt-1">
+                                {event.statusCode}
+                              </Badge>
+                            )}
+                          </Col>
+                        </Row>
+                      </div>
+                    ))}
+                  </div>
                 </Card.Body>
               </Card>
             )}

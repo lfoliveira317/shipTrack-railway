@@ -11,26 +11,42 @@ import { eq } from 'drizzle-orm';
 export interface TimeToGoTrackingResponse {
   success: boolean;
   data?: {
-    container: string;
+    containerNumber: string;
+    containerType?: string;
     carrier?: string;
+    carrierScac?: string;
     status?: string;
-    location?: string;
-    eta?: string;
+    portOfLoading?: string;
+    portOfLoadingCode?: string;
+    portOfDischarge?: string;
+    portOfDischargeCode?: string;
+    atd?: string; // Actual Time of Departure
+    eta?: string; // Estimated Time of Arrival
+    ata?: string; // Actual Time of Arrival
+    vesselName?: string;
+    voyageNumber?: string;
     events?: Array<{
       date: string;
       location: string;
-      description: string;
+      locationCode?: string;
+      terminal?: string;
       status: string;
-    }>;
-    vessel?: {
-      name?: string;
+      statusCode?: string;
+      actual: boolean;
+      vessel?: string;
       voyage?: string;
-    };
-    route?: {
-      pol?: string;
-      pod?: string;
+    }>;
+    // For suggested updates
+    suggestedUpdates?: {
+      carrier?: string;
+      status?: string;
+      portOfLoading?: string;
+      portOfDischarge?: string;
       atd?: string;
+      eta?: string;
       ata?: string;
+      vesselName?: string;
+      voyageNumber?: string;
     };
   };
   error?: string;
@@ -103,35 +119,106 @@ export async function trackContainerTimeToGo(
     console.log('[TimeToGo] Tracking response received:', response.data);
 
     // Parse and normalize the response
-    // TimeToGo API response structure: { data: { summary: {...}, container: {...} } }
+    // TimeToGo API response structure: { data: { summary: {...}, container: {...}, locations: [...], terminals: [...] } }
     const apiData = response.data?.data;
     const summary = apiData?.summary || {};
     const container = apiData?.container || {};
     const events = container?.events || [];
+    const locations = apiData?.locations || [];
+    const terminals = apiData?.terminals || [];
+    const shipmentStatus = apiData?.shipment_status;
+
+    // Helper function to get location name by ID
+    const getLocationName = (locationId: number) => {
+      const loc = locations.find((l: any) => l.id === locationId);
+      return loc ? loc.name : undefined;
+    };
+
+    // Helper function to get location code by ID
+    const getLocationCode = (locationId: number) => {
+      const loc = locations.find((l: any) => l.id === locationId);
+      return loc ? loc.locode : undefined;
+    };
+
+    // Helper function to get terminal name by ID
+    const getTerminalName = (terminalId: number) => {
+      const term = terminals.find((t: any) => t.id === terminalId);
+      return term ? term.name : undefined;
+    };
+
+    // Get POL and POD information
+    const polLocation = getLocationName(summary.pol?.location);
+    const polLocationCode = getLocationCode(summary.pol?.location);
+    const podLocation = getLocationName(summary.pod?.location);
+    const podLocationCode = getLocationCode(summary.pod?.location);
+
+    // Get ATD (from POL date)
+    const atd = summary.pol?.date;
+
+    // Get ETA (from POD date)
+    const eta = summary.pod?.date;
+
+    // Get ATA (find actual arrival event at POD)
+    let ata: string | undefined;
+    const podEvents = events.filter((e: any) => 
+      e.location === summary.pod?.location && e.actual === true
+    );
+    if (podEvents.length > 0) {
+      ata = podEvents[podEvents.length - 1].date; // Get latest actual event at POD
+    }
+
+    // Get vessel info from most recent actual event
+    const actualEvents = events.filter((e: any) => e.actual === true);
+    const latestActualEvent = actualEvents.length > 0 ? actualEvents[0] : events[0];
+    const vesselName = latestActualEvent?.vessel;
+    const voyageNumber = latestActualEvent?.voyage;
+
+    // Map shipment status to our status values
+    let status = 'in_transit';
+    if (shipmentStatus === 'DELIVERED') {
+      status = 'delivered';
+    } else if (shipmentStatus === 'PENDING') {
+      status = 'pending';
+    }
 
     return {
       success: true,
       data: {
-        container: container.number || containerNumber,
-        carrier: summary?.company?.full_name || summary?.company?.code || company,
-        status: container.status || (events[0]?.status),
-        location: events[0]?.location || events[0]?.place,
-        eta: summary.eta || container.eta,
+        containerNumber: container.number || containerNumber,
+        containerType: container.type,
+        carrier: summary?.company?.full_name,
+        carrierScac: summary?.company?.scacs?.[0],
+        status: shipmentStatus,
+        portOfLoading: polLocation,
+        portOfLoadingCode: polLocationCode,
+        portOfDischarge: podLocation,
+        portOfDischargeCode: podLocationCode,
+        atd,
+        eta,
+        ata,
+        vesselName,
+        voyageNumber,
         events: events.map((event: any) => ({
-          date: event.date || event.timestamp,
-          location: event.location || event.place,
-          description: event.description || event.event,
+          date: event.date,
+          location: getLocationName(event.location) || '',
+          locationCode: getLocationCode(event.location),
+          terminal: event.terminal !== null ? getTerminalName(event.terminal) : undefined,
           status: event.status,
+          statusCode: event.status_code,
+          actual: event.actual,
+          vessel: event.vessel,
+          voyage: event.voyage,
         })),
-        vessel: {
-          name: summary.vessel?.name || container.vessel_name,
-          voyage: summary.vessel?.voyage || container.voyage_number,
-        },
-        route: {
-          pol: summary.pol || container.port_of_loading,
-          pod: summary.pod || container.port_of_discharge,
-          atd: summary.atd || container.actual_departure,
-          ata: summary.ata || container.actual_arrival,
+        suggestedUpdates: {
+          carrier: summary?.company?.full_name,
+          status,
+          portOfLoading: polLocation,
+          portOfDischarge: podLocation,
+          atd,
+          eta,
+          ata,
+          vesselName,
+          voyageNumber,
         },
       },
     };

@@ -450,3 +450,11 @@
 
 - [x] Fix TypeError: Cannot convert undefined or null to object in ContainerTrackingModal line 334
 - [x] Add null check for trackingData.references before calling Object.keys()
+
+## Auto-populate Shipment Fields from API (Completed)
+- [x] Display all TimeToGo API values organized in tracking modal
+- [x] Show Carrier, Container, ATD, ETA, ATA fields from API response
+- [x] Extract and format port names, dates, and reference numbers from API
+- [x] Update UI to show all tracking data in organized sections
+- [x] Create comprehensive events timeline with actual/estimated badges
+- [x] Display ports & dates with POL and POD information
