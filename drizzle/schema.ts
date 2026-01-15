@@ -17,6 +17,9 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["viewer", "user", "admin"]).default("viewer").notNull(),
+  notifyOnStatusChange: int("notifyOnStatusChange").default(1).notNull(), // 0 = disabled, 1 = enabled
+  notifyOnDelay: int("notifyOnDelay").default(1).notNull(),
+  notifyOnArrival: int("notifyOnArrival").default(1).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

@@ -399,3 +399,12 @@
 - [x] Add admin procedures for controlling tracking scheduler
 - [ ] Test automatic tracking with real Maersk container numbers
 - [ ] Start tracking scheduler on server startup
+
+## Notification Triggers (Completed)
+- [x] Add notification logic to tracking service for status changes
+- [x] Implement delay detection and notification
+- [x] Add arrival confirmation notifications
+- [x] Create notification preferences in user settings
+- [x] Add owner notification support for critical events
+- [x] Respect user preferences when sending notifications
+- [ ] Test notification triggers with real tracking updates
