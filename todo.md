@@ -600,3 +600,14 @@
 - [x] Testing instructions for webhooks
 - [x] Best practices for webhook integration
 - [x] Rate limiting recommendations
+
+
+## Email Service Verification (In Progress)
+- [ ] Verify all email notifications use Resend API
+- [ ] Check digest email service uses Resend
+- [ ] Check webhook notification emails use Resend
+- [ ] Ensure no direct email sending bypasses Resend
+
+
+## UI Improvements (Completed)
+- [x] Make notification settings page scrollable
