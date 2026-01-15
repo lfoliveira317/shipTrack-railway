@@ -54,6 +54,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
   const [bulkText, setBulkText] = useState("");
   const [formData, setFormData] = useState(initialFormData);
   const [isAutoTracking, setIsAutoTracking] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState<{ exists: boolean; shipment: Shipment | null }>({ exists: false, shipment: null });
 
   // Fetch dropdown values from reference data API
   const { data: suppliers } = trpc.referenceData.getSuppliers.useQuery();
@@ -88,13 +89,33 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
     },
   });
 
-  // Handle container number blur to trigger auto-tracking
-  const handleContainerBlur = () => {
+  // Handle container number blur to trigger auto-tracking and duplicate check
+  const handleContainerBlur = async () => {
     const containerNumber = formData.container.trim();
+    if (!containerNumber) return;
+    
+    // Check for duplicates first
+    try {
+      const duplicateCheck = await utils.client.shipments.checkDuplicate.query({
+        containerNumber,
+        excludeId: editingShipment?.id,
+      });
+      
+      setDuplicateWarning(duplicateCheck);
+      
+      if (duplicateCheck.exists) {
+        toast.warning(`Container ${containerNumber} already exists in the system!`);
+        return; // Don't auto-track if duplicate
+      }
+    } catch (error) {
+      console.error('Duplicate check failed:', error);
+    }
+    
     // Only auto-track if:
     // 1. Not editing an existing shipment
     // 2. Container number is valid (4 letters + 7 digits)
     // 3. Not already tracking
+    // 4. No duplicate found
     if (!isEditing && containerNumber && /^[A-Z]{4}\d{7}$/.test(containerNumber) && !isAutoTracking) {
       setIsAutoTracking(true);
       autoTrackMutation.mutate({
@@ -172,6 +193,7 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
     onHide();
     setBulkText("");
     setFormData(initialFormData);
+    setDuplicateWarning({ exists: false, shipment: null });
   };
 
   const handleChange = (field: string, value: string) => {
@@ -375,7 +397,20 @@ export function AddShipmentModal({ show, onHide, editingShipment }: AddShipmentM
                     onBlur={handleContainerBlur}
                     disabled={isAutoTracking}
                   />
-                  {!isEditing && (
+                  {duplicateWarning.exists && duplicateWarning.shipment && (
+                    <div className="alert alert-warning mt-2 mb-0 py-2 px-3 small" role="alert">
+                      <strong>⚠️ Duplicate Container:</strong> This container already exists in the system.
+                      <div className="mt-1">
+                        <strong>Supplier:</strong> {duplicateWarning.shipment.supplier || 'N/A'} | 
+                        <strong> Status:</strong> {duplicateWarning.shipment.status} | 
+                        <strong> ETA:</strong> {duplicateWarning.shipment.eta}
+                      </div>
+                      <div className="mt-1">
+                        <small className="text-muted">You can still proceed to add this shipment if needed.</small>
+                      </div>
+                    </div>
+                  )}
+                  {!isEditing && !duplicateWarning.exists && (
                     <Form.Text className="text-muted">
                       Enter container number to auto-load tracking information
                     </Form.Text>

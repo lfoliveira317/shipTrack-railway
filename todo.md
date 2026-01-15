@@ -491,3 +491,13 @@
 - [x] Moved container field outside isEditing condition
 - [x] Verified onBlur handler is properly attached
 - [x] Helper text now only shows for new shipments
+
+## Duplicate Container Detection (Completed)
+- [x] Create backend API endpoint to check if container number exists
+- [x] Add checkDuplicate query to shipments tRPC router
+- [x] Implement frontend duplicate warning alert
+- [x] Show existing shipment details in warning (supplier, status, ETA)
+- [x] Add option to proceed anyway with duplicate
+- [x] Show toast warning when duplicate is detected
+- [x] Clear duplicate warning when modal closes
+- [ ] Test duplicate detection with existing containers

@@ -1,9 +1,9 @@
-import { router, protectedProcedure, adminProcedure } from "./_core/trpc";
+import { protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "./db";
 import { shipments, notifications, users, type Shipment, type InsertShipment } from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { sendStatusChangeEmail } from "./email";
 
 export const shipmentSchema = z.object({
@@ -220,6 +220,38 @@ export const shipmentsRouter = router({
     if (!db) return [];
     return await db.select().from(shipments);
   }),
+
+  checkDuplicate: protectedProcedure
+    .input(z.object({
+      containerNumber: z.string(),
+      excludeId: z.number().optional(), // Exclude this ID when checking (for edit mode)
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { exists: false, shipment: null };
+      
+      const { containerNumber, excludeId } = input;
+      
+      // Build query conditions
+      const conditions = excludeId 
+        ? and(eq(shipments.container, containerNumber), ne(shipments.id, excludeId))
+        : eq(shipments.container, containerNumber);
+      
+      const existing = await db
+        .select()
+        .from(shipments)
+        .where(conditions)
+        .limit(1);
+      
+      if (existing.length > 0) {
+        return {
+          exists: true,
+          shipment: existing[0],
+        };
+      }
+      
+      return { exists: false, shipment: null };
+    }),
 
   // Only users and admins can add shipments (not viewers)
   add: protectedProcedure
