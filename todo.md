@@ -416,3 +416,7 @@
 - [x] Add email templates for status changes, delays, and arrivals
 - [x] Install Resend package
 - [ ] Test email notifications with real email addresses
+
+## Bug Fixes
+- [x] Fix "Failed to track and update shipment" error in Maersk tracking mutation
+- [x] Improve error handling to show clear authentication error messages

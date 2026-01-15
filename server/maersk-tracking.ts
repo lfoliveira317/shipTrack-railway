@@ -31,9 +31,18 @@ export const maerskTrackingRouter = router({
         };
       } catch (error: any) {
         console.error('Maersk tracking error:', error);
+        
+        // Check for authentication errors
+        if (error.message?.includes('authenticate') || error.response?.data?.error === 'invalid_client') {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Maersk API authentication failed. Please verify your Maersk API credentials.',
+          });
+        }
+        
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: error.response?.data?.message || 'Failed to track container',
+          message: error.response?.data?.message || error.message || 'Failed to track container',
         });
       }
     }),
@@ -61,9 +70,18 @@ export const maerskTrackingRouter = router({
         };
       } catch (error: any) {
         console.error('Maersk tracking error:', error);
+        
+        // Check for authentication errors
+        if (error.message?.includes('authenticate') || error.response?.data?.error === 'invalid_client') {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Maersk API authentication failed. Please verify your Maersk API credentials.',
+          });
+        }
+        
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: error.response?.data?.message || 'Failed to track by BOL',
+          message: error.response?.data?.message || error.message || 'Failed to track by BOL',
         });
       }
     }),
@@ -91,10 +109,19 @@ export const maerskTrackingRouter = router({
         };
       } catch (error: any) {
         console.error('Maersk tracking error:', error);
+        
+        // Check for authentication errors
+        if (error.message?.includes('authenticate') || error.response?.data?.error === 'invalid_client') {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Maersk API authentication failed. Please verify your Maersk API credentials.',
+          });
+        }
+        
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
-            error.response?.data?.message || 'Failed to track by booking number',
+            error.response?.data?.message || error.message || 'Failed to track by booking number',
         });
       }
     }),
@@ -172,10 +199,28 @@ export const maerskTrackingRouter = router({
         };
       } catch (error: any) {
         console.error('Maersk tracking and update error:', error);
+        
+        // Check for authentication errors
+        if (error.message?.includes('authenticate') || error.response?.data?.error === 'invalid_client') {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Maersk API authentication failed. Please check your Maersk credentials (MAERSK_CLIENT_ID and MAERSK_CLIENT_SECRET).',
+          });
+        }
+        
+        // Check for network errors
+        if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Unable to connect to Maersk API. Please check your network connection.',
+          });
+        }
+        
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
             error.response?.data?.message ||
+            error.message ||
             'Failed to track and update shipment',
         });
       }
