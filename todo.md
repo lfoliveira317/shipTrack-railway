@@ -428,3 +428,10 @@
 - [x] Update UI forms to use dropdown data from API
 - [x] Populated 20 suppliers, 20 carriers, and 47 ports
 - [ ] Add admin interface to manage reference data (future enhancement)
+
+## TimeToGo API Integration (Completed)
+- [x] Configure TimeToGo API credentials in API configuration system
+- [x] Create TimeToGo tracking service module
+- [x] Integrate TimeToGo tracking with existing tracking modal
+- [x] Add provider selector (TimeToGo recommended, Maersk alternative)
+- [ ] Test tracking with real container numbers

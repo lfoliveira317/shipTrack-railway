@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO apiConfigs (mode, carrier, url, port, token, username, password) \nVALUES ('single', NULL, 'https://tracking.timetocargo.com/v1', NULL, '6553d312-72b9-4058-a56f-b7cff2686de8', NULL, NULL);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 49PuSKHNJVwaYJS.6dee92bac2a7 --database MhzwHgR8AejWKvAATctNq9 --execute INSERT INTO apiConfigs (mode, carrier, url, port, token, username, password) \nVALUES ('single', NULL, 'https://tracking.timetocargo.com/v1', NULL, '6553d312-72b9-4058-a56f-b7cff2686de8', NULL, NULL);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 118
+}

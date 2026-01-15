@@ -41,10 +41,30 @@ export function MaerskTrackingModal({
     },
   });
 
+  const [trackingProvider, setTrackingProvider] = useState<'maersk' | 'timetogo'>('timetogo');
+
   const trackMutation = trpc.maerskTracking.trackAndUpdateShipment.useMutation({
     onSuccess: (data) => {
       setTrackingData(data.trackingData);
       setSuggestedUpdates(data.suggestedUpdates);
+    },
+  });
+
+  const trackTimeToGoMutation = trpc.maerskTracking.trackWithTimeToGo.useMutation({
+    onSuccess: (data) => {
+      setTrackingData(data.data);
+      // Map TimeToGo response to suggested updates format
+      if (data.data) {
+        setSuggestedUpdates({
+          status: data.data.status,
+          eta: data.data.eta,
+          pol: data.data.route?.pol,
+          pod: data.data.route?.pod,
+          atd: data.data.route?.atd,
+          ata: data.data.route?.ata,
+          carrier: data.data.carrier,
+        });
+      }
     },
   });
 
@@ -53,12 +73,21 @@ export function MaerskTrackingModal({
       return;
     }
 
-    trackMutation.mutate({
-      shipmentId,
-      trackingType,
-      trackingValue: trackingValue.trim(),
-      scac: 'MAEU',
-    });
+    if (trackingProvider === 'timetogo') {
+      // Use TimeToGo API
+      trackTimeToGoMutation.mutate({
+        containerNumber: trackingValue.trim(),
+        company: 'AUTO',
+      });
+    } else {
+      // Use Maersk API
+      trackMutation.mutate({
+        shipmentId,
+        trackingType,
+        trackingValue: trackingValue.trim(),
+        scac: 'MAEU',
+      });
+    }
   };
 
   const handleApplyUpdates = () => {
@@ -80,27 +109,45 @@ export function MaerskTrackingModal({
       <Modal.Header closeButton>
         <Modal.Title>
           <Ship size={20} className="me-2" />
-          Track Container with Maersk API
+          Track Container
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {!trackingData ? (
           <>
             <Form.Group className="mb-3">
-              <Form.Label>Tracking Type</Form.Label>
+              <Form.Label>Tracking Provider</Form.Label>
               <Form.Select
-                value={trackingType}
-                onChange={(e) => setTrackingType(e.target.value as any)}
+                value={trackingProvider}
+                onChange={(e) => setTrackingProvider(e.target.value as any)}
               >
-                <option value="container">Container Number</option>
-                <option value="bol">Bill of Lading</option>
-                <option value="booking">Booking Number</option>
+                <option value="timetogo">TimeToGo (Recommended)</option>
+                <option value="maersk">Maersk API</option>
               </Form.Select>
+              <Form.Text className="text-muted">
+                TimeToGo supports multiple carriers with auto-detection
+              </Form.Text>
             </Form.Group>
+
+            {trackingProvider === 'maersk' && (
+              <Form.Group className="mb-3">
+                <Form.Label>Tracking Type</Form.Label>
+                <Form.Select
+                  value={trackingType}
+                  onChange={(e) => setTrackingType(e.target.value as any)}
+                >
+                  <option value="container">Container Number</option>
+                  <option value="bol">Bill of Lading</option>
+                  <option value="booking">Booking Number</option>
+                </Form.Select>
+              </Form.Group>
+            )}
 
             <Form.Group className="mb-3">
               <Form.Label>
-                {trackingType === 'container'
+                {trackingProvider === 'timetogo'
+                  ? 'Container Number'
+                  : trackingType === 'container'
                   ? 'Container Number'
                   : trackingType === 'bol'
                   ? 'Bill of Lading Number'
@@ -111,7 +158,9 @@ export function MaerskTrackingModal({
                 value={trackingValue}
                 onChange={(e) => setTrackingValue(e.target.value)}
                 placeholder={
-                  trackingType === 'container'
+                  trackingProvider === 'timetogo'
+                    ? 'e.g., MSDU8368827 (4 letters + 7 digits)'
+                    : trackingType === 'container'
                     ? 'e.g., MAEU1234567'
                     : trackingType === 'bol'
                     ? 'e.g., MAEU123456789'
@@ -120,9 +169,9 @@ export function MaerskTrackingModal({
               />
             </Form.Group>
 
-            {trackMutation.error && (
+            {(trackMutation.error || trackTimeToGoMutation.error) && (
               <Alert variant="danger">
-                {trackMutation.error.message}
+                {trackMutation.error?.message || trackTimeToGoMutation.error?.message}
               </Alert>
             )}
           </>
@@ -316,9 +365,9 @@ export function MaerskTrackingModal({
             <Button
               variant="primary"
               onClick={handleTrack}
-              disabled={trackMutation.isPending || !trackingValue.trim()}
+              disabled={(trackMutation.isPending || trackTimeToGoMutation.isPending) || !trackingValue.trim()}
             >
-              {trackMutation.isPending ? (
+              {(trackMutation.isPending || trackTimeToGoMutation.isPending) ? (
                 <>
                   <Spinner
                     as="span"

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure, adminProcedure } from './_core/trpc';
 import { maerskClient } from './maersk';
+import { trackContainerTimeToGo } from './timetogo-tracking';
 import { TRPCError } from '@trpc/server';
 import { runAutomaticTracking, getTrackingStats, startTrackingScheduler, stopTrackingScheduler } from './tracking-service';
 import { getDb } from './db';
@@ -8,6 +9,43 @@ import { shipments, trackingHistory } from '../drizzle/schema';
 import { eq, desc } from 'drizzle-orm';
 
 export const maerskTrackingRouter = router({
+  /**
+   * Track container using TimeToGo API (fallback/alternative to Maersk)
+   */
+  trackWithTimeToGo: protectedProcedure
+    .input(
+      z.object({
+        containerNumber: z.string().min(1, 'Container number is required'),
+        company: z.string().optional().default('AUTO'),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const response = await trackContainerTimeToGo(
+          input.containerNumber,
+          input.company
+        );
+        
+        if (!response.success) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: response.message || 'Failed to track container with TimeToGo',
+          });
+        }
+        
+        return {
+          success: true,
+          data: response.data,
+        };
+      } catch (error: any) {
+        console.error('TimeToGo tracking error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error.message || 'Failed to track container with TimeToGo',
+        });
+      }
+    }),
+
   /**
    * Track container by container number
    */
