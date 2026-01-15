@@ -385,5 +385,7 @@
 - [x] Add backend procedures for tracking containers (by container number, BOL, booking number)
 - [x] Add UI button to manually fetch container tracking data from Maersk
 - [x] Create MaerskTrackingModal component for tracking and updating shipments
-- [ ] Integrate Track button into shipment list
+- [x] Integrate Track button into shipment list
+- [x] Add "Track" button to each shipment row in the grid
+- [x] Test tracking functionality with container numbers
 - [ ] Add webhook endpoint for real-time Maersk tracking events (future enhancement)

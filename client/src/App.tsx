@@ -29,6 +29,7 @@ import {
   Edit2,
   Download,
   Settings,
+  Ship,
 } from "lucide-react";
 import { trpc } from "./lib/trpc";
 import { AddShipmentModal } from "./components/AddShipmentModal";
@@ -39,6 +40,7 @@ import { ApiConfigModal } from "./components/ApiConfigModal";
 import UserManagementModal from "./components/UserManagementModal";
 import { Users, Shield, Eye, LogOut } from "lucide-react";
 import { useLocalStorage } from "./hooks/useLocalStorage";
+import { MaerskTrackingModal } from "./components/MaerskTrackingModal";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -117,6 +119,7 @@ function App() {
   const [attachmentsModalShipment, setAttachmentsModalShipment] = useState<{ id: number; label: string } | null>(null);
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
   const [showColumnSettings, setShowColumnSettings] = useState(false);
+  const [trackingModalShipment, setTrackingModalShipment] = useState<{ id: number; containerNumber?: string } | null>(null);
   const defaultColumns: Record<string, boolean> = {
     sellerCloudNumber: true,
     supplier: true,
@@ -815,6 +818,15 @@ function App() {
                                     </Badge>
                                   )}
                                 </Button>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="p-0 text-muted"
+                                  title="Track Container"
+                                  onClick={() => setTrackingModalShipment({ id: shipment.id, containerNumber: shipment.container })}
+                                >
+                                  <Ship size={16} />
+                                </Button>
 {canModify && (
                                 <Button
                                   variant="link"
@@ -957,6 +969,21 @@ function App() {
         <UserManagementModal
           show={showUserManagement}
           onHide={() => setShowUserManagement(false)}
+        />
+      )}
+
+      {/* Maersk Tracking Modal */}
+      {trackingModalShipment && (
+        <MaerskTrackingModal
+          show={true}
+          onHide={() => setTrackingModalShipment(null)}
+          shipmentId={trackingModalShipment.id}
+          containerNumber={trackingModalShipment.containerNumber}
+          onUpdateShipment={(updates) => {
+            // Refresh shipments after update
+            refetch();
+            setTrackingModalShipment(null);
+          }}
         />
       )}
     </div>
