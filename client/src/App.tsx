@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Navbar,
   Nav,
@@ -302,6 +304,18 @@ function App() {
 
   return (
     <div className="d-flex flex-column vh-100">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {/* Top Navigation Bar */}
       <Navbar
         bg="white"

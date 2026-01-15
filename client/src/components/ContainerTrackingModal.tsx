@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Spinner, Badge, Card, Row, Col } from 'react-bootstrap';
 import { trpc } from '@/lib/trpc';
 import { Ship, Package, FileText, Calendar, MapPin, RefreshCw } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 interface ContainerTrackingModalProps {
   show: boolean;
@@ -72,8 +73,45 @@ export function ContainerTrackingModal({
 
   const applyUpdatesMutation = trpc.maerskTracking.applyTrackingUpdates.useMutation({
     onSuccess: () => {
+      // Build list of updated fields
+      const updatedFields: string[] = [];
+      if (suggestedUpdates) {
+        if (suggestedUpdates.status) updatedFields.push(`Status: ${suggestedUpdates.status}`);
+        if (suggestedUpdates.carrier) updatedFields.push(`Carrier: ${suggestedUpdates.carrier}`);
+        if (suggestedUpdates.portOfLoading) updatedFields.push(`POL: ${suggestedUpdates.portOfLoading}`);
+        if (suggestedUpdates.portOfDischarge) updatedFields.push(`POD: ${suggestedUpdates.portOfDischarge}`);
+        if (suggestedUpdates.atd) updatedFields.push(`ATD: ${new Date(suggestedUpdates.atd).toLocaleDateString()}`);
+        if (suggestedUpdates.eta) updatedFields.push(`ETA: ${new Date(suggestedUpdates.eta).toLocaleDateString()}`);
+        if (suggestedUpdates.ata) updatedFields.push(`ATA: ${new Date(suggestedUpdates.ata).toLocaleDateString()}`);
+        if (suggestedUpdates.vesselName) updatedFields.push(`Vessel: ${suggestedUpdates.vesselName}`);
+        if (suggestedUpdates.voyageNumber) updatedFields.push(`Voyage: ${suggestedUpdates.voyageNumber}`);
+      }
+      
+      // Show success toast with updated fields
+      toast.success(
+        <div>
+          <strong>Shipment Updated Successfully!</strong>
+          <div className="mt-2">
+            <small>Updated fields:</small>
+            <ul className="mb-0 mt-1" style={{ paddingLeft: '1.2rem' }}>
+              {updatedFields.map((field, index) => (
+                <li key={index} style={{ fontSize: '0.85rem' }}>{field}</li>
+              ))}
+            </ul>
+          </div>
+        </div>,
+        {
+          autoClose: 7000,
+        }
+      );
+      
       // Refetch shipments and close modal
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    },
+    onError: (error) => {
+      toast.error(`Failed to update shipment: ${error.message}`);
     },
   });
 

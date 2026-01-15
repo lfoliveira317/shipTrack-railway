@@ -466,3 +466,11 @@
 - [x] Add "Apply Updates" button to tracking modal
 - [x] Map TimeToGo response to suggested updates with all fields
 - [ ] Test that shipment fields update correctly after tracking
+
+## Update Confirmation Toast (Completed)
+- [x] Add toast notification system to show which fields were updated
+- [x] Display field names and new values in toast message
+- [x] Show success toast after applying tracking updates
+- [x] Install react-toastify package
+- [x] Add ToastContainer to App component
+- [x] Show error toast if update fails
