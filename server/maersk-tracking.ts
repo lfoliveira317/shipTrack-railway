@@ -1,7 +1,11 @@
 import { z } from 'zod';
-import { router, protectedProcedure } from './_core/trpc';
+import { router, protectedProcedure, adminProcedure } from './_core/trpc';
 import { maerskClient } from './maersk';
 import { TRPCError } from '@trpc/server';
+import { runAutomaticTracking, getTrackingStats, startTrackingScheduler, stopTrackingScheduler } from './tracking-service';
+import { getDb } from './db';
+import { shipments, trackingHistory } from '../drizzle/schema';
+import { eq, desc } from 'drizzle-orm';
 
 export const maerskTrackingRouter = router({
   /**
@@ -173,6 +177,138 @@ export const maerskTrackingRouter = router({
           message:
             error.response?.data?.message ||
             'Failed to track and update shipment',
+        });
+      }
+    }),
+
+  /**
+   * Toggle auto-tracking for a shipment
+   */
+  toggleAutoTracking: protectedProcedure
+    .input(
+      z.object({
+        shipmentId: z.number(),
+        enabled: z.boolean(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Database not available',
+          });
+        }
+
+        await db
+          .update(shipments)
+          .set({ autoTrackingEnabled: input.enabled ? 1 : 0 })
+          .where(eq(shipments.id, input.shipmentId));
+
+        return {
+          success: true,
+          message: `Auto-tracking ${input.enabled ? 'enabled' : 'disabled'}`,
+        };
+      } catch (error: any) {
+        console.error('Toggle auto-tracking error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to toggle auto-tracking',
+        });
+      }
+    }),
+
+  /**
+   * Get tracking history for a shipment
+   */
+  getTrackingHistory: protectedProcedure
+    .input(
+      z.object({
+        shipmentId: z.number(),
+        limit: z.number().optional().default(50),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Database not available',
+          });
+        }
+
+        const history = await db
+          .select()
+          .from(trackingHistory)
+          .where(eq(trackingHistory.shipmentId, input.shipmentId))
+          .orderBy(desc(trackingHistory.createdAt))
+          .limit(input.limit);
+
+        return history;
+      } catch (error: any) {
+        console.error('Get tracking history error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get tracking history',
+        });
+      }
+    }),
+
+  /**
+   * Manually trigger automatic tracking job (admin only)
+   */
+  runTrackingJob: adminProcedure.mutation(async () => {
+    try {
+      const result = await runAutomaticTracking();
+      return result;
+    } catch (error: any) {
+      console.error('Run tracking job error:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to run tracking job',
+      });
+    }
+  }),
+
+  /**
+   * Get tracking job statistics (admin only)
+   */
+  getTrackingStats: adminProcedure.query(() => {
+    return getTrackingStats();
+  }),
+
+  /**
+   * Start/stop automatic tracking scheduler (admin only)
+   */
+  controlScheduler: adminProcedure
+    .input(
+      z.object({
+        action: z.enum(['start', 'stop']),
+        intervalMinutes: z.number().optional().default(30),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        if (input.action === 'start') {
+          startTrackingScheduler(input.intervalMinutes);
+          return {
+            success: true,
+            message: `Tracking scheduler started (${input.intervalMinutes} min interval)`,
+          };
+        } else {
+          stopTrackingScheduler();
+          return {
+            success: true,
+            message: 'Tracking scheduler stopped',
+          };
+        }
+      } catch (error: any) {
+        console.error('Control scheduler error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to control scheduler',
         });
       }
     }),

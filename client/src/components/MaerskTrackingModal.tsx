@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Spinner, Badge, Card, Row, Col } from 'react-bootstrap';
 import { trpc } from '@/lib/trpc';
-import { Ship, Package, FileText, Calendar, MapPin } from 'lucide-react';
+import { Ship, Package, FileText, Calendar, MapPin, RefreshCw } from 'lucide-react';
 
 interface MaerskTrackingModalProps {
   show: boolean;
@@ -22,6 +22,24 @@ export function MaerskTrackingModal({
   const [trackingValue, setTrackingValue] = useState(initialContainerNumber || '');
   const [trackingData, setTrackingData] = useState<any>(null);
   const [suggestedUpdates, setSuggestedUpdates] = useState<any>(null);
+  const [autoTrackingEnabled, setAutoTrackingEnabled] = useState(false);
+
+  // Get shipment data to check auto-tracking status
+  const { data: shipments } = trpc.shipments.list.useQuery();
+  const currentShipment = shipments?.find((s: any) => s.id === shipmentId);
+
+  useEffect(() => {
+    if (currentShipment) {
+      setAutoTrackingEnabled(currentShipment.autoTrackingEnabled === 1);
+    }
+  }, [currentShipment]);
+
+  const toggleAutoTrackingMutation = trpc.maerskTracking.toggleAutoTracking.useMutation({
+    onSuccess: () => {
+      // Refetch shipments to update the UI
+      window.location.reload();
+    },
+  });
 
   const trackMutation = trpc.maerskTracking.trackAndUpdateShipment.useMutation({
     onSuccess: (data) => {
@@ -231,6 +249,35 @@ export function MaerskTrackingModal({
                 </Card.Body>
               </Card>
             )}
+
+            {/* Auto-tracking toggle */}
+            <Card className="mb-3">
+              <Card.Body>
+                <Form.Check
+                  type="switch"
+                  id="auto-tracking-switch"
+                  label={
+                    <span>
+                      <RefreshCw size={16} className="me-2" />
+                      Enable automatic tracking for this shipment
+                    </span>
+                  }
+                  checked={autoTrackingEnabled}
+                  onChange={(e) => {
+                    const enabled = e.target.checked;
+                    setAutoTrackingEnabled(enabled);
+                    toggleAutoTrackingMutation.mutate({
+                      shipmentId,
+                      enabled,
+                    });
+                  }}
+                  disabled={toggleAutoTrackingMutation.isPending}
+                />
+                <Form.Text className="text-muted">
+                  When enabled, this shipment will be automatically tracked every 30 minutes
+                </Form.Text>
+              </Card.Body>
+            </Card>
 
             {suggestedUpdates && (
               <Alert variant="info">

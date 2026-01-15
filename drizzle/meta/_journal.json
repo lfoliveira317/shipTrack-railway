@@ -64,6 +64,13 @@
       "when": 1768416811770,
       "tag": "0008_shiny_human_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1768441331314,
+      "tag": "0009_chilly_celestials",
+      "breakpoints": true
     }
   ]
 }

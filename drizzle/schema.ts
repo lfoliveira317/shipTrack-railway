@@ -44,6 +44,9 @@ export const shipments = mysqlTable("shipments", {
   bolNumber: varchar("bolNumber", { length: 255 }),
   poNumber: varchar("poNumber", { length: 255 }), // PO Number for SellerCloud
   shipmentType: varchar("shipmentType", { length: 50 }).default("ocean"),
+  autoTrackingEnabled: int("autoTrackingEnabled").default(0).notNull(), // 0 = disabled, 1 = enabled
+  lastTrackedAt: timestamp("lastTrackedAt"),
+  trackingStatus: varchar("trackingStatus", { length: 100 }), // Last known tracking status from API
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -154,3 +157,18 @@ export const documentTypes = mysqlTable("documentTypes", {
 
 export type DocumentType = typeof documentTypes.$inferSelect;
 export type InsertDocumentType = typeof documentTypes.$inferInsert;
+
+// Tracking history table for storing container tracking events
+export const trackingHistory = mysqlTable("trackingHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  shipmentId: int("shipmentId").notNull(),
+  eventType: varchar("eventType", { length: 100 }).notNull(), // "status_change", "location_update", "eta_change", etc.
+  eventDescription: text("eventDescription").notNull(),
+  location: varchar("location", { length: 255 }),
+  eventTimestamp: timestamp("eventTimestamp"),
+  rawData: text("rawData"), // JSON string of full API response
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TrackingHistory = typeof trackingHistory.$inferSelect;
+export type InsertTrackingHistory = typeof trackingHistory.$inferInsert;

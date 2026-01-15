@@ -389,3 +389,13 @@
 - [x] Add "Track" button to each shipment row in the grid
 - [x] Test tracking functionality with container numbers
 - [ ] Add webhook endpoint for real-time Maersk tracking events (future enhancement)
+
+## Automatic Tracking System (Completed)
+- [x] Create tracking history database schema
+- [x] Add last_tracked_at field to shipments table
+- [x] Create background polling service for Maersk API
+- [x] Implement automatic status updates from tracking data
+- [x] Add UI toggle for enabling/disabling auto-tracking per shipment
+- [x] Add admin procedures for controlling tracking scheduler
+- [ ] Test automatic tracking with real Maersk container numbers
+- [ ] Start tracking scheduler on server startup
