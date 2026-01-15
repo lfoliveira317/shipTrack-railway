@@ -21,6 +21,13 @@ export const users = mysqlTable("users", {
   notifyOnDelay: int("notifyOnDelay").default(1).notNull(),
   notifyOnArrival: int("notifyOnArrival").default(1).notNull(),
   emailNotifications: int("emailNotifications").default(1).notNull(), // 0 = disabled, 1 = enabled
+  emailFrequency: mysqlEnum("emailFrequency", ["immediate", "hourly", "daily", "weekly"]).default("immediate").notNull(),
+  notifyContainerUpdates: int("notifyContainerUpdates").default(1).notNull(), // 0 = disabled, 1 = enabled
+  notifyDischargeDateChanges: int("notifyDischargeDateChanges").default(1).notNull(),
+  notifyMissingDocuments: int("notifyMissingDocuments").default(1).notNull(),
+  quietHoursStart: varchar("quietHoursStart", { length: 5 }), // e.g., "22:00"
+  quietHoursEnd: varchar("quietHoursEnd", { length: 5 }), // e.g., "08:00"
+  timezone: varchar("timezone", { length: 50 }).default("UTC").notNull(), // User's timezone
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -176,3 +183,32 @@ export const trackingHistory = mysqlTable("trackingHistory", {
 
 export type TrackingHistory = typeof trackingHistory.$inferSelect;
 export type InsertTrackingHistory = typeof trackingHistory.$inferInsert;
+
+// Webhook events table for external integrations
+export const webhookEvents = mysqlTable("webhookEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  shipmentId: int("shipmentId"),
+  containerNumber: varchar("containerNumber", { length: 255 }),
+  eventType: varchar("eventType", { length: 100 }).notNull(), // "customs_clearance", "gate_in", "gate_out", "vessel_departure", etc.
+  eventData: text("eventData").notNull(), // JSON string of webhook payload
+  source: varchar("source", { length: 100 }), // Source system that sent the webhook
+  processed: int("processed").default(0).notNull(), // 0 = pending, 1 = processed
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WebhookEvent = typeof webhookEvents.$inferSelect;
+export type InsertWebhookEvent = typeof webhookEvents.$inferInsert;
+
+// Email digest queue table for scheduled email sending
+export const emailDigestQueue = mysqlTable("emailDigestQueue", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  digestType: mysqlEnum("digestType", ["hourly", "daily", "weekly"]).notNull(),
+  scheduledFor: timestamp("scheduledFor").notNull(),
+  sent: int("sent").default(0).notNull(), // 0 = pending, 1 = sent
+  sentAt: timestamp("sentAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EmailDigestQueue = typeof emailDigestQueue.$inferSelect;
+export type InsertEmailDigestQueue = typeof emailDigestQueue.$inferInsert;

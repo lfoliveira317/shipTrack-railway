@@ -43,6 +43,7 @@ import UserManagementModal from "./components/UserManagementModal";
 import { Users, Shield, Eye, LogOut } from "lucide-react";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { ContainerTrackingModal } from "./components/ContainerTrackingModal";
+import { NotificationSettings } from "./pages/NotificationSettings";
 
 // Status color mapping for visual recognition
 // Orange theme with matching In transit status
@@ -107,7 +108,7 @@ type SortField = "sellerCloudNumber" | "supplier" | "status" | "carrier" | "eta"
 type SortDirection = "asc" | "desc";
 
 function App() {
-  const [currentView, setCurrentView] = useState<'shipments' | 'dropdowns'>('shipments');
+  const [currentView, setCurrentView] = useState<'shipments' | 'dropdowns' | 'notifications'>('shipments');
   const [showSidebar, setShowSidebar] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -397,6 +398,10 @@ function App() {
               <Dropdown.Item onClick={() => setShowApiConfig(true)}>
                 <Settings size={16} className="me-2" />
                 API Configuration
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => setCurrentView('notifications')}>
+                <Bell size={16} className="me-2" />
+                Notification Settings
               </Dropdown.Item>
               {isAdmin && (
                 <>
@@ -701,9 +706,11 @@ function App() {
             </div>
           </div>
 
-          {/* Data Grid or Dropdown Management */}
+          {/* Data Grid, Dropdown Management, or Notification Settings */}
           {currentView === 'dropdowns' ? (
             <DropdownManagement />
+          ) : currentView === 'notifications' ? (
+            <NotificationSettings />
           ) : (
           <div className="flex-grow-1 p-2 p-md-3" style={{ overflow: 'hidden' }}>
             <div className="card shadow-sm border-0">
