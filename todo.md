@@ -458,3 +458,11 @@
 - [x] Update UI to show all tracking data in organized sections
 - [x] Create comprehensive events timeline with actual/estimated badges
 - [x] Display ports & dates with POL and POD information
+
+## Fix Shipment Update After Tracking (Completed)
+- [x] Investigate why ATD, ATA, Supplier, CRO fields aren't updating after tracking
+- [x] Fix the "Apply Suggested Updates" functionality
+- [x] Create applyTrackingUpdates mutation to update shipment fields
+- [x] Add "Apply Updates" button to tracking modal
+- [x] Map TimeToGo response to suggested updates with all fields
+- [ ] Test that shipment fields update correctly after tracking

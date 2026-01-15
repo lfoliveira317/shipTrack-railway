@@ -265,6 +265,71 @@ export const maerskTrackingRouter = router({
     }),
 
   /**
+   * Apply tracking updates to shipment
+   * This actually updates the shipment fields with tracking data
+   */
+  applyTrackingUpdates: protectedProcedure
+    .input(
+      z.object({
+        shipmentId: z.number(),
+        updates: z.object({
+          status: z.string().optional(),
+          carrier: z.string().optional(),
+          portOfLoading: z.string().optional(),
+          portOfDischarge: z.string().optional(),
+          atd: z.string().optional(),
+          eta: z.string().optional(),
+          ata: z.string().optional(),
+          vesselName: z.string().optional(),
+          voyageNumber: z.string().optional(),
+        }),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Database not available',
+          });
+        }
+
+        // Build update object with only provided fields
+        const updateData: any = {};
+        if (input.updates.status) updateData.status = input.updates.status;
+        if (input.updates.carrier) updateData.carrier = input.updates.carrier;
+        if (input.updates.portOfLoading) updateData.portOfLoading = input.updates.portOfLoading;
+        if (input.updates.portOfDischarge) updateData.portOfDischarge = input.updates.portOfDischarge;
+        if (input.updates.atd) updateData.atd = new Date(input.updates.atd);
+        if (input.updates.eta) updateData.eta = new Date(input.updates.eta);
+        if (input.updates.ata) updateData.ata = new Date(input.updates.ata);
+        if (input.updates.vesselName) updateData.vesselName = input.updates.vesselName;
+        if (input.updates.voyageNumber) updateData.voyageNumber = input.updates.voyageNumber;
+
+        // Update last tracked timestamp
+        updateData.lastTrackedAt = new Date();
+
+        // Update the shipment
+        await db
+          .update(shipments)
+          .set(updateData)
+          .where(eq(shipments.id, input.shipmentId));
+
+        return {
+          success: true,
+          message: 'Shipment updated successfully with tracking data',
+        };
+      } catch (error: any) {
+        console.error('Error applying tracking updates:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error.message || 'Failed to apply tracking updates',
+        });
+      }
+    }),
+
+  /**
    * Toggle auto-tracking for a shipment
    */
   toggleAutoTracking: protectedProcedure

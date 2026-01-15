@@ -58,8 +58,8 @@ export function ContainerTrackingModal({
         setSuggestedUpdates({
           status: data.data.status,
           eta: data.data.eta,
-          pol: data.data.portOfLoading,
-          pod: data.data.portOfDischarge,
+          portOfLoading: data.data.portOfLoading,
+          portOfDischarge: data.data.portOfDischarge,
           atd: data.data.atd,
           ata: data.data.ata,
           carrier: data.data.carrier,
@@ -67,6 +67,13 @@ export function ContainerTrackingModal({
           voyageNumber: data.data.voyageNumber,
         });
       }
+    },
+  });
+
+  const applyUpdatesMutation = trpc.maerskTracking.applyTrackingUpdates.useMutation({
+    onSuccess: () => {
+      // Refetch shipments and close modal
+      window.location.reload();
     },
   });
 
@@ -383,28 +390,66 @@ export function ContainerTrackingModal({
             </Card>
 
             {suggestedUpdates && (
-              <Alert variant="info">
-                <strong>Suggested Updates:</strong>
-                <ul className="mb-0 mt-2">
-                  {suggestedUpdates.status && (
-                    <li>Status: {suggestedUpdates.status}</li>
-                  )}
-                  {suggestedUpdates.carrier && (
-                    <li>Carrier: {suggestedUpdates.carrier}</li>
-                  )}
-                  {suggestedUpdates.vesselName && (
-                    <li>Vessel: {suggestedUpdates.vesselName}</li>
-                  )}
-                  {suggestedUpdates.portOfLoading && (
-                    <li>Port of Loading: {suggestedUpdates.portOfLoading}</li>
-                  )}
-                  {suggestedUpdates.portOfDischarge && (
-                    <li>Port of Discharge: {suggestedUpdates.portOfDischarge}</li>
-                  )}
-                  {suggestedUpdates.eta && (
-                    <li>ETA: {new Date(suggestedUpdates.eta).toLocaleDateString()}</li>
-                  )}
-                </ul>
+              <Alert variant="success">
+                <div className="d-flex justify-content-between align-items-start">
+                  <div>
+                    <strong>Ready to Update Shipment:</strong>
+                    <ul className="mb-0 mt-2">
+                      {suggestedUpdates.status && (
+                        <li>Status: {suggestedUpdates.status}</li>
+                      )}
+                      {suggestedUpdates.carrier && (
+                        <li>Carrier: {suggestedUpdates.carrier}</li>
+                      )}
+                      {suggestedUpdates.vesselName && (
+                        <li>Vessel: {suggestedUpdates.vesselName}</li>
+                      )}
+                      {suggestedUpdates.voyageNumber && (
+                        <li>Voyage: {suggestedUpdates.voyageNumber}</li>
+                      )}
+                      {suggestedUpdates.portOfLoading && (
+                        <li>Port of Loading: {suggestedUpdates.portOfLoading}</li>
+                      )}
+                      {suggestedUpdates.portOfDischarge && (
+                        <li>Port of Discharge: {suggestedUpdates.portOfDischarge}</li>
+                      )}
+                      {suggestedUpdates.atd && (
+                        <li>ATD: {new Date(suggestedUpdates.atd).toLocaleDateString()}</li>
+                      )}
+                      {suggestedUpdates.eta && (
+                        <li>ETA: {new Date(suggestedUpdates.eta).toLocaleDateString()}</li>
+                      )}
+                      {suggestedUpdates.ata && (
+                        <li>ATA: {new Date(suggestedUpdates.ata).toLocaleDateString()}</li>
+                      )}
+                    </ul>
+                  </div>
+                  <Button
+                    variant="success"
+                    size="sm"
+                    onClick={() => {
+                      applyUpdatesMutation.mutate({
+                        shipmentId,
+                        updates: suggestedUpdates,
+                      });
+                    }}
+                    disabled={applyUpdatesMutation.isPending}
+                  >
+                    {applyUpdatesMutation.isPending ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          className="me-2"
+                        />
+                        Applying...
+                      </>
+                    ) : (
+                      'Apply Updates'
+                    )}
+                  </Button>
+                </div>
               </Alert>
             )}
           </>
