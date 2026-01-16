@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, email, role, emailNotifications, emailFrequency FROM users WHERE email = 'lfoliveira317@gmail.com' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 49PuSKHNJVwaYJS.6dee92bac2a7 --database MhzwHgR8AejWKvAATctNq9 --execute SELECT id, email, role, emailNotifications, emailFrequency FROM users WHERE email = 'lfoliveira317@gmail.com' LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "lfoliveira317@gmail.com",
+      "role": "admin",
+      "emailNotifications": "1",
+      "emailFrequency": "immediate"
+    },
+    {
+      "id": "510311",
+      "email": "lfoliveira317@gmail.com",
+      "role": "viewer",
+      "emailNotifications": "1",
+      "emailFrequency": "immediate"
+    },
+    {
+      "id": "990209",
+      "email": "lfoliveira317@gmail.com",
+      "role": "admin",
+      "emailNotifications": "1",
+      "emailFrequency": "hourly"
+    },
+    {
+      "id": "990237",
+      "email": "lfoliveira317@gmail.com",
+      "role": "admin",
+      "emailNotifications": "1",
+      "emailFrequency": "hourly"
+    },
+    {
+      "id": "1050194",
+      "email": "lfoliveira317@gmail.com",
+      "role": "user",
+      "emailNotifications": "1",
+      "emailFrequency": "immediate"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\trole\temailNotifications\temailFrequency\n1\tlfoliveira317@gmail.com\tadmin\t1\timmediate\n510311\tlfoliveira317@gmail.com\tviewer\t1\timmediate\n990209\tlfoliveira317@gmail.com\tadmin\t1\thourly\n990237\tlfoliveira317@gmail.com\tadmin\t1\thourly\n1050194\tlfoliveira317@gmail.com\tuser\t1\timmediate\n",
+  "stderr": "",
+  "execution_time_ms": 122
+}

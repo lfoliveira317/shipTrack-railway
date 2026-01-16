@@ -22,9 +22,14 @@ export async function sendContainerUpdatesNotification(
   shipmentIds: number[]
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    console.log('[ContainerNotification] Starting notification for shipments:', shipmentIds);
+    
     // Get admin users with email notifications enabled
     const db = await getDb();
-    if (!db) return { success: false, error: "Database not available" };
+    if (!db) {
+      console.error('[ContainerNotification] Database not available');
+      return { success: false, error: "Database not available" };
+    }
     
     const adminUsers = await db
       .select()
@@ -36,7 +41,10 @@ export async function sendContainerUpdatesNotification(
         )
       );
 
+    console.log('[ContainerNotification] Found admin users:', adminUsers.length, adminUsers.map((u: any) => ({ id: u.id, email: u.email, emailNotifications: u.emailNotifications })));
+    
     if (adminUsers.length === 0) {
+      console.log('[ContainerNotification] No admin users with email notifications enabled');
       return { success: true }; // No users to notify
     }
 

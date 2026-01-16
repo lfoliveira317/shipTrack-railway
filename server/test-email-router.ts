@@ -5,6 +5,8 @@
 
 import { router, protectedProcedure } from './_core/trpc';
 import { sendEmail } from './email-service';
+import { routeNotification } from './services/notification-router';
+import { generateContainerUpdatesEmail } from './email-templates';
 
 export const testEmailRouter = router({
   /**
@@ -146,6 +148,61 @@ export const testEmailRouter = router({
       message: result 
         ? 'Test email sent successfully! Please check your inbox.' 
         : 'Failed to send test email. Please check your EmailJS configuration.',
+    };
+  }),
+
+  /**
+   * Test immediate notification routing
+   */
+  testImmediateNotification: protectedProcedure.mutation(async ({ ctx }) => {
+    const user = ctx.user;
+    
+    if (!user.email) {
+      throw new Error('User email not found');
+    }
+
+    console.log('[TestNotification] Testing immediate notification for user:', user.id, user.email);
+    console.log('[TestNotification] User preferences:', {
+      emailNotifications: user.emailNotifications,
+      emailFrequency: user.emailFrequency,
+    });
+
+    const emailHtml = generateContainerUpdatesEmail(
+      [{
+        containerNumber: 'TEST-IMMEDIATE-001',
+        supplier: 'Test Supplier',
+        cro: 'CRO-TEST',
+        carrier: 'Test Carrier',
+        status: 'In transit',
+        pol: 'Test Port A',
+        pod: 'Test Port B',
+        atd: new Date().toISOString(),
+        eta: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        ata: null,
+        vesselName: 'Test Vessel',
+        voyageNumber: 'V001',
+        changes: ['Test notification triggered manually'],
+      }],
+      user.name || 'User'
+    );
+
+    const result = await routeNotification({
+      userId: user.id,
+      type: 'container_update',
+      title: 'Test Container Update',
+      message: 'This is a test notification to verify immediate email delivery',
+      emailSubject: '🧪 ShipTrack Test - Immediate Notification',
+      emailHtml,
+    });
+
+    console.log('[TestNotification] Result:', result);
+
+    return {
+      success: result,
+      email: user.email,
+      message: result 
+        ? 'Immediate notification sent! Check your inbox.' 
+        : 'Failed to send notification. Check server logs.',
     };
   }),
 });

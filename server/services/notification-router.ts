@@ -3,7 +3,7 @@
  * Routes notifications based on user email frequency preferences
  */
 
-import { sendEmail } from '../email-service';
+import { sendEmail, generateStatusChangeEmail } from '../email-service';
 import { getDb } from '../db';
 import { users, notifications } from '../../drizzle/schema';
 import { eq } from 'drizzle-orm';
@@ -13,8 +13,73 @@ interface NotificationParams {
   type: 'container_update' | 'date_change' | 'missing_document' | 'webhook_event';
   title: string;
   message: string;
-  emailSubject: string;
-  emailHtml: string;
+  emailSubject?: string;
+  emailHtml?: string;
+  relatedShipmentId?: number;
+}
+
+/**
+ * Generate default email HTML based on notification type
+ */
+function generateDefaultEmailHtml(params: NotificationParams): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${params.title}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 20px;
+      border-radius: 8px 8px 0 0;
+      text-align: center;
+    }
+    .content {
+      background: #f8f9fa;
+      padding: 30px 20px;
+      border-radius: 0 0 8px 8px;
+    }
+    .message {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #6c757d;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 style="margin: 0;">🚢 ${params.title}</h1>
+  </div>
+  <div class="content">
+    <div class="message">
+      <p>${params.message}</p>
+    </div>
+    <p>This is an automated notification from your ShipTrack system.</p>
+  </div>
+  <div class="footer">
+    <p>© ${new Date().getFullYear()} ShipTrack. All rights reserved.</p>
+  </div>
+</body>
+</html>
+  `;
 }
 
 /**
@@ -75,10 +140,15 @@ export async function routeNotification(params: NotificationParams): Promise<boo
         return false;
       }
       console.log(`[NotificationRouter] Sending immediate email to ${userPrefs.email}`);
+      
+      // Use provided values or generate defaults
+      const emailSubject = params.emailSubject || `ShipTrack: ${params.title}`;
+      const emailHtml = params.emailHtml || generateDefaultEmailHtml(params);
+      
       const success = await sendEmail({
         to: userPrefs.email,
-        subject: params.emailSubject,
-        html: params.emailHtml,
+        subject: emailSubject,
+        html: emailHtml,
       });
       return success;
     } else {
