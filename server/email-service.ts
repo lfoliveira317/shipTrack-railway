@@ -8,10 +8,11 @@ interface EmailNotificationParams {
 
 /**
  * Send email notification using EmailJS API
+ * Sends both plain text (for fallback) and HTML content
  */
 export async function sendEmail(params: EmailNotificationParams): Promise<boolean> {
   try {
-    // Convert HTML to plain text for EmailJS template
+    // Convert HTML to plain text as fallback
     const plainTextMessage = htmlToPlainText(params.html);
     
     const success = await sendEmailViaEmailJS({
@@ -19,7 +20,8 @@ export async function sendEmail(params: EmailNotificationParams): Promise<boolea
       to_name: params.to.split('@')[0], // Use email username as name
       from_name: 'ShipTrack',
       subject: params.subject,
-      message: plainTextMessage,
+      message: plainTextMessage, // Plain text fallback
+      message_html: params.html, // HTML content for rich rendering
     });
 
     if (!success) {

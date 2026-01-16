@@ -2,7 +2,7 @@ import emailjs from '@emailjs/nodejs';
 
 // EmailJS configuration
 const EMAILJS_PUBLIC_KEY = 'TuMe7vcBtd1Fr_bqU';
-const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || ''; // Optional: for server-side security
+const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY || '';
 const EMAILJS_SERVICE_ID = 'service_e5jsjkk';
 const EMAILJS_TEMPLATE_ID = 'template_z8h9z7w';
 
@@ -12,6 +12,7 @@ export interface EmailJSParams {
   from_name: string;
   subject: string;
   message: string;
+  message_html?: string; // HTML content for rich emails
 }
 
 /**
@@ -30,6 +31,9 @@ export async function sendEmailViaEmailJS(params: EmailJSParams): Promise<boolea
         from_name: params.from_name,
         subject: params.subject,
         message: params.message,
+        // Send HTML content via message_html parameter
+        // The EmailJS template must use {{{message_html}}} (triple braces) to render HTML
+        message_html: params.message_html || params.message,
       },
       {
         publicKey: EMAILJS_PUBLIC_KEY,
@@ -47,7 +51,7 @@ export async function sendEmailViaEmailJS(params: EmailJSParams): Promise<boolea
 
 /**
  * Convert HTML email content to plain text for EmailJS
- * EmailJS templates work best with plain text, so we strip HTML tags
+ * Used as fallback text version of the email
  */
 export function htmlToPlainText(html: string): string {
   return html
