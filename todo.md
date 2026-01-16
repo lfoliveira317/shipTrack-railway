@@ -680,4 +680,4 @@
 
 
 ## UI Improvements - Notification Settings (Completed)
-- [x] Fix notification settings screen scrolling issue with proper flexbox layout
+- [x] Fix notification settings screen scrolling with proper height constraints (calc(100vh - 100px))

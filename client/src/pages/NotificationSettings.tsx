@@ -81,10 +81,10 @@ export function NotificationSettings() {
   }
 
   return (
-    <div className="flex-grow-1 d-flex flex-column p-2 p-md-3" style={{ minHeight: 0 }}>
-      <div className="row flex-grow-1" style={{ minHeight: 0 }}>
-        <div className="col-lg-8 mx-auto d-flex flex-column" style={{ minHeight: 0 }}>
-          <div className="card shadow-sm d-flex flex-column" style={{ minHeight: 0, maxHeight: '100%' }}>
+    <div className="flex-grow-1 d-flex flex-column p-2 p-md-3" style={{ minHeight: 0, height: '100%', overflow: 'hidden' }}>
+      <div className="row flex-grow-1" style={{ minHeight: 0, height: '100%' }}>
+        <div className="col-lg-8 mx-auto d-flex flex-column" style={{ minHeight: 0, height: '100%' }}>
+          <div className="card shadow-sm d-flex flex-column" style={{ minHeight: 0, height: '100%' }}>
             <div className="card-header bg-primary text-white flex-shrink-0">
               <h4 className="mb-0">
                 <i className="bi bi-bell me-2"></i>
