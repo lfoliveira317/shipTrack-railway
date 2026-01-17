@@ -742,3 +742,10 @@
 - [x] Remove corepack commands entirely (Nixpacks auto-detects pnpm)
 - [x] Simplify nixpacks configuration to minimal commands
 - [x] Update comprehensive troubleshooting guide with all fixes
+
+
+## Railway Auto-Detect Configuration (Completed)
+- [x] Remove nixpacks.toml to let Railway auto-detect
+- [x] Remove railway.json for complete auto-detection
+- [x] Update RAILWAY_DEPLOYMENT.md with auto-detect as primary approach
+- [x] Update RAILWAY_BUILD_FIX.md recommending auto-detect for all errors

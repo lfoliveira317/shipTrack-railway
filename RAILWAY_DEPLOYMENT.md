@@ -1,206 +1,406 @@
 # Railway Deployment Guide for ShipTrack
 
-This guide will help you deploy ShipTrack to Railway.app.
+Complete guide for deploying ShipTrack to Railway.app with auto-detected build configuration.
+
+---
+
+## Overview
+
+Railway will automatically detect your Node.js project and configure the build process. No custom configuration files needed!
+
+**What Railway Auto-Detects:**
+- ✅ Node.js 22 (from `package.json` engines or `.nvmrc`)
+- ✅ pnpm (from `pnpm-lock.yaml`)
+- ✅ Build command (`pnpm build`)
+- ✅ Start command (`node dist/index.js` or from `package.json`)
+
+---
 
 ## Prerequisites
 
+- GitHub account with ShipTrack repository
 - Railway account (sign up at https://railway.app)
-- GitHub account (to connect your repository)
-- EmailJS account (for email notifications)
+- Credit card for Railway (free $5 credit/month)
 
-## Step 1: Prepare Your Repository
+---
 
-1. **Export code to GitHub** (if not already done):
-   - In Manus UI: Settings → GitHub
-   - Select your GitHub account
-   - Enter repository name (e.g., `shiptrack`)
-   - Click Export
+## Step 1: Push Code to GitHub
 
-2. **Verify the following files are in your repository**:
-   - ✅ `railway.json` - Railway configuration
-   - ✅ `nixpacks.toml` - Build configuration
-   - ✅ `.env.railway.example` - Environment variables template
-   - ✅ `package.json` - Dependencies and scripts
+1. **Export from Manus**:
+   - Open Management UI (icon in top-right of chatbox)
+   - Go to **Settings** → **GitHub**
+   - Click **"Export"** to push all code
+
+2. **Verify on GitHub**:
+   - Visit https://github.com/lfoliveira317/beacon_mockup
+   - Ensure all files are present
+
+---
 
 ## Step 2: Create Railway Project
 
-1. Go to https://railway.app/new
-2. Click **"Deploy from GitHub repo"**
-3. Select your `shiptrack` repository
-4. Railway will automatically detect the configuration
+1. Go to https://railway.app
+2. Click **"Start a New Project"**
+3. Select **"Deploy from GitHub repo"**
+4. Authorize Railway to access your GitHub
+5. Select `lfoliveira317/beacon_mockup` repository
+6. Railway will automatically start building
+
+---
 
 ## Step 3: Add MySQL Database
 
 1. In your Railway project, click **"+ New"**
-2. Select **"Database" → "MySQL"**
-3. Railway will automatically:
-   - Create a MySQL instance
-   - Set the `DATABASE_URL` environment variable
-   - Connect it to your app
+2. Select **"Database"** → **"Add MySQL"**
+3. Railway creates a MySQL instance and sets `DATABASE_URL` automatically
+4. No manual configuration needed!
+
+---
 
 ## Step 4: Configure Environment Variables
 
-Go to your app service → **Variables** tab and add:
+Click on your app service, go to **"Variables"** tab, and add:
 
 ### Required Variables
 
 ```bash
-# Database (automatically set by Railway MySQL service)
-DATABASE_URL=mysql://...  # Auto-populated
-
-# Security
-JWT_SECRET=your-random-secret-min-32-characters
-OWNER_OPEN_ID=your-owner-id
-OWNER_NAME=Your Name
-
-# EmailJS (from https://dashboard.emailjs.com)
+# Email Service (EmailJS)
 EMAILJS_PRIVATE_KEY=your-emailjs-private-key
+EMAIL_FROM=noreply@yourdomain.com
 
-# Application
-NODE_ENV=production
-PORT=3000
-```
+# JWT Authentication
+JWT_SECRET=your-random-secret-string-at-least-32-chars
 
-### Optional Variables
-
-```bash
-# Frontend
+# App Configuration
 VITE_APP_TITLE=ShipTrack
-VITE_APP_LOGO=/logo.svg
-
-# Email
-EMAIL_FROM=noreply@shiptrack.com
-
-# Shipping APIs (if using)
-MAERSK_CLIENT_ID=your-client-id
-MAERSK_CLIENT_SECRET=your-client-secret
-SHIPSTATION_API_KEY=your-api-key
+VITE_APP_LOGO=https://your-logo-url.com/logo.png
 ```
 
-## Step 5: Run Database Migrations
+### Optional Variables (if using custom S3 storage)
 
-After the first deployment:
-
-1. Go to your app service → **Settings** → **Deploy**
-2. Add a custom build command (optional):
-   ```bash
-   pnpm install && pnpm db:push && pnpm build
-   ```
-
-Or run migrations manually via Railway CLI:
 ```bash
-railway run pnpm db:push
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_S3_REGION=us-east-1
+AWS_S3_BUCKET=your-bucket-name
 ```
 
-## Step 6: Deploy
-
-1. Railway will automatically deploy when you push to GitHub
-2. Wait for the build to complete (~2-3 minutes)
-3. Your app will be available at: `https://your-app.railway.app`
-
-## Step 7: Configure Custom Domain (Optional)
-
-1. In Railway project → **Settings** → **Domains**
-2. Click **"Generate Domain"** for a Railway subdomain
-3. Or add your custom domain:
-   - Click **"Custom Domain"**
-   - Enter your domain (e.g., `shiptrack.com`)
-   - Add the provided CNAME record to your DNS
-
-## Important Notes
-
-### Authentication
-
-⚠️ **The current app uses Manus OAuth** which won't work on Railway. You have two options:
-
-1. **Remove authentication** (for internal/demo use):
-   - Comment out auth checks in `server/routers.ts`
-   - Remove `protectedProcedure` usage
-
-2. **Implement alternative auth** (recommended for production):
-   - Add Auth.js (NextAuth)
-   - Use Clerk
-   - Use Supabase Auth
-   - Implement custom JWT auth
-
-### File Storage
-
-⚠️ **S3 storage uses Manus credentials**. For Railway:
-
-1. **Option A**: Create your own AWS S3 bucket
-   - Add `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to Railway
-   - Update `server/storage.ts` with your bucket name
-
-2. **Option B**: Use Railway Volumes (for small files)
-   - Add a volume in Railway
-   - Update storage logic to use filesystem
-
-### Email Service
-
-✅ **EmailJS works on Railway** - no changes needed. Just add `EMAILJS_PRIVATE_KEY`.
-
-### Scheduled Jobs
-
-✅ **Digest emails run automatically** - the scheduler starts with the app.
-
-## Troubleshooting
-
-### Build Fails
-
-- Check Railway logs: **Deployments** → Click on deployment → **View Logs**
-- Verify all dependencies are in `package.json`
-- Ensure Node.js version matches (22.x)
-
-### Database Connection Issues
-
-- Verify `DATABASE_URL` is set correctly
-- Check MySQL service is running
-- Run migrations: `railway run pnpm db:push`
-
-### App Crashes on Start
-
-- Check environment variables are set
-- Review startup logs in Railway
-- Verify `dist/index.js` exists after build
-
-## Cost Estimate
-
-Railway pricing (as of 2026):
-- **Hobby Plan**: $5/month + usage
-  - Includes $5 credit
-  - ~500 execution hours
-  - Suitable for small apps
-
-- **Pro Plan**: Pay-as-you-go
-  - ~$5-20/month for this app size
-  - Includes MySQL database
-  - Better for production
-
-## Alternative: Keep Using Manus
-
-If Railway seems complex, consider staying on Manus:
-- ✅ Everything already configured
-- ✅ Custom domains supported
-- ✅ Database included
-- ✅ One-click publish
-- ✅ No migration needed
-
-## Support
-
-- Railway Docs: https://docs.railway.app
-- Railway Discord: https://discord.gg/railway
-- ShipTrack Issues: GitHub repository issues
-
-## Next Steps After Deployment
-
-1. Test all features on Railway URL
-2. Configure custom domain
-3. Set up monitoring/alerts
-4. Configure backups for MySQL
-5. Update EmailJS allowed domains
-6. Test email notifications
-7. Load production data
+**Note**: `DATABASE_URL` is automatically set by Railway when you add MySQL.
 
 ---
 
-**Need help?** Check Railway documentation or contact support.
+## Step 5: Run Database Migrations
+
+After first deployment:
+
+1. Go to your app service in Railway
+2. Click **"Settings"** → **"Deploy Triggers"**
+3. Or use Railway CLI:
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login
+railway login
+
+# Link to your project
+railway link
+
+# Run migrations
+railway run pnpm db:push
+```
+
+---
+
+## Step 6: Verify Deployment
+
+1. **Check Build Logs**:
+   - Click on your deployment
+   - View logs to ensure build succeeded
+   - Look for: `✓ built in X.XXs`
+
+2. **Check Runtime Logs**:
+   - Verify server starts without errors
+   - Look for: `Server running on port 3000`
+
+3. **Access Application**:
+   - Railway provides a URL like: `https://beacon-mockup-production.up.railway.app`
+   - Click **"Settings"** → **"Networking"** → **"Generate Domain"**
+
+---
+
+## Step 7: Custom Domain (Optional)
+
+1. In Railway app settings, go to **"Networking"**
+2. Click **"Custom Domain"**
+3. Enter your domain (e.g., `shiptrack.yourdomain.com`)
+4. Add CNAME record to your DNS:
+   ```
+   CNAME shiptrack.yourdomain.com → [railway-domain].up.railway.app
+   ```
+5. Wait for DNS propagation (5-30 minutes)
+
+---
+
+## What Railway Auto-Detects
+
+Railway automatically configures:
+
+| Detection | How It Works |
+|-----------|--------------|
+| **Node.js version** | From `package.json` `engines` field or `.nvmrc` |
+| **Package manager** | Detects pnpm from `pnpm-lock.yaml` |
+| **Install command** | Runs `pnpm install` |
+| **Build command** | Runs `pnpm build` from `package.json` |
+| **Start command** | Uses `pnpm start` or `node dist/index.js` |
+
+---
+
+## Build Process
+
+Railway will automatically:
+
+1. **Install dependencies**: `pnpm install`
+2. **Build frontend**: `vite build` → `dist/public/`
+3. **Build backend**: `esbuild server/_core/index.ts` → `dist/index.js`
+4. **Start server**: `node dist/index.js`
+
+Expected build time: **2-4 minutes**
+
+---
+
+## Cost Estimation
+
+### Railway Pricing (2026)
+
+**Free Tier:**
+- $5 credit/month
+- ~500 execution hours
+- Enough for small projects
+
+**Starter Plan ($5/month):**
+- $5 credit included
+- Additional usage pay-as-you-go
+- ~$0.000231/minute for compute
+
+**Typical Monthly Cost for ShipTrack:**
+- Small usage (100 hours): **$0-2**
+- Medium usage (500 hours): **$5-10**
+- High usage (continuous): **$15-25**
+
+**MySQL Add-on:**
+- Included in usage-based pricing
+- ~$5-10/month for typical usage
+
+---
+
+## Troubleshooting
+
+### Issue: Build Fails
+
+**Check build logs** for specific errors:
+
+1. **Missing dependencies**: Ensure `package.json` is complete
+2. **Build script fails**: Test `pnpm build` locally
+3. **Memory issues**: Upgrade Railway plan if needed
+
+### Issue: App Crashes on Start
+
+**Check runtime logs**:
+
+1. **Missing env vars**: Verify all required variables are set
+2. **Database connection**: Ensure `DATABASE_URL` is set
+3. **Port binding**: App should use `process.env.PORT`
+
+### Issue: Database Connection Fails
+
+**Solution**:
+1. Verify MySQL service is running
+2. Check `DATABASE_URL` format: `mysql://user:pass@host:port/db`
+3. Run migrations: `railway run pnpm db:push`
+
+### Issue: Email Notifications Don't Work
+
+**Solution**:
+1. Verify `EMAILJS_PRIVATE_KEY` is set
+2. Check EmailJS dashboard for API usage
+3. Ensure `EMAIL_FROM` is valid
+
+---
+
+## Authentication Warning
+
+⚠️ **Important**: ShipTrack currently uses **Manus OAuth** which won't work on Railway.
+
+**Options:**
+
+1. **Remove authentication** (for internal use):
+   - Comment out auth checks in `server/routers.ts`
+   - Remove `protectedProcedure` usage
+
+2. **Implement alternative auth**:
+   - **Auth.js** (formerly NextAuth): https://authjs.dev
+   - **Clerk**: https://clerk.com
+   - **Supabase Auth**: https://supabase.com/auth
+
+3. **Keep on Manus hosting**: Authentication works out-of-the-box
+
+---
+
+## File Storage
+
+ShipTrack uses Manus built-in storage by default. For Railway:
+
+**Option 1: Set up AWS S3** (Recommended)
+- Follow `AWS_S3_SETUP_GUIDE.md`
+- Add AWS credentials to Railway env vars
+- See `STORAGE_MIGRATION_GUIDE.md`
+
+**Option 2: Use Railway Volumes**
+- Limited to single instance
+- Not recommended for production
+
+---
+
+## Monitoring & Logs
+
+### View Logs
+
+1. Go to your Railway project
+2. Click on deployment
+3. View real-time logs
+
+### Set Up Alerts
+
+1. Go to **"Settings"** → **"Observability"**
+2. Configure alerts for:
+   - Deployment failures
+   - High memory usage
+   - Crash loops
+
+---
+
+## Scaling
+
+Railway auto-scales based on traffic:
+
+- **Horizontal scaling**: Add replicas in settings
+- **Vertical scaling**: Upgrade plan for more resources
+- **Database scaling**: Upgrade MySQL plan if needed
+
+---
+
+## CI/CD
+
+Railway automatically deploys on every push to `main`:
+
+1. Push to GitHub
+2. Railway detects changes
+3. Builds and deploys automatically
+4. Zero-downtime deployment
+
+**Disable auto-deploy**:
+- Go to **"Settings"** → **"Deploy Triggers"**
+- Toggle off "Automatic Deployments"
+
+---
+
+## Rollback
+
+If deployment fails:
+
+1. Go to **"Deployments"** tab
+2. Find previous successful deployment
+3. Click **"..."** → **"Redeploy"**
+
+---
+
+## Environment-Specific Configuration
+
+### Development vs Production
+
+Railway sets `NODE_ENV=production` automatically. Use it in code:
+
+```typescript
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = process.env.NODE_ENV === 'production';
+```
+
+---
+
+## Security Checklist
+
+- [ ] All secrets stored in Railway environment variables
+- [ ] `JWT_SECRET` is strong and random (32+ characters)
+- [ ] Database uses SSL (Railway MySQL has SSL by default)
+- [ ] CORS configured for your domain
+- [ ] Rate limiting enabled (if needed)
+- [ ] Input validation on all endpoints
+
+---
+
+## Performance Optimization
+
+1. **Enable caching**: Use Redis for session storage
+2. **CDN for static assets**: Use Cloudflare or CloudFront
+3. **Database indexing**: Add indexes for frequent queries
+4. **Connection pooling**: Already configured in Drizzle ORM
+
+---
+
+## Backup Strategy
+
+### Database Backups
+
+Railway provides automatic backups:
+- Daily backups retained for 7 days
+- Manual backups available in dashboard
+
+### Manual Backup
+
+```bash
+# Export database
+railway run mysqldump -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE > backup.sql
+
+# Import database
+railway run mysql -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE < backup.sql
+```
+
+---
+
+## Additional Resources
+
+- **Railway Documentation**: https://docs.railway.app
+- **Railway Node.js Guide**: https://docs.railway.app/guides/nodejs
+- **Railway CLI**: https://docs.railway.app/develop/cli
+- **Railway Community**: https://discord.gg/railway
+- **ShipTrack Guides**:
+  - `AWS_S3_SETUP_GUIDE.md` - S3 storage setup
+  - `STORAGE_MIGRATION_GUIDE.md` - Migrate from Manus storage
+  - `RAILWAY_BUILD_FIX.md` - Troubleshooting build issues
+
+---
+
+## Support
+
+- **Railway Support**: https://railway.app/help
+- **Railway Status**: https://status.railway.app
+- **ShipTrack Issues**: GitHub repository
+
+---
+
+## Summary
+
+✅ **Railway auto-detects everything** - no configuration files needed  
+✅ **Push to GitHub** → Railway builds and deploys automatically  
+✅ **Add MySQL** → `DATABASE_URL` configured automatically  
+✅ **Set environment variables** → EmailJS, JWT, AWS (if needed)  
+✅ **Run migrations** → `railway run pnpm db:push`  
+✅ **Access your app** → Railway provides public URL  
+
+**Deployment time**: ~5-10 minutes from start to finish!
+
+---
+
+**Ready to deploy?** Push your code to GitHub and create a Railway project. It's that simple!
