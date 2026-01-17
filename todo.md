@@ -749,3 +749,12 @@
 - [x] Remove railway.json for complete auto-detection
 - [x] Update RAILWAY_DEPLOYMENT.md with auto-detect as primary approach
 - [x] Update RAILWAY_BUILD_FIX.md recommending auto-detect for all errors
+
+
+## Database Migration Scripts (Completed)
+- [x] Create database export script (scripts/export-database.mjs)
+- [x] Create database import script (scripts/import-database.mjs)
+- [x] Create verification script (scripts/verify-database.mjs)
+- [x] Create comprehensive migration documentation (DATABASE_MIGRATION_GUIDE.md)
+- [x] Add backups/ to .gitignore for security
+- [x] Make scripts executable

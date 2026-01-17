@@ -105,3 +105,9 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Database backups (contain sensitive data)
+backups/
+*.sql
+*.sql.gz
+*.sql.bz2
