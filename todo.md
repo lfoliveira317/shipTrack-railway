@@ -728,3 +728,10 @@
 - [x] Update Nixpacks and Railway config files
 - [x] Test build process locally (successful)
 - [x] Create comprehensive troubleshooting guide (RAILWAY_BUILD_FIX.md)
+
+
+## Railway Nixpacks nodejs-22_x Error Fix (Completed)
+- [x] Fix nodejs package name in nixpacks.toml (nodejs-22_x → nodejs_22)
+- [x] Use correct Nix package name with underscores
+- [x] Update comprehensive troubleshooting guide
+- [x] Configuration ready for deployment
