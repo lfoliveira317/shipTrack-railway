@@ -735,3 +735,10 @@
 - [x] Use correct Nix package name with underscores
 - [x] Update comprehensive troubleshooting guide
 - [x] Configuration ready for deployment
+
+
+## Railway Corepack Signature Error Fix (Completed)
+- [x] Fix corepack pnpm@latest signature verification error
+- [x] Remove corepack commands entirely (Nixpacks auto-detects pnpm)
+- [x] Simplify nixpacks configuration to minimal commands
+- [x] Update comprehensive troubleshooting guide with all fixes
