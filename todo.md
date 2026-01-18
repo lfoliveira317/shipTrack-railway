@@ -758,3 +758,53 @@
 - [x] Create comprehensive migration documentation (DATABASE_MIGRATION_GUIDE.md)
 - [x] Add backups/ to .gitignore for security
 - [x] Make scripts executable
+
+
+## GitHub Actions Database Migration Workflow (Completed)
+- [x] Create migration workflow (migrate-database.yml) with manual trigger and confirmation
+- [x] Create automated backup workflow (backup-database.yml) with daily schedule
+- [x] Add comprehensive workflow documentation (GITHUB_ACTIONS_MIGRATION.md)
+- [x] Include setup instructions for GitHub Secrets
+- [x] Add troubleshooting guide and best practices
+
+
+## MySQL Workbench Schema and Data Files (In Progress)
+- [ ] Generate MySQL schema DDL from Drizzle schema
+- [ ] Create sample data SQL inserts
+- [ ] Create MySQL Workbench import guide
+- [ ] Test import in MySQL Workbench
+
+
+## Google OAuth Implementation (Completed)
+- [x] Install Auth.js (@auth/core, @auth/express) and google-auth-library
+- [x] Configure Google OAuth provider (server/_core/google-auth.ts)
+- [x] Create Google OAuth context (server/_core/context-google.ts)
+- [x] Add Google OAuth routes to server
+- [x] Create frontend Google auth helpers (client/src/lib/google-auth.ts)
+- [x] Create comprehensive setup documentation (GOOGLE_OAUTH_SETUP.md)
+- [x] Create auth switching guide (AUTH_SWITCHING_GUIDE.md)
+
+
+## Remove Manus OAuth (Completed)
+- [x] Delete Manus OAuth server files (oauth.ts, sdk.ts, context.ts, cookies.ts)
+- [x] Update server imports to use Google OAuth context only
+- [x] Remove Manus OAuth frontend references (updated const.ts)
+- [x] Update logout endpoint to use Google OAuth signout
+- [x] Clean up environment variable references (.env.railway.example)
+- [x] Server running successfully with Google OAuth only
+
+
+## Fix Authentication Error (Completed)
+- [x] Make Google OAuth optional when not configured
+- [x] Update context to handle missing credentials gracefully
+- [x] Allow app to work without authentication for development
+- [x] Test the fix - app loads successfully without Google OAuth credentials
+
+
+## Fix Google OAuth Sign-In Redirect on Railway (Completed)
+- [x] Debug Google OAuth route handler
+- [x] Fix Auth.js route mounting (removed wildcard from /api/auth/*)
+- [x] Add explicit basePath configuration
+- [x] Add proper error handling and logging
+- [x] Add debug mode for development
+- [x] Ready for Railway deployment testing

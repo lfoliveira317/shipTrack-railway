@@ -1,0 +1,100 @@
+name: Automated Database Backup
+
+on:
+  # Run daily at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      database:
+        description: 'Database to backup'
+        required: true
+        type: choice
+        options:
+          - manus
+          - railway
+        default: 'railway'
+
+jobs:
+  backup:
+    name: Backup Database
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install MySQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+      - name: Determine database URL
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ github.event.inputs.database }}" == "railway" ]; then
+            echo "DATABASE_URL=${{ secrets.RAILWAY_DATABASE_URL }}" >> $GITHUB_ENV
+            echo "DATABASE_NAME=railway" >> $GITHUB_ENV
+          else
+            echo "DATABASE_URL=${{ secrets.MANUS_DATABASE_URL }}" >> $GITHUB_ENV
+            echo "DATABASE_NAME=manus" >> $GITHUB_ENV
+          fi
+
+      - name: Export database
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          echo "📤 Backing up ${{ env.DATABASE_NAME }} database..."
+          
+          BACKUP_NAME="backup-${{ env.DATABASE_NAME }}-$(date +%Y%m%d-%H%M%S).sql"
+          node scripts/export-database.mjs --output="backups/$BACKUP_NAME"
+          
+          echo "BACKUP_FILE=backups/$BACKUP_NAME" >> $GITHUB_ENV
+          
+          # Show file size
+          ls -lh "backups/$BACKUP_NAME"
+
+      - name: Compress backup
+        run: |
+          echo "🗜️ Compressing backup..."
+          gzip "${{ env.BACKUP_FILE }}"
+          echo "BACKUP_FILE=${{ env.BACKUP_FILE }}.gz" >> $GITHUB_ENV
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup-${{ env.DATABASE_NAME }}-${{ github.run_number }}
+          path: ${{ env.BACKUP_FILE }}
+          retention-days: 30
+
+      - name: Backup summary
+        if: success()
+        run: |
+          echo "✅ Database backup completed successfully!"
+          echo ""
+          echo "📊 Summary:"
+          echo "  - Database: ${{ env.DATABASE_NAME }}"
+          echo "  - Backup file: ${{ env.BACKUP_FILE }}"
+          echo "  - Retention: 30 days"
+          echo ""
+          echo "📥 Download backup:"
+          echo "  Go to Actions → This workflow run → Artifacts"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Database backup failed!"
+          echo ""
+          echo "Please check the logs above for error details."

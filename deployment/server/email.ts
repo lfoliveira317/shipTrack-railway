@@ -1,0 +1,217 @@
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const fromEmail = process.env.EMAIL_FROM || 'notifications@yourdomain.com';
+
+export interface EmailNotification {
+  to: string;
+  subject: string;
+  shipmentInfo: {
+    container: string;
+    orderNumber?: string;
+    oldStatus: string;
+    newStatus: string;
+    carrier: string;
+    eta?: string;
+  };
+}
+
+/**
+ * Send a shipment status change notification email
+ */
+export async function sendStatusChangeEmail(notification: EmailNotification): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { to, subject, shipmentInfo } = notification;
+    
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${subject}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background-color: #FF5722;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .content {
+      background-color: #f9f9f9;
+      padding: 30px;
+      border: 1px solid #e0e0e0;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+    }
+    .status-change {
+      background-color: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-left: 4px solid #FF5722;
+      border-radius: 4px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .status-old {
+      background-color: #e0e0e0;
+      color: #666;
+    }
+    .status-new {
+      background-color: #FF5722;
+      color: white;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #666;
+    }
+    .info-value {
+      color: #333;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      color: #999;
+      font-size: 12px;
+    }
+    .arrow {
+      display: inline-block;
+      margin: 0 10px;
+      color: #FF5722;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 style="margin: 0;">🚢 Beacon Shipment Update</h1>
+  </div>
+  <div class="content">
+    <h2>Shipment Status Changed</h2>
+    <p>Your shipment status has been updated:</p>
+    
+    <div class="status-change">
+      <div style="text-align: center; margin: 20px 0;">
+        <span class="status-badge status-old">${shipmentInfo.oldStatus}</span>
+        <span class="arrow">→</span>
+        <span class="status-badge status-new">${shipmentInfo.newStatus}</span>
+      </div>
+      
+      <div style="margin-top: 20px;">
+        <div class="info-row">
+          <span class="info-label">Container:</span>
+          <span class="info-value">${shipmentInfo.container}</span>
+        </div>
+        ${shipmentInfo.orderNumber ? `
+        <div class="info-row">
+          <span class="info-label">Order Number:</span>
+          <span class="info-value">${shipmentInfo.orderNumber}</span>
+        </div>
+        ` : ''}
+        <div class="info-row">
+          <span class="info-label">Carrier:</span>
+          <span class="info-value">${shipmentInfo.carrier}</span>
+        </div>
+        ${shipmentInfo.eta ? `
+        <div class="info-row">
+          <span class="info-label">ETA:</span>
+          <span class="info-value">${shipmentInfo.eta}</span>
+        </div>
+        ` : ''}
+      </div>
+    </div>
+    
+    <p>Log in to your Beacon dashboard to view more details and track your shipment.</p>
+  </div>
+  <div class="footer">
+    <p>This is an automated notification from Beacon Supply Chain Management.</p>
+    <p>© ${new Date().getFullYear()} Beacon. All rights reserved.</p>
+  </div>
+</body>
+</html>
+    `;
+
+    const textContent = `
+Beacon Shipment Update
+
+Your shipment status has been updated:
+
+Status Change: ${shipmentInfo.oldStatus} → ${shipmentInfo.newStatus}
+
+Shipment Details:
+- Container: ${shipmentInfo.container}
+${shipmentInfo.orderNumber ? `- Order Number: ${shipmentInfo.orderNumber}\n` : ''}
+- Carrier: ${shipmentInfo.carrier}
+${shipmentInfo.eta ? `- ETA: ${shipmentInfo.eta}\n` : ''}
+
+Log in to your Beacon dashboard to view more details and track your shipment.
+
+---
+This is an automated notification from Beacon Supply Chain Management.
+© ${new Date().getFullYear()} Beacon. All rights reserved.
+    `;
+
+    const result = await resend.emails.send({
+      from: fromEmail,
+      to,
+      subject,
+      html: htmlContent,
+      text: textContent,
+    });
+
+    if (result.error) {
+      console.error('Email send error:', result.error);
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Email send exception:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Test email service connection
+ */
+export async function testEmailService(testEmail: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await resend.emails.send({
+      from: fromEmail,
+      to: testEmail,
+      subject: 'Beacon Email Service Test',
+      html: '<p>This is a test email from Beacon. Your email service is configured correctly!</p>',
+      text: 'This is a test email from Beacon. Your email service is configured correctly!',
+    });
+
+    if (result.error) {
+      return { success: false, error: result.error.message };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

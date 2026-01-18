@@ -1,0 +1,328 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Swiss Style Design System Overrides */
+:root {
+  --bs-primary: #FF5722; /* Signal Orange */
+  --bs-primary-rgb: 255, 87, 34;
+  --bs-body-font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bs-body-color: #1a1a1a;
+  --bs-body-bg: #f8f9fa;
+}
+
+/* Typography */
+body {
+  font-family: var(--bs-body-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Layout Utilities */
+.h-100vh {
+  height: 100vh;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Sidebar Styling */
+.nav-link {
+  color: #6c757d;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  color: #1a1a1a;
+  background-color: #f8f9fa;
+}
+
+.nav-link.active {
+  color: #1a1a1a;
+  background-color: #fff3e0;
+  border-left-color: var(--bs-primary);
+}
+
+/* Table Styling */
+.table thead th {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+  border-bottom-width: 1px;
+  background-color: #f8f9fa;
+  border-top: none;
+  white-space: nowrap;
+}
+
+.table td {
+  vertical-align: middle;
+  font-size: 0.875rem;
+  border-bottom-color: #f0f0f0;
+  white-space: nowrap;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #fafafa;
+}
+
+/* Tabs Styling */
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 500;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--bs-primary);
+  border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--bs-primary);
+  border-bottom-color: var(--bs-primary);
+  background: transparent;
+}
+
+/* Button Styling */
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  box-shadow: 0 2px 4px rgba(255, 87, 34, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #e64a19;
+  border-color: #e64a19;
+}
+
+.btn-white {
+  background-color: white;
+  border-color: #dee2e6;
+}
+
+.btn-white:hover {
+  background-color: #f8f9fa;
+  border-color: #ced4da;
+}
+
+/* Badge Styling */
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+/* Hide scrollbar for tabs on mobile but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Responsive Improvements */
+@media (max-width: 768px) {
+  /* Mobile-optimized table */
+  .table {
+    font-size: 0.8rem;
+  }
+  
+  .table thead th {
+    font-size: 0.7rem;
+    padding: 0.5rem 0.3rem;
+  }
+  
+  .table td {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Ensure table scrolls horizontally */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile button sizing */
+  .btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Touch-friendly targets */
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Compact navbar on mobile */
+  .navbar {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Badge sizing */
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Extra small screens */
+  .table {
+    font-size: 0.75rem;
+  }
+  
+  .table thead th,
+  .table td {
+    padding: 0.4rem 0.25rem;
+  }
+  
+  /* Stack toolbar buttons vertically on very small screens */
+  .btn-group {
+    flex-wrap: wrap;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .table {
+    font-size: 0.85rem;
+  }
+  
+  .table thead th,
+  .table td {
+    padding: 0.6rem 0.4rem;
+  }
+}
+
+/* Bootstrap Card Enhancements */
+.card {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Enhanced Grid Scrolling */
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  max-width: 100%;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Ensure table maintains minimum width for scrolling */
+.table {
+  min-width: 1200px;
+  margin-bottom: 0;
+}
+
+/* Mobile scroll improvements */
+@media (max-width: 768px) {
+  .table-responsive {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  .table {
+    min-width: 1400px;
+  }
+}
+
+/* Sticky Table Header */
+.table-sticky-header {
+  position: relative;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.table-sticky-header thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-sticky-header thead th {
+  background-color: #f8f9fa !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-sticky-header thead.is-stuck th {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure proper z-index layering */
+.table-sticky-header tbody {
+  position: relative;
+  z-index: 1;
+}
+
+/* Sticky header on mobile */
+@media (max-width: 768px) {
+  .table-sticky-header {
+    max-height: calc(100vh - 200px);
+  }
+  
+  .table-sticky-header thead th {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.25rem;
+  }
+}
